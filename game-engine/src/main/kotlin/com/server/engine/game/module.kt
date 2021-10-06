@@ -1,7 +1,9 @@
 package com.server.engine.game
 
+import com.server.engine.game.world.GameWorld
 import com.server.engine.game.world.InternetProtocolManager
-import org.koin.core.KoinApplication
+import com.server.engine.game.world.tick.events.LoginSubscription
+import com.server.engine.game.world.tick.GameTick
 import org.koin.core.context.GlobalContext
 import org.koin.core.parameter.ParametersDefinition
 import org.koin.core.qualifier.Qualifier
@@ -10,6 +12,8 @@ import org.koin.mp.KoinPlatformTools
 
 val koinModule = module {
     single { InternetProtocolManager() }
+    single { GameTick() }
+    single { GameWorld() }
 }
 
 inline fun <reified C : Any> inject(

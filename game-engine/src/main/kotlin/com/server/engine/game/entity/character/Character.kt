@@ -2,6 +2,9 @@ package com.server.engine.game.entity.character
 
 import com.server.engine.game.components.Component
 import com.server.engine.game.components.ComponentManager
+import com.server.engine.game.entity.character.player.Player
+import com.server.engine.game.world.tick.Subscription
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
@@ -9,6 +12,8 @@ abstract class Character : ComponentManager<Component> {
 
     private val _components = mutableMapOf<KClass<*>, Component>()
     val components: Map<KClass<*>, Component> get() = _components
+
+    abstract val subscription: Subscription<out Character>?
 
     override fun addComponent(component: Component): ComponentManager<Component> {
         _components.putIfAbsent(component::class, component)
@@ -24,6 +29,10 @@ abstract class Character : ComponentManager<Component> {
         return _components.containsKey(kclass)
     }
 
+    abstract suspend fun onTick()
+
+    abstract fun isActive() : Boolean
+
     inline operator fun <reified C : Component> getValue(ref: Any?, prop: KProperty<*>) : C {
         return component()
     }
@@ -36,5 +45,13 @@ abstract class Character : ComponentManager<Component> {
             addComponent(comp)
         }
         inline fun <reified C: Component> Character.has() : Boolean = hasComponent(C::class)
+
+        operator fun <T> MutableStateFlow<T>.setValue(player: Character, property: KProperty<*>, t: T) {
+            value = t
+        }
+
+        operator fun <T> MutableStateFlow<T>.getValue(player: Character, property: KProperty<*>): T {
+            return value
+        }
     }
 }
