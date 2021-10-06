@@ -17,6 +17,13 @@ subprojects {
 
     dependencies {
         "implementation"("org.jetbrains.kotlin:kotlin-stdlib:1.5.31")
+        "implementation"("io.insert-koin:koin-core:3.1.2")
+        "testImplementation"("org.junit.jupiter:junit-jupiter-api:5.3.1")
+        "testImplementation"("org.junit.jupiter:junit-jupiter-engine:5.3.1")
+    }
+
+    tasks.withType<Test> {
+        useJUnitPlatform()
     }
 }
 
