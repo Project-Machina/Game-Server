@@ -1,9 +1,12 @@
 package com.server.engine.game.software
 
 import com.server.engine.game.components.Component
+import com.server.engine.game.vms.VirtualMachine
 
 interface SoftwareComponent : Component {
 
-    suspend fun execute(tick: Long) : Boolean
+    val id: String
+
+    suspend fun execute(vm : VirtualMachine) : Boolean
 
 }

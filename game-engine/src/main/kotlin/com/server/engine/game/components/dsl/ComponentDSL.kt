@@ -6,6 +6,10 @@ import com.server.engine.game.components.ComponentManager
 
 class ComponentDSL<BASE : Component>(val manager: ComponentManager<BASE>) {
 
+    infix fun add(comp: BASE) {
+        manager.addComponent(comp)
+    }
+
     operator fun BASE.unaryPlus() {
         manager.addComponent(this)
     }

@@ -19,6 +19,7 @@ subprojects {
         "implementation"("org.jetbrains.kotlin:kotlin-stdlib:1.5.31")
         "implementation"("io.insert-koin:koin-core:3.1.2")
         "implementation"("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
+        "implementation"("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
         "testImplementation"("org.junit.jupiter:junit-jupiter-api:5.3.1")
         "testImplementation"("org.junit.jupiter:junit-jupiter-engine:5.3.1")
     }

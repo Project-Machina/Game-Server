@@ -9,7 +9,7 @@ class SoftwareBuilder(private val name: String, private val extension: String, p
         return soft
     }
     companion object {
-        fun software(name: String, ext: String, block: ComponentDSL<SoftwareComponent>.() -> Unit) : VirtualSoftware {
+        fun software(name: String = "", ext: String = "", block: ComponentDSL<SoftwareComponent>.() -> Unit = {}) : VirtualSoftware {
             return SoftwareBuilder(name, ext, block).create()
         }
     }

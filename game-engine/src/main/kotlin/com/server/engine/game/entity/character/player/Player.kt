@@ -21,7 +21,7 @@ class Player(val name: String) : Character() {
     }
 
     override suspend fun onTick() {
-        println("Ticking player $name")
+
     }
 
     override fun isActive(): Boolean {

@@ -14,6 +14,6 @@ class Npc : Character() {
     }
 
     override fun isActive(): Boolean {
-        return true
+        return subscription?.isActive ?: false
     }
 }
