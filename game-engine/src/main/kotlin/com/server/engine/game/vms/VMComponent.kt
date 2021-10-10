@@ -5,5 +5,6 @@ import com.server.engine.game.components.Component
 interface VMComponent : Component {
 
     val upgrades: UpgradableComponent
+        get() = UpgradableComponent
 
 }

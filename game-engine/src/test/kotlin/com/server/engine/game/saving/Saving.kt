@@ -10,6 +10,8 @@ import com.server.engine.game.vms.VirtualMachine.Companion.component
 import com.server.engine.game.vms.VirtualMachine.Companion.has
 import com.server.engine.game.vms.VirtualMachine.Companion.with
 import com.server.engine.game.vms.components.hdd.HardDriveComponent
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
@@ -22,6 +24,8 @@ class Saving {
         startKoin {
             modules(vmCompsModule, softCompsModule)
         }
+
+        val format = Json { prettyPrint = true }
 
         val vm = VirtualMachine()
         val hdd = HardDriveComponent()
@@ -41,8 +45,7 @@ class Saving {
 
         val json = vm.saveComponents()
 
-
-        println(json)
+        println(format.encodeToString(vm.saveComponents()))
 
         val newVM = VirtualMachine()
 

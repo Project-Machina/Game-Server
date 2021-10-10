@@ -1,6 +1,7 @@
 package com.server.engine.game.entity.character.player
 
 import com.server.engine.game.entity.character.Character
+import com.server.engine.game.entity.character.components.VirtualMachineLinkComponent
 import com.server.engine.game.world.tick.Subscription
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.concurrent.CancellationException
@@ -11,7 +12,7 @@ class Player(val name: String) : Character() {
     override var subscription: Subscription<Player>? by _subscription
 
     fun onLogin() {
-
+        with(VirtualMachineLinkComponent())
     }
 
     fun logout() {
