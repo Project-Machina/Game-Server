@@ -35,6 +35,9 @@ class PacketHeaderCodec : ByteToMessageCodec<Packet>() {
                 }
             }
         }
+
+        out.writeBytes(content)
+
     }
 
     override fun decode(ctx: ChannelHandlerContext, buf: ByteBuf, out: MutableList<Any>) {
