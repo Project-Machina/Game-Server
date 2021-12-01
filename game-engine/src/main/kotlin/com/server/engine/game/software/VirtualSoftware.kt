@@ -2,7 +2,7 @@ package com.server.engine.game.software
 
 import com.server.engine.game.components.ComponentFactory
 import com.server.engine.game.components.ComponentManager
-import com.server.engine.game.get
+import com.server.engine.utilities.get
 import kotlinx.serialization.json.*
 import org.koin.core.qualifier.named
 import kotlin.reflect.KClass

@@ -1,4 +1,4 @@
-package com.server.engine.packets.buf
+package com.server.engine.utilities
 
 import io.netty.buffer.ByteBuf
 import java.nio.charset.Charset

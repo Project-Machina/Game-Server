@@ -1,10 +1,10 @@
 package com.server.engine.game.world.tick.events
 
 import com.server.engine.game.entity.character.player.Player
-import com.server.engine.game.inject
 import com.server.engine.game.world.GameWorld
 import com.server.engine.game.world.tick.GameTick
 import com.server.engine.game.world.tick.TickSubscription
+import com.server.engine.utilities.inject
 
 class LoginSubscription : TickSubscription {
 

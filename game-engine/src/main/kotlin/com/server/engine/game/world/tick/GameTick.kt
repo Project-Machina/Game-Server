@@ -29,7 +29,13 @@ class GameTick(val dispatcher: CoroutineDispatcher = tickDispatcher) : Coroutine
     }
 
     fun subscribePlayer(player: Player) : Subscription<Player> {
-        val job = tick.onEach { player.onTick() }.launchIn(this)
+        val job = tick.onEach {
+            if(player.session.isActive) {
+                player.onTick()
+            } else {
+                player.logout()
+            }
+        }.launchIn(this)
         val subscription = Subscription(player, job)
         player.subscription = subscription
         subscriptions.add(subscription)

@@ -1,7 +1,7 @@
 package com.server.engine.game.world
 
-import com.server.engine.game.inject
 import com.server.engine.game.vms.VirtualMachine
+import com.server.engine.utilities.inject
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject

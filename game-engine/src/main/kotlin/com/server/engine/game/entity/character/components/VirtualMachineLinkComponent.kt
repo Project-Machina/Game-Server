@@ -1,9 +1,9 @@
 package com.server.engine.game.entity.character.components
 
 import com.server.engine.game.components.Component
-import com.server.engine.game.inject
 import com.server.engine.game.vms.VirtualMachine
 import com.server.engine.game.world.GameWorld
+import com.server.engine.utilities.inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
