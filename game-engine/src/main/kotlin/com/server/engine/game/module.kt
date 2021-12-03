@@ -1,5 +1,6 @@
 package com.server.engine.game
 
+import com.server.engine.game.components.Component
 import com.server.engine.game.components.ComponentFactory
 import com.server.engine.game.software.SoftwareComponent
 import com.server.engine.game.software.component.TextComponent
@@ -7,6 +8,8 @@ import com.server.engine.game.software.component.VersionedComponent
 import com.server.engine.game.vms.VMComponent
 import com.server.engine.game.vms.components.hdd.HardDriveComponent
 import com.server.engine.game.vms.components.NetworkCardComponent
+import com.server.engine.game.vms.components.power.PowerStorageComponent
+import com.server.engine.game.vms.components.power.PoweredComponent
 import com.server.engine.game.world.GameWorld
 import com.server.engine.game.world.InternetProtocolManager
 import com.server.engine.game.world.tick.GameTick
@@ -40,4 +43,5 @@ val softCompsModule = module {
 val vmCompsModule = module {
     single<ComponentFactory<out VMComponent>>(named(NetworkCardComponent::class.simpleName!!)) { NetworkCardComponent }
     single<ComponentFactory<out VMComponent>>(named(HardDriveComponent::class.simpleName!!)) { HardDriveComponent }
+    single<ComponentFactory<out VMComponent>>(named(PowerStorageComponent::class.simpleName!!)) { PowerStorageComponent }
 }

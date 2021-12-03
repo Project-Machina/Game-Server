@@ -1,5 +1,6 @@
 package com.server.engine.game.vms.components.vevents
 
+import com.server.engine.game.components.ComponentFactory
 import kotlinx.serialization.json.*
 import java.sql.Timestamp
 import java.time.LocalDateTime
@@ -48,11 +49,14 @@ class VirtualEvent(
         }
     }
 
-    companion object {
-        fun load(json: JsonObject) : VirtualEvent {
-            val e = VirtualEvent("", "")
-            e.load(json)
-            return e
+    override fun toString(): String {
+        return "VirtualEvent(source='$source', message='$message', hiddenVersion=$hiddenVersion, timestamp=$timestamp, id='$id')"
+    }
+
+
+    companion object : ComponentFactory<VirtualEvent> {
+        override fun create(): VirtualEvent {
+            return VirtualEvent("", "")
         }
     }
 

@@ -41,7 +41,9 @@ class VirtualEventsComponent : VMComponent {
         if(json.containsKey("events")) {
             val events = json["events"]!!.jsonArray
             for (event in events) {
-                addEvent(VirtualEvent.load(event.jsonObject))
+                val e = VirtualEvent.create()
+                e.load(event.jsonObject)
+                addEvent(e)
             }
         }
     }

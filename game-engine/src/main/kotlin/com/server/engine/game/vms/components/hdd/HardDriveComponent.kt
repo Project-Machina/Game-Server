@@ -8,6 +8,7 @@ import com.server.engine.game.software.VirtualSoftware.Companion.has
 import com.server.engine.game.software.component.VersionedComponent
 import com.server.engine.game.vms.UpgradableComponent
 import com.server.engine.game.vms.VMComponent
+import com.server.engine.game.vms.components.power.PoweredComponent
 import com.server.engine.game.vms.upgrades.HardDriveUpgradeComponent
 import kotlinx.serialization.json.*
 
@@ -68,6 +69,9 @@ class HardDriveComponent(override val upgrades: UpgradableComponent = HardDriveU
     override fun save(): JsonObject {
         return buildJsonObject {
             put("upgrades", upgrades.save())
+            if (powerConsumption !== PoweredComponent.NO_POWER) {
+                put("power_used", powerConsumption.save())
+            }
             putJsonArray("softwares") {
                 softwares.values.forEach {
                     add(it.saveComponents())
@@ -87,6 +91,9 @@ class HardDriveComponent(override val upgrades: UpgradableComponent = HardDriveU
     override fun load(json: JsonObject) {
         if(json.containsKey("upgrades")) {
             upgrades.load(json["upgrades"]!!.jsonObject)
+        }
+        if(json.containsKey("power_used")) {
+            powerConsumption.load(json["power_used"]!!.jsonObject)
         }
         if(json.containsKey("softwares")) {
             val comps = json["softwares"]?.jsonArray ?: JsonArray(emptyList())

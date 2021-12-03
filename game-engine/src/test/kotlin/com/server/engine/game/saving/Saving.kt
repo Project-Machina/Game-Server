@@ -10,6 +10,7 @@ import com.server.engine.game.vms.VirtualMachine.Companion.component
 import com.server.engine.game.vms.VirtualMachine.Companion.has
 import com.server.engine.game.vms.VirtualMachine.Companion.with
 import com.server.engine.game.vms.components.hdd.HardDriveComponent
+import com.server.engine.game.vms.components.power.PowerStorageComponent
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
@@ -31,6 +32,7 @@ class Saving {
         val hdd = HardDriveComponent()
 
         vm.with(hdd)
+        vm.with(PowerStorageComponent())
 
         val soft = software("Notes", "txt") {
             +TextComponent
