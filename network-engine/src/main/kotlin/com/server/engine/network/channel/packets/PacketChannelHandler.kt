@@ -13,7 +13,6 @@ class PacketChannelHandler : SimpleChannelInboundHandler<Packet>() {
 
     override fun channelRead0(ctx: ChannelHandlerContext, msg: Packet) {
         //Login
-        println("Receiving Packet $msg")
         if(msg.opcode == 0) {
             val response = loginHandler.handle(loginHandler.decode(msg, ctx.channel().session))
             val packet = LoginResponse.encode(response)

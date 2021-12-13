@@ -25,7 +25,6 @@ class LoginHandler(override val opcode: Int = 0) : PacketHandler<LoginMessage, L
         println("Player ${message.username} - logging in.")
 
         if(message.username.lowercase() == "javatar") {
-
             loginSub.loginQueue.add(Player(message.username, message.session))
 
             return LoginResponse.ACCEPTED

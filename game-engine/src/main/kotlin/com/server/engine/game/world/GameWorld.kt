@@ -17,6 +17,7 @@ class GameWorld {
     private val dir = "C:\\Users\\david\\IdeaProjects\\ServerGameEngine\\world\\vms"
 
     val publicVirtualMachines = mutableMapOf<String, VirtualMachine>()
+    val vmToAddress = mutableMapOf<VirtualMachine, String>()
 
     val ip: InternetProtocolManager by inject()
 
@@ -24,11 +25,12 @@ class GameWorld {
         loadWorld()
     }
 
-    fun assignAddress(vm: VirtualMachine, address: String = "") {
+    fun markPublic(vm: VirtualMachine, address: String = "") {
         val addr = if(address.isEmpty() || address.isBlank()) {
             ip.reserveAddress()
         } else address
         publicVirtualMachines.putIfAbsent(addr, vm)
+        vmToAddress.putIfAbsent(vm, addr)
     }
 
     fun saveVirtualMachine(address: String) {
@@ -45,12 +47,14 @@ class GameWorld {
             val addr = file.nameWithoutExtension
             val info = file.readText()
             val element = Json.parseToJsonElement(info)
-            val virtualMachine = VirtualMachine()
+            val virtualMachine = VirtualMachine.create()
             virtualMachine.loadComponents(element.jsonObject)
             if(reload) {
                 publicVirtualMachines[addr] = virtualMachine
+                vmToAddress[virtualMachine] = addr
             } else {
                 publicVirtualMachines.putIfAbsent(addr, virtualMachine)
+                vmToAddress.putIfAbsent(virtualMachine, addr)
             }
         }
     }
@@ -59,6 +63,12 @@ class GameWorld {
         publicVirtualMachines.forEach { (addr, vm) ->
             Files.write(Path.of(dir, "$addr.json"), format.encodeToString(vm.saveComponents()).toByteArray())
         }
+    }
+
+    fun loadTestWorld() {
+        val testVM = VirtualMachine.create()
+        val testIP = "74.97.118.97"
+        markPublic(testVM, testIP)
     }
 
     fun loadWorld() {
@@ -70,9 +80,10 @@ class GameWorld {
                     val addr = vm.nameWithoutExtension
                     val info = vm.readText()
                     val element = Json.parseToJsonElement(info)
-                    val virtualMachine = VirtualMachine()
+                    val virtualMachine = VirtualMachine.create()
                     virtualMachine.loadComponents(element.jsonObject)
                     publicVirtualMachines[addr] = virtualMachine
+                    vmToAddress[virtualMachine] = addr
                 }
             }
         } else {

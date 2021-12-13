@@ -28,7 +28,7 @@ class Saving {
 
         val format = Json { prettyPrint = true }
 
-        val vm = VirtualMachine()
+        val vm = VirtualMachine.unsafeCreate()
         val hdd = HardDriveComponent()
 
         vm.with(hdd)
@@ -49,7 +49,7 @@ class Saving {
 
         println(format.encodeToString(vm.saveComponents()))
 
-        val newVM = VirtualMachine()
+        val newVM = VirtualMachine.unsafeCreate()
 
         newVM.loadComponents(json)
 

@@ -32,17 +32,19 @@ class NetworkSession(private val channel: Channel) {
         }
     }
 
-    fun sendMessage(message: Any) {
-        sendPacket(message.toPacket())
+    inline fun <reified T> sendMessage(message: T) {
+        if (message != null) {
+            sendPacket(message.toPacket())
+        }
     }
 
     inline fun <reified M : Any, reified R : Any> handlePacket(handler: PacketHandler<M, R>) {
         incomingHandlerJobs.add(incomingPackets
             .filter { it.opcode == handler.opcode }
-            .transform<Packet, M> { handler.decode(it, this@NetworkSession) }
-            .transform<M, R> { handler.handle(it) }
-            .filter { it !== Unit }
-            .onEach { sendPacket(it.toPacket()) }
+            .map { handler.decode(it, this) }
+            .onEach {
+                handler.handle(it)
+            }
             .launchIn(NetworkSession))
     }
 

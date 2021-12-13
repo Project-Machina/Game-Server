@@ -2,15 +2,21 @@ package com.server.engine.game.vms
 
 import com.server.engine.game.components.ComponentFactory
 import com.server.engine.game.components.ComponentManager
+import com.server.engine.game.entity.character.components.VirtualMachineLinkComponent
+import com.server.engine.game.vms.components.connection.ConnectionComponent
 import com.server.engine.utilities.get
 import kotlinx.serialization.json.*
 import org.koin.core.qualifier.named
 import kotlin.reflect.KClass
 
-class VirtualMachine : ComponentManager<VMComponent> {
+class VirtualMachine private constructor() : ComponentManager<VMComponent> {
 
     private val _components = mutableMapOf<KClass<*>, VMComponent>()
     val components: Map<KClass<*>, VMComponent> get() = _components
+
+    fun init() {
+        with(ConnectionComponent())
+    }
 
     override fun addComponent(component: VMComponent): ComponentManager<VMComponent> {
         _components.putIfAbsent(component::class, component)
@@ -63,6 +69,17 @@ class VirtualMachine : ComponentManager<VMComponent> {
         inline fun <reified C : VMComponent> VirtualMachine.has(): Boolean = hasComponent(C::class)
         inline fun <reified C : VMComponent> VirtualMachine.component(): C {
             return components[C::class] as C
+        }
+
+        fun create() : VirtualMachine {
+            val vm = VirtualMachine()
+            vm.init()
+            return vm
+        }
+
+        @Deprecated(level = DeprecationLevel.WARNING, message = "This should only be use for unit tests.")
+        fun unsafeCreate() : VirtualMachine {
+            return VirtualMachine()
         }
     }
 }
