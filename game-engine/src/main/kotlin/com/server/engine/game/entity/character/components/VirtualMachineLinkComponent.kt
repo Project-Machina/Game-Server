@@ -19,7 +19,7 @@ class VirtualMachineLinkComponent : VMComponent {
     val linkVM: VirtualMachine
         get() = world.publicVirtualMachines[linkIP.value] ?: error("Not linked to any vm.")
 
-    fun link(address: String) {
+    fun linkTo(address: String) {
         linkIP.value = address
     }
 

@@ -1,6 +1,7 @@
 package com.server.engine.game.entity.character.player
 
 import com.server.engine.game.entity.character.Character
+import com.server.engine.game.entity.character.components.RankComponent
 import com.server.engine.game.entity.character.components.VirtualMachineLinkComponent
 import com.server.engine.game.world.tick.Subscription
 import com.server.engine.game.world.tick.events.LoginSubscription
@@ -8,6 +9,7 @@ import com.server.engine.network.session.NetworkSession
 import com.server.engine.packets.incoming.LogoutHandler
 import com.server.engine.packets.incoming.PingHandler
 import com.server.engine.packets.incoming.VmCommandHandler
+import com.server.engine.packets.outgoing.PlayerStatistics
 import com.server.engine.utilities.inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.concurrent.CancellationException
@@ -21,10 +23,11 @@ class Player(val name: String, val session: NetworkSession) : Character() {
 
     fun onLogin() {
         with(VirtualMachineLinkComponent())
+        with(RankComponent())
 
         if (name.lowercase() == "javatar") {
             val link = component<VirtualMachineLinkComponent>()
-            link.link("74.97.118.97")
+            link.linkTo("74.97.118.97")
         }
 
         session.handlePacket(PingHandler())
@@ -40,6 +43,7 @@ class Player(val name: String, val session: NetworkSession) : Character() {
     }
 
     override suspend fun onTick() {
+        session.sendMessage(PlayerStatistics(this))
     }
 
     override fun isActive(): Boolean {

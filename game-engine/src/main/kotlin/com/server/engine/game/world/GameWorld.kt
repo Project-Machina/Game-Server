@@ -18,11 +18,19 @@ class GameWorld {
 
     val publicVirtualMachines = mutableMapOf<String, VirtualMachine>()
     val vmToAddress = mutableMapOf<VirtualMachine, String>()
+    val domainToAddress = mutableMapOf<String, String>()
 
     val ip: InternetProtocolManager by inject()
 
     fun start() {
         loadWorld()
+    }
+
+    fun validateDomain(domain: String) = domainToAddress.containsKey(domain)
+    fun registerDomain(domain: String, address: String) {
+        if(!validateDomain(domain) && publicVirtualMachines.containsKey(address)) {
+            domainToAddress.putIfAbsent(domain, address)
+        }
     }
 
     fun markPublic(vm: VirtualMachine, address: String = "") {
@@ -69,6 +77,12 @@ class GameWorld {
         val testVM = VirtualMachine.create()
         val testIP = "74.97.118.97"
         markPublic(testVM, testIP)
+
+        val npcDefault = VirtualMachine.create()
+        val defaultIP = "1.1.1.1"
+        val domain = "First Whois.com"
+        markPublic(npcDefault, defaultIP)
+        registerDomain(domain, defaultIP)
     }
 
     fun loadWorld() {

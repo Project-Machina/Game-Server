@@ -17,18 +17,39 @@ class ConnectionComponent(override val upgrades: UpgradableComponent = Upgradabl
     private val world: GameWorld by inject()
 
     val remoteIP = MutableStateFlow("localhost")
+    val domain = MutableStateFlow("none")
 
-    val remoteVM: VirtualMachine get() = world.publicVirtualMachines[remoteIP.value]!!
+    val remoteVM: VirtualMachine get() {
+        if(domain.value != "none" && world.validateDomain(domain.value)) {
+            return world.publicVirtualMachines[world.domainToAddress[domain.value]!!]!!
+        }
+        return world.publicVirtualMachines[remoteIP.value]!!
+    }
+
+    fun isConnected() = remoteIP.value != "localhost"
+
+    fun canAttackVirtualMachine() : Boolean {
+        val domain = domain.value
+        if(domain != "none" && domain.startsWith(".com")) {
+            return false
+        }
+        return true
+    }
 
     fun connect(address: String) : Boolean {
-        if(world.publicVirtualMachines.containsKey(address)) {
+        if(world.validateDomain(address)) {
+            val ip = world.domainToAddress[address]
+            if(ip != null) {
+                remoteIP.value = ip
+                domain.value = address
+                return true
+            }
+        } else if(world.publicVirtualMachines.containsKey(address)) {
             remoteIP.value = address
             return true
         }
         return false
     }
-
-    fun isConnected() = remoteIP.value != "localhost"
 
     fun disconnect() {
         remoteIP.value = "localhost"
