@@ -55,6 +55,7 @@ class VirtualEvent(
 
 
     companion object : ComponentFactory<VirtualEvent> {
+        val NO_EVENT = create()
         override fun create(): VirtualEvent {
             return VirtualEvent("", "")
         }

@@ -28,7 +28,7 @@ class FolderComponent(override val upgrades: UpgradableComponent = UpgradableCom
 
     override fun save(): JsonObject {
         return buildJsonObject {
-            putJsonArray("softwareInFolderr") {
+            putJsonArray("softwareInFolder") {
                 softwares.forEach {
                     add(buildJsonObject { put("id", it) })
                 }
