@@ -2,13 +2,13 @@ package com.server.engine.game.entity.character
 
 import com.server.engine.game.components.Component
 import com.server.engine.game.components.ComponentManager
-import com.server.engine.game.entity.character.player.Player
+import com.server.engine.game.entity.TickingEntity
 import com.server.engine.game.world.tick.Subscription
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
-abstract class Character : ComponentManager<Component> {
+abstract class Character : ComponentManager<Component>, TickingEntity {
 
     private val _components = mutableMapOf<KClass<*>, Component>()
     val components: Map<KClass<*>, Component> get() = _components
@@ -29,7 +29,7 @@ abstract class Character : ComponentManager<Component> {
         return _components.containsKey(kclass)
     }
 
-    abstract suspend fun onTick()
+    abstract override suspend fun onTick()
 
     abstract fun isActive() : Boolean
 

@@ -1,18 +1,24 @@
 package com.server.engine.game.entity.character.components
 
-import com.server.engine.game.vms.VMComponent
-import com.server.engine.game.vms.VirtualMachine
+import com.server.engine.game.entity.character.player.Player
+import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.world.GameWorld
 import com.server.engine.utilities.inject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 
-class VirtualMachineLinkComponent : VMComponent {
+class VirtualMachineLinkComponent(val source: Player) : com.server.engine.game.entity.vms.VMComponent {
 
     private val world: GameWorld by inject()
+    private val monitorJobs = mutableListOf<Job>()
 
     val linkIP = MutableStateFlow("localhost")
 
@@ -20,7 +26,13 @@ class VirtualMachineLinkComponent : VMComponent {
         get() = world.publicVirtualMachines[linkIP.value] ?: error("Not linked to any vm.")
 
     fun linkTo(address: String) {
+        if(linkIP.value != address && monitorJobs.isNotEmpty()) {
+            monitorJobs.forEach { it.cancel() }
+        }
         linkIP.value = address
+        monitorJobs.add(linkVM.updateEvents
+            .onEach { it.handleEvent(source) }
+            .launchIn(CoroutineScope(Dispatchers.IO)))
     }
 
     override fun save(): JsonObject {

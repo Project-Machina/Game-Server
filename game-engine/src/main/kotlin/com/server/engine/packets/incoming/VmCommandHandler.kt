@@ -2,7 +2,7 @@ package com.server.engine.packets.incoming
 
 import com.server.engine.game.entity.character.components.VirtualMachineLinkComponent
 import com.server.engine.game.entity.character.player.Player
-import com.server.engine.game.vms.commands.CommandManager
+import com.server.engine.game.entity.vms.commands.CommandManager
 import com.server.engine.game.world.GameWorld
 import com.server.engine.network.channel.packets.Packet
 import com.server.engine.network.channel.packets.handlers.PacketHandler
@@ -35,10 +35,10 @@ class VmCommandHandler(override val opcode: Int = 2, val player: Player) : Packe
         val rawArgs = command.split(' ')
         val name = rawArgs[0]
         val args = rawArgs.subList(1, rawArgs.size).toTypedArray()
-        val output = CommandManager.execute(name, args, vm)
+        /*val output = CommandManager.execute(name, args, vm)
         if (output.isNotEmpty() || output.isNotBlank()) {
             player.session.sendMessage(VmCommandOutput(output, message.remote))
-        }
+        }*/
 
     }
 }

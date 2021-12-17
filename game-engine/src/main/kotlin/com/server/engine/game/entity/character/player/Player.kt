@@ -9,7 +9,7 @@ import com.server.engine.network.session.NetworkSession
 import com.server.engine.packets.incoming.LogoutHandler
 import com.server.engine.packets.incoming.PingHandler
 import com.server.engine.packets.incoming.VmCommandHandler
-import com.server.engine.packets.outgoing.PlayerStatistics
+import com.server.engine.packets.outgoing.PlayerStatisticsMessage
 import com.server.engine.utilities.inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.concurrent.CancellationException
@@ -22,7 +22,7 @@ class Player(val name: String, val session: NetworkSession) : Character() {
     override var subscription: Subscription<Player>? by _subscription
 
     fun onLogin() {
-        with(VirtualMachineLinkComponent())
+        with(VirtualMachineLinkComponent(this))
         with(RankComponent())
 
         if (name.lowercase() == "javatar") {
@@ -43,7 +43,7 @@ class Player(val name: String, val session: NetworkSession) : Character() {
     }
 
     override suspend fun onTick() {
-        session.sendMessage(PlayerStatistics(this))
+        session.sendMessage(PlayerStatisticsMessage(this))
     }
 
     override fun isActive(): Boolean {

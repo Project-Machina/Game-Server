@@ -1,16 +1,15 @@
 package com.server.engine.game.saving
 
+import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
+import com.server.engine.game.entity.vms.VirtualMachine.Companion.has
+import com.server.engine.game.entity.vms.VirtualMachine.Companion.with
+import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
+import com.server.engine.game.entity.vms.components.power.PowerStorageComponent
+import com.server.engine.game.entity.vms.software.SoftwareBuilder.Companion.software
+import com.server.engine.game.entity.vms.software.VirtualSoftware.Companion.component
+import com.server.engine.game.entity.vms.software.component.TextComponent
 import com.server.engine.game.softCompsModule
-import com.server.engine.game.software.SoftwareBuilder.Companion.software
-import com.server.engine.game.software.VirtualSoftware.Companion.component
-import com.server.engine.game.software.component.TextComponent
 import com.server.engine.game.vmCompsModule
-import com.server.engine.game.vms.VirtualMachine
-import com.server.engine.game.vms.VirtualMachine.Companion.component
-import com.server.engine.game.vms.VirtualMachine.Companion.has
-import com.server.engine.game.vms.VirtualMachine.Companion.with
-import com.server.engine.game.vms.components.hdd.HardDriveComponent
-import com.server.engine.game.vms.components.power.PowerStorageComponent
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
@@ -28,7 +27,7 @@ class Saving {
 
         val format = Json { prettyPrint = true }
 
-        val vm = VirtualMachine.unsafeCreate()
+        val vm = com.server.engine.game.entity.vms.VirtualMachine.unsafeCreate()
         val hdd = HardDriveComponent()
 
         vm.with(hdd)
@@ -49,7 +48,7 @@ class Saving {
 
         println(format.encodeToString(vm.saveComponents()))
 
-        val newVM = VirtualMachine.unsafeCreate()
+        val newVM = com.server.engine.game.entity.vms.VirtualMachine.unsafeCreate()
 
         newVM.loadComponents(json)
 
@@ -61,7 +60,7 @@ class Saving {
             println(it.id())
         }
 
-        val textFile = newHDD.getSoftwareByName("Notes.txt").single()
+        val textFile = newHDD.getSoftwaresByName("Notes.txt").single()
 
         assert(textFile.component<TextComponent>().text == "Hello, World") { "Failed to find software by name." }
 

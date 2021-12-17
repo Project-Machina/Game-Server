@@ -1,7 +1,7 @@
 package com.server.engine.game.saving
 
-import com.server.engine.game.vms.components.vevents.VirtualEvent
-import com.server.engine.game.vms.components.vevents.VirtualEventsComponent
+import com.server.engine.game.entity.vms.components.vevents.VirtualEvent
+import com.server.engine.game.entity.vms.components.vevents.VirtualEventsComponent
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
