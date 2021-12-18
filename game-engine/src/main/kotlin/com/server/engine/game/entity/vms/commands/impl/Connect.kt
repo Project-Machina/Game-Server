@@ -29,7 +29,7 @@ class Connect(
                 con.connect(address)
             }
         } catch (_: Exception) {}
-        return VirtualProcess("connect", true)
+        return VirtualProcess.NO_PROCESS
     }
     override fun fireEvent(): VirtualEvent {
         TODO("Not yet implemented")

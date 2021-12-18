@@ -51,15 +51,25 @@ class VirtualProcessComponent(val source: VirtualMachine) : VMComponent {
         while(iter.hasNext()) {
             val set = iter.next()
             val pc = set.value
+
+            if(pc.isKilled) {
+                iter.remove()
+                source.updateEvents.emit(VirtualProcessUpdateEvent(source, pc))
+                continue
+            }
+
             if(pc.immediate) {
                 pc.behaviours.forEach { it.onTick() }
                 pc.onFinishBehaviour.onTick()
                 iter.remove()
             } else {
-                pc.elapsedTime += GameTick.GAME_TICK_MILLIS
-                pc.preferredRunningTime = calculateRunningTime(pc.minimalRunningTime, pc.threadCost)
-                pc.behaviours.forEach { it.onTick() }
-                if(pc.elapsedTime >= pc.preferredRunningTime) {
+
+                if (!pc.isPaused && !pc.isComplete) {
+                    pc.elapsedTime += GameTick.GAME_TICK_MILLIS
+                    pc.preferredRunningTime = calculateRunningTime(pc.minimalRunningTime, pc.threadCost)
+                    pc.behaviours.forEach { it.onTick() }
+                }
+                if(pc.isComplete && pc.shouldComplete) {
                     pc.onFinishBehaviour.onTick()
                     iter.remove()
                 }
