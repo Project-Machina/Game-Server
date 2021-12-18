@@ -1,8 +1,12 @@
 package com.server.engine.packets.incoming
 
 import com.server.engine.game.entity.character.components.VirtualMachineLinkComponent
+import com.server.engine.game.entity.character.components.WidgetManagerComponent
 import com.server.engine.game.entity.character.player.Player
+import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
+import com.server.engine.game.entity.vms.VirtualMachine.Companion.has
 import com.server.engine.game.entity.vms.commands.CommandManager
+import com.server.engine.game.entity.vms.components.connection.ConnectionComponent
 import com.server.engine.game.world.GameWorld
 import com.server.engine.network.channel.packets.Packet
 import com.server.engine.network.channel.packets.handlers.PacketHandler
@@ -32,13 +36,26 @@ class VmCommandHandler(override val opcode: Int = 2, val player: Player) : Packe
         val link = player.component<VirtualMachineLinkComponent>()
         val vm = link.linkVM
         val command = message.command
-        val rawArgs = command.split(' ')
-        val name = rawArgs[0]
-        val args = rawArgs.subList(1, rawArgs.size).toTypedArray()
-        /*val output = CommandManager.execute(name, args, vm)
-        if (output.isNotEmpty() || output.isNotBlank()) {
-            player.session.sendMessage(VmCommandOutput(output, message.remote))
-        }*/
+        val rawArgs = command.split(' ').toTypedArray()
+        val wm = player.component<WidgetManagerComponent>()
 
+        try {
+            if(vm.has<CommandManager>()) {
+                val manager = vm.component<CommandManager>()
+                if(message.remote && wm.currentWidget.value == "internet" && vm.has<ConnectionComponent>()) {
+                    val con = vm.component<ConnectionComponent>()
+                    if(con.remoteIP.value != "localhost") {
+                        val remoteVM = con.remoteVM
+                        manager.execute(rawArgs, remoteVM)
+                    }
+                } else {
+                    manager.execute(rawArgs, vm)
+                }
+            } else {
+                println("Player does not have manager ${player.name}")
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }

@@ -12,6 +12,7 @@ import com.server.engine.game.world.GameWorld
 import com.server.engine.game.world.InternetProtocolManager
 import com.server.engine.game.world.tick.GameTick
 import com.server.engine.game.world.tick.events.LoginSubscription
+import com.server.engine.game.world.tick.events.WorldTick
 import com.server.engine.network.channel.login.NetworkLoginHandler
 import com.server.engine.packets.login.LoginHandler
 import org.koin.core.qualifier.named
@@ -21,6 +22,7 @@ import org.koin.dsl.module
 val koinModule = module {
     single { InternetProtocolManager() }
     single { GameTick() }
+    single { WorldTick() }
     single { GameWorld() }
     single { LoginHandler() } bind NetworkLoginHandler::class
 }

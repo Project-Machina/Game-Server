@@ -8,9 +8,7 @@ import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.SimpleChannelInboundHandler
 
 class PacketChannelHandler : SimpleChannelInboundHandler<Packet>() {
-
     private val loginHandler: NetworkLoginHandler by inject()
-
     override fun channelRead0(ctx: ChannelHandlerContext, msg: Packet) {
         //Login
         if(msg.opcode == 0) {
@@ -19,10 +17,9 @@ class PacketChannelHandler : SimpleChannelInboundHandler<Packet>() {
             ctx.writeAndFlush(packet)
         } else {
             val session = ctx.channel().session
-            session.receivePacket(msg)
+            val t = session.receivePacket(msg)
+            println(t)
         }
 
     }
-
-    override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {}
 }

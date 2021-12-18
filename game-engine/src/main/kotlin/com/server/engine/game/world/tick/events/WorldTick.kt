@@ -9,8 +9,6 @@ class WorldTick : TickSubscription {
     private val world: GameWorld by inject()
 
     override suspend fun onTick() {
-        world.publicVirtualMachines.values.forEach {
-
-        }
+        world.publicVirtualMachines.values.forEach { it.onTick() }
     }
 }

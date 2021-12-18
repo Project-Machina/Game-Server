@@ -4,13 +4,15 @@ import com.server.engine.game.entity.vms.VMComponent
 import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.events.impl.VirtualProcessUpdateEvent
 import kotlinx.coroutines.delay
+import kotlin.random.Random
 
 class VirtualProcessComponent(val source: VirtualMachine) : VMComponent {
 
-    val activeProcesses = mutableListOf<VirtualProcess>()
+    private val _activeProcesses = mutableMapOf<Int, VirtualProcess>()
+    val activeProcesses : Map<Int, VirtualProcess> = _activeProcesses
 
     val threads: Int = 2
-    val threadUsage: Int get() = activeProcesses.sumOf { it.threadCost }
+    val threadUsage: Int get() = activeProcesses.values.sumOf { it.threadCost }
 
     fun calculateRunningTime(defaultRunTime: Long = 3000L, threadCost: Int) : Long {
         val offset: Double = (threads.toDouble() / (threadUsage + threadCost))
@@ -20,22 +22,40 @@ class VirtualProcessComponent(val source: VirtualMachine) : VMComponent {
         return extendedRunningTime.toLong()
     }
 
+    fun addProcess(process: VirtualProcess) {
+        val pid = getProcessId()
+        process.pid = pid
+        _activeProcesses[pid] = process
+    }
+
+    private fun getProcessId() : Int {
+        var pid: Int
+        do {
+            pid = Random.nextInt()
+        } while(activeProcesses.containsKey(pid))
+        return pid
+    }
+
     override suspend fun onTick() {
-        val iter = activeProcesses.iterator()
+        val iter = _activeProcesses.iterator()
         while(iter.hasNext()) {
-            val pc = iter.next()
+            val set = iter.next()
+            val pc = set.value
             if(pc.immediate) {
-                pc.behaviours.onEach { it.onTick() }
+                pc.behaviours.forEach { it.onTick() }
+                pc.onFinishBehaviour.onTick()
                 iter.remove()
             } else {
                 pc.elapsedTime += 1000
                 pc.preferredRunningTime = calculateRunningTime(pc.minimalRunningTime, pc.threadCost)
-                source.updateEvents.tryEmit(VirtualProcessUpdateEvent(source, this))
+                pc.behaviours.forEach { it.onTick() }
                 if(pc.elapsedTime >= pc.preferredRunningTime) {
+                    pc.onFinishBehaviour.onTick()
                     iter.remove()
                 }
             }
         }
+        source.updateEvents.emit(VirtualProcessUpdateEvent(source, this))
         delay(1000)
     }
 }

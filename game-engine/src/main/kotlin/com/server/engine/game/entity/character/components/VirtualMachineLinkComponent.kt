@@ -1,5 +1,6 @@
 package com.server.engine.game.entity.character.components
 
+import com.server.engine.dispatchers.GameDispatcher
 import com.server.engine.game.entity.character.player.Player
 import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.world.GameWorld
@@ -32,7 +33,7 @@ class VirtualMachineLinkComponent(val source: Player) : com.server.engine.game.e
         linkIP.value = address
         monitorJobs.add(linkVM.updateEvents
             .onEach { it.handleEvent(source) }
-            .launchIn(CoroutineScope(Dispatchers.IO)))
+            .launchIn(GameDispatcher))
     }
 
     override fun save(): JsonObject {

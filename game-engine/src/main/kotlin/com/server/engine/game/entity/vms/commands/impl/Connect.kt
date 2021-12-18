@@ -24,7 +24,6 @@ class Connect(
 
     override fun execute(): VirtualProcess {
         val pcm = source.component<VirtualProcessComponent>()
-
         return VirtualProcess("Connection", true)
     }
 

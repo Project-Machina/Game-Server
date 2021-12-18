@@ -1,17 +1,15 @@
 package com.server.engine.network.session
 
+import com.server.engine.dispatchers.GameDispatcher
 import com.server.engine.network.channel.packets.Packet
 import com.server.engine.network.channel.packets.handlers.PacketHandler
 import io.netty.channel.Channel
 import io.netty.util.AttributeKey
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.*
 import org.koin.core.context.GlobalContext
 import org.koin.core.parameter.parametersOf
-import java.util.concurrent.Executors
-import kotlin.coroutines.CoroutineContext
 
 class NetworkSession(private val channel: Channel) {
 
@@ -39,20 +37,22 @@ class NetworkSession(private val channel: Channel) {
     }
 
     inline fun <reified M : Any, reified R : Any> handlePacket(handler: PacketHandler<M, R>) {
-        incomingHandlerJobs.add(incomingPackets
+        incomingPackets
             .filter { it.opcode == handler.opcode }
-            .map { handler.decode(it, this) }
-            .onEach {
-                handler.handle(it)
+            .transform {
+                val msg = handler.decode(it, this@NetworkSession)
+                it.content.release()
+                emit(msg)
             }
-            .launchIn(NetworkSession))
+            .onEach { handler.handle(it) }
+            .launchIn(GameDispatcher)
     }
 
     fun shutdownGracefully() {
         incomingHandlerJobs.forEach { it.cancel() }
     }
 
-    companion object : CoroutineScope {
+    companion object {
 
         inline fun <reified M : Any> M.toPacket(): Packet {
             val scope = GlobalContext.get().createScope<M>()
@@ -61,6 +61,6 @@ class NetworkSession(private val channel: Channel) {
 
         val ATTRIBUTE_KEY = AttributeKey.valueOf<NetworkSession>("session")
         val Channel.session: NetworkSession get() = attr(ATTRIBUTE_KEY).get()
-        override val coroutineContext: CoroutineContext = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+
     }
 }

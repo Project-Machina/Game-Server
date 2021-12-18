@@ -12,15 +12,15 @@ class VirtualProcessUpdateMessage(val processes: VirtualProcessComponent) {
             val content = Unpooled.buffer()
 
             content.writeShort(message.processes.activeProcesses.size)
-            message.processes.activeProcesses.forEachIndexed { index, virtualProcess ->
-                if(virtualProcess.immediate) {
+            message.processes.activeProcesses.forEach { (pid, pc) ->
+                if(pc.immediate) {
                     content.writeBoolean(true)
                 } else {
                     content.writeBoolean(false)
-                    content.writeShort(index)
-                    content.writeSimpleString(virtualProcess.name)
-                    content.writeLong(virtualProcess.elapsedTime)
-                    content.writeLong(virtualProcess.preferredRunningTime)
+                    content.writeInt(pid)
+                    content.writeSimpleString(pc.name)
+                    content.writeLong(pc.elapsedTime)
+                    content.writeLong(pc.preferredRunningTime)
                 }
             }
 

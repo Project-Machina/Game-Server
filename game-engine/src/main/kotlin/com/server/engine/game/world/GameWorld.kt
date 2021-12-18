@@ -16,8 +16,8 @@ class GameWorld {
     private val format = Json { prettyPrint = true }
     private val dir = "C:\\Users\\david\\IdeaProjects\\ServerGameEngine\\world\\vms"
 
-    val publicVirtualMachines = mutableMapOf<String, com.server.engine.game.entity.vms.VirtualMachine>()
-    val vmToAddress = mutableMapOf<com.server.engine.game.entity.vms.VirtualMachine, String>()
+    val publicVirtualMachines = mutableMapOf<String, VirtualMachine>()
+    val vmToAddress = mutableMapOf<VirtualMachine, String>()
     val domainToAddress = mutableMapOf<String, String>()
 
     val ip: InternetProtocolManager by inject()
@@ -33,7 +33,7 @@ class GameWorld {
         }
     }
 
-    fun markPublic(vm: com.server.engine.game.entity.vms.VirtualMachine, address: String = "") {
+    fun markPublic(vm: VirtualMachine, address: String = "") {
         val addr = if(address.isEmpty() || address.isBlank()) {
             ip.reserveAddress()
         } else address
@@ -55,7 +55,7 @@ class GameWorld {
             val addr = file.nameWithoutExtension
             val info = file.readText()
             val element = Json.parseToJsonElement(info)
-            val virtualMachine = com.server.engine.game.entity.vms.VirtualMachine.create()
+            val virtualMachine = VirtualMachine.create()
             virtualMachine.loadComponents(element.jsonObject)
             if(reload) {
                 publicVirtualMachines[addr] = virtualMachine
@@ -74,11 +74,11 @@ class GameWorld {
     }
 
     fun loadTestWorld() {
-        val testVM = com.server.engine.game.entity.vms.VirtualMachine.create()
+        val testVM = VirtualMachine.create()
         val testIP = "74.97.118.97"
         markPublic(testVM, testIP)
 
-        val npcDefault = com.server.engine.game.entity.vms.VirtualMachine.create()
+        val npcDefault = VirtualMachine.create()
         val defaultIP = "1.1.1.1"
         val domain = "First Whois.com"
         markPublic(npcDefault, defaultIP)
@@ -94,7 +94,7 @@ class GameWorld {
                     val addr = vm.nameWithoutExtension
                     val info = vm.readText()
                     val element = Json.parseToJsonElement(info)
-                    val virtualMachine = com.server.engine.game.entity.vms.VirtualMachine.create()
+                    val virtualMachine = VirtualMachine.create()
                     virtualMachine.loadComponents(element.jsonObject)
                     publicVirtualMachines[addr] = virtualMachine
                     vmToAddress[virtualMachine] = addr

@@ -11,7 +11,10 @@ class PacketCodec : ByteToMessageCodec<Packet>() {
         if(buf.readableBytes() >= 4) {
             val opcode = buf.readUnsignedShort()
             val frameLength = buf.readUnsignedShort()
+            println("$opcode - $frameLength")
             out.add(Packet(opcode, -1, buf.readBytes(frameLength)))
+        } else {
+            println("No readable bytes ${buf.readableBytes()}")
         }
     }
 

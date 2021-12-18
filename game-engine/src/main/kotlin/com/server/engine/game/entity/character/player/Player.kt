@@ -3,12 +3,14 @@ package com.server.engine.game.entity.character.player
 import com.server.engine.game.entity.character.Character
 import com.server.engine.game.entity.character.components.RankComponent
 import com.server.engine.game.entity.character.components.VirtualMachineLinkComponent
+import com.server.engine.game.entity.character.components.WidgetManagerComponent
 import com.server.engine.game.world.tick.Subscription
 import com.server.engine.game.world.tick.events.LoginSubscription
 import com.server.engine.network.session.NetworkSession
 import com.server.engine.packets.incoming.LogoutHandler
 import com.server.engine.packets.incoming.PingHandler
 import com.server.engine.packets.incoming.VmCommandHandler
+import com.server.engine.packets.incoming.WidgetUpdateHandler
 import com.server.engine.packets.outgoing.PlayerStatisticsMessage
 import com.server.engine.utilities.inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,8 +23,9 @@ class Player(val name: String, val session: NetworkSession) : Character() {
     private val _subscription = MutableStateFlow<Subscription<Player>?>(null)
     override var subscription: Subscription<Player>? by _subscription
 
-    fun onLogin() {
+    suspend fun onLogin() {
         with(VirtualMachineLinkComponent(this))
+        with(WidgetManagerComponent())
         with(RankComponent())
 
         if (name.lowercase() == "javatar") {
@@ -33,6 +36,7 @@ class Player(val name: String, val session: NetworkSession) : Character() {
         session.handlePacket(PingHandler())
         session.handlePacket(VmCommandHandler(player = this))
         session.handlePacket(LogoutHandler(player = this))
+        session.handlePacket(WidgetUpdateHandler(player = this))
     }
 
     fun logout() {

@@ -3,10 +3,12 @@ package com.server.engine.game.entity.vms
 import com.server.engine.game.components.ComponentFactory
 import com.server.engine.game.components.ComponentManager
 import com.server.engine.game.entity.TickingEntity
+import com.server.engine.game.entity.vms.commands.CommandManager
 import com.server.engine.game.entity.vms.components.connection.ConnectionComponent
 import com.server.engine.game.entity.vms.events.UpdateEvent
 import com.server.engine.game.entity.vms.processes.VirtualProcessComponent
 import com.server.engine.utilities.get
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.serialization.json.*
 import org.koin.core.qualifier.named
@@ -20,9 +22,13 @@ class VirtualMachine private constructor() : ComponentManager<VMComponent>, Tick
     fun init() {
         with(ConnectionComponent())
         with(VirtualProcessComponent(this))
+        with(CommandManager(this))
     }
 
-    val updateEvents = MutableSharedFlow<UpdateEvent<*>>(extraBufferCapacity = Short.MAX_VALUE.toInt())
+    val updateEvents = MutableSharedFlow<UpdateEvent<*>>(
+        extraBufferCapacity = Short.MAX_VALUE.toInt(),
+        onBufferOverflow = BufferOverflow.DROP_LATEST
+    )
 
     override fun addComponent(component: VMComponent): ComponentManager<VMComponent> {
         _components.putIfAbsent(component::class, component)

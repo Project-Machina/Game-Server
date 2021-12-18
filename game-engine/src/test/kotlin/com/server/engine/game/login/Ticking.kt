@@ -26,7 +26,7 @@ class Ticking {
         startKoin {
             modules(module {
                 single { InternetProtocolManager() }
-                single { GameTick(Dispatchers.Unconfined) }
+                single { GameTick() }
                 single { GameWorld() }
             })
         }

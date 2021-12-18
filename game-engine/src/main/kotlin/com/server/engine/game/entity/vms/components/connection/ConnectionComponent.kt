@@ -20,7 +20,7 @@ class ConnectionComponent(override val upgrades: com.server.engine.game.entity.v
     val remoteIP = MutableStateFlow("localhost")
     val domain = MutableStateFlow("none")
 
-    val remoteVM: com.server.engine.game.entity.vms.VirtualMachine
+    val remoteVM: VirtualMachine
         get() {
         if(domain.value != "none" && world.validateDomain(domain.value)) {
             return world.publicVirtualMachines[world.domainToAddress[domain.value]!!]!!
