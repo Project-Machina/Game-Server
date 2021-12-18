@@ -23,7 +23,7 @@ class Player(val name: String, val session: NetworkSession) : Character() {
     private val _subscription = MutableStateFlow<Subscription<Player>?>(null)
     override var subscription: Subscription<Player>? by _subscription
 
-    suspend fun onLogin() {
+    fun onLogin() {
         with(VirtualMachineLinkComponent(this))
         with(WidgetManagerComponent())
         with(RankComponent())

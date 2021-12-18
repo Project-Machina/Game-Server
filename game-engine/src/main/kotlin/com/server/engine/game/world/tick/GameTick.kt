@@ -16,7 +16,7 @@ class GameTick {
     val tick = flow {
         while(true) {
             emit(Unit)
-            delay(200)
+            delay(GAME_TICK_MILLIS)
         }
     }
 
@@ -38,5 +38,11 @@ class GameTick {
         player.subscription = subscription
         subscriptions.add(subscription)
         return subscription
+    }
+
+    companion object {
+
+        const val GAME_TICK_MILLIS = 200L
+
     }
 }

@@ -11,10 +11,6 @@ class VersionedComponent : SoftwareComponent {
 
     override val id: String = "$version"
 
-    override suspend fun run(source: VirtualMachine, target: VirtualMachine): Boolean {
-        return true
-    }
-
     override fun save(): JsonObject {
         return buildJsonObject {
             put("version", version)

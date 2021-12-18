@@ -9,6 +9,8 @@ interface VirtualProcessBehaviour {
 
     companion object {
 
+        val NO_BEHAVIOUR = createAnonymous {}
+
         fun createAnonymous(runningTime: Long = 3000L, threadCost: Int = 1, onTick: suspend () -> Unit) : VirtualProcessBehaviour {
             return object : VirtualProcessBehaviour {
                 override val runningTime: Long = runningTime
