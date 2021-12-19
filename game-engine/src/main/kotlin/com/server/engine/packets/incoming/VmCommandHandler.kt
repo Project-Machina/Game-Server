@@ -20,6 +20,10 @@ class VmCommandHandler(override val opcode: Int = 2, val player: Player) : Packe
 
     val world: GameWorld by inject()
 
+    val commandWhiteList = mutableMapOf(
+        "spawn" to listOf("javatar")
+    )
+
     override fun decode(packet: Packet, session: NetworkSession): VmCommandMessage {
         val command = packet.content.readSimpleString()
         val remote = packet.content.readBoolean()
@@ -32,12 +36,15 @@ class VmCommandHandler(override val opcode: Int = 2, val player: Player) : Packe
      */
 
     override fun handle(message: VmCommandMessage) {
-        println("Handling $message")
         val link = player.component<VirtualMachineLinkComponent>()
         val vm = link.linkVM
         val command = message.command
         val rawArgs = command.split(' ').toTypedArray()
         val wm = player.component<WidgetManagerComponent>()
+
+        if(commandWhiteList.containsKey(rawArgs[0]) && player.name.lowercase() !in (commandWhiteList[rawArgs[0]] ?: emptyList())) {
+            return
+        }
 
         try {
             if(vm.has<CommandManager>()) {
@@ -46,10 +53,10 @@ class VmCommandHandler(override val opcode: Int = 2, val player: Player) : Packe
                     val con = vm.component<ConnectionComponent>()
                     if(con.remoteIP.value != "localhost") {
                         val remoteVM = con.remoteVM
-                        manager.execute(rawArgs, remoteVM)
+                        manager.execute(rawArgs, vm, remoteVM)
                     }
                 } else {
-                    manager.execute(rawArgs, vm)
+                    manager.execute(rawArgs, vm, vm)
                 }
             } else {
                 println("Player does not have manager ${player.name}")

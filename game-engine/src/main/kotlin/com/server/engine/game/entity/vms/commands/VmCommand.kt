@@ -13,6 +13,9 @@ interface VmCommand {
     val source: VirtualMachine
     val target: VirtualMachine get() = source
 
+    val playerWhitelist: MutableList<String>
+        get() = mutableListOf()
+
     fun execute() : VirtualProcess
     fun fireEvent(): VirtualEvent
 

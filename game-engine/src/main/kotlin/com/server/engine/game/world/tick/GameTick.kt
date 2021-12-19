@@ -42,7 +42,7 @@ class GameTick {
 
     companion object {
 
-        const val GAME_TICK_MILLIS = 200L
+        const val GAME_TICK_MILLIS = 300L
 
     }
 }

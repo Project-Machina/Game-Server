@@ -18,6 +18,8 @@ class HardDriveComponent(override val upgrades: UpgradableComponent = HardDriveU
     val softwares = mutableMapOf<String, VirtualSoftware>()
     val folders = mutableMapOf<String, FolderComponent>()
 
+    val driveUsage: Long get() = softwares.values.sumOf { it.size }
+
     fun addSoftware(software: VirtualSoftware) : Boolean {
         return if(softwares.containsKey(software.id())) {
             true
@@ -56,12 +58,10 @@ class HardDriveComponent(override val upgrades: UpgradableComponent = HardDriveU
     }
 
     fun getSoftwaresByName(name: String) : List<VirtualSoftware> {
-        val keys = softwares.keys
         val list = mutableListOf<VirtualSoftware>()
-        for (key in keys) {
-            val sname = key.split(":")[0]
-            if(sname == name) {
-                list.add(softwares[key]!!)
+        for (value in softwares.values) {
+            if(value.fullName == name) {
+                list.add(value)
             }
         }
         return list

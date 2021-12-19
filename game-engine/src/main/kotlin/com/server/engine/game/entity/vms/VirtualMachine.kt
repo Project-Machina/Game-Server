@@ -5,6 +5,9 @@ import com.server.engine.game.components.ComponentManager
 import com.server.engine.game.entity.TickingEntity
 import com.server.engine.game.entity.vms.commands.CommandManager
 import com.server.engine.game.entity.vms.components.connection.ConnectionComponent
+import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
+import com.server.engine.game.entity.vms.components.hdd.StorageRackComponent
+import com.server.engine.game.entity.vms.components.motherboard.MotherboardComponent
 import com.server.engine.game.entity.vms.events.UpdateEvent
 import com.server.engine.game.entity.vms.processes.VirtualProcessComponent
 import com.server.engine.utilities.get
@@ -21,8 +24,11 @@ class VirtualMachine private constructor() : ComponentManager<VMComponent>, Tick
 
     fun init() {
         with(ConnectionComponent())
-        with(VirtualProcessComponent(this))
-        with(CommandManager(this))
+        with(MotherboardComponent())
+        with(StorageRackComponent())
+        with(HardDriveComponent())
+        with(CommandManager())
+        with(VirtualProcessComponent())
     }
 
     val updateEvents = MutableSharedFlow<UpdateEvent<*>>(
@@ -96,6 +102,6 @@ class VirtualMachine private constructor() : ComponentManager<VMComponent>, Tick
     }
 
     override suspend fun onTick() {
-        components.values.forEach { it.onTick() }
+        components.values.forEach { it.onTick(this) }
     }
 }

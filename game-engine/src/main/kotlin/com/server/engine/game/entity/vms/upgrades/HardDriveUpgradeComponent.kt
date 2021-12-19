@@ -5,7 +5,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.double
 import kotlinx.serialization.json.jsonPrimitive
 
-class HardDriveUpgradeComponent : com.server.engine.game.entity.vms.UpgradableComponent {
+class HardDriveUpgradeComponent : UpgradableComponent {
     override var level: Double = 1.0
     override fun nextUpgradeCost(level: Double): Int {
         TODO("Not yet implemented")

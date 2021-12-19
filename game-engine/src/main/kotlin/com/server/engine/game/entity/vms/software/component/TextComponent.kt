@@ -8,7 +8,10 @@ import kotlinx.serialization.json.*
 class TextComponent : SoftwareComponent {
     var text: String = ""
 
-    override val id: String get() = "${text.hashCode()}"
+    override val id: String get() = text
+
+    override val size: Long
+        get() = ((text.length / 4) + 1).toLong()
 
     override fun save(): JsonObject {
         return buildJsonObject {

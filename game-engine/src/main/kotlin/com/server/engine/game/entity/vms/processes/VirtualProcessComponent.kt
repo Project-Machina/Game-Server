@@ -2,20 +2,22 @@ package com.server.engine.game.entity.vms.processes
 
 import com.server.engine.game.entity.vms.VMComponent
 import com.server.engine.game.entity.vms.VirtualMachine
+import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
+import com.server.engine.game.entity.vms.components.motherboard.MotherboardComponent
 import com.server.engine.game.entity.vms.events.impl.VirtualProcessUpdateEvent
 import com.server.engine.game.world.tick.GameTick
-import kotlinx.coroutines.delay
-import kotlin.random.Random
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
 
-class VirtualProcessComponent(val source: VirtualMachine) : VMComponent {
+class VirtualProcessComponent : VMComponent {
 
     private val _activeProcesses = mutableMapOf<Int, VirtualProcess>()
     val activeProcesses : Map<Int, VirtualProcess> = _activeProcesses
-
-    val threads: Int = 2
     val threadUsage: Int get() = activeProcesses.values.sumOf { it.threadCost }
+    val ramUsage: Long get() = activeProcesses.values.sumOf { it.ramCost }
+    val networkUsage: Int get() = activeProcesses.values.sumOf { it.networkCost }
 
-    fun calculateRunningTime(defaultRunTime: Long = 3000L, threadCost: Int) : Long {
+    fun calculateRunningTime(defaultRunTime: Long = 3000L, threadCost: Int, threads: Int) : Long {
         val offset: Double = (threads.toDouble() / (threadUsage + threadCost))
         val extendedRunningTime = if(offset < 1) {
             (defaultRunTime / offset)
@@ -46,8 +48,9 @@ class VirtualProcessComponent(val source: VirtualMachine) : VMComponent {
         return pid
     }
 
-    override suspend fun onTick() {
+    override suspend fun onTick(source: VirtualMachine) {
         val iter = _activeProcesses.iterator()
+        val mb = source.component<MotherboardComponent>()
         while(iter.hasNext()) {
             val set = iter.next()
             val pc = set.value
@@ -66,7 +69,11 @@ class VirtualProcessComponent(val source: VirtualMachine) : VMComponent {
 
                 if (!pc.isPaused && !pc.isComplete) {
                     pc.elapsedTime += GameTick.GAME_TICK_MILLIS
-                    pc.preferredRunningTime = calculateRunningTime(pc.minimalRunningTime, pc.threadCost)
+                    pc.preferredRunningTime = calculateRunningTime(
+                        pc.minimalRunningTime,
+                        pc.threadCost,
+                        mb.availableThreads
+                    )
                     pc.behaviours.forEach { it.onTick() }
                 }
                 if(pc.isComplete && pc.shouldComplete) {
@@ -76,5 +83,15 @@ class VirtualProcessComponent(val source: VirtualMachine) : VMComponent {
                 source.updateEvents.emit(VirtualProcessUpdateEvent(source, pc))
             }
         }
+    }
+
+    override fun save(): JsonObject {
+        return buildJsonObject {
+
+        }
+    }
+
+    override fun load(json: JsonObject) {
+        super.load(json)
     }
 }

@@ -2,9 +2,12 @@ package com.server.engine.game.entity.vms.software
 
 import com.server.engine.game.components.ComponentFactory
 import com.server.engine.game.components.ComponentManager
+import com.server.engine.game.entity.vms.software.VirtualSoftware.Companion.has
+import com.server.engine.game.entity.vms.software.component.VersionedComponent
 import com.server.engine.utilities.get
 import kotlinx.serialization.json.*
 import org.koin.core.qualifier.named
+import java.util.*
 import kotlin.reflect.KClass
 
 class VirtualSoftware(name: String, extension: String) : ComponentManager<SoftwareComponent> {
@@ -17,6 +20,10 @@ class VirtualSoftware(name: String, extension: String) : ComponentManager<Softwa
     var extension: String = extension
         private set
 
+    val fullName: String get() = "$name.$extension"
+
+    val size: Long get() = components.values.sumOf { it.size }
+
     fun id(): String {
         val builder = StringBuilder()
         builder
@@ -25,7 +32,7 @@ class VirtualSoftware(name: String, extension: String) : ComponentManager<Softwa
             .append(extension)
             .append(":")
             .append(components.values.map { it.id }.joinToString(":") { it })
-        return builder.toString()
+        return UUID.nameUUIDFromBytes(builder.toString().toByteArray()).toString()
     }
 
     override fun saveComponents(): JsonObject {
