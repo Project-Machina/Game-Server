@@ -1,7 +1,6 @@
 package com.server.engine.game.software
 
 import org.junit.jupiter.api.Test
-import kotlin.math.min
 import kotlin.math.pow
 
 class SizeVersionTest {

@@ -18,7 +18,7 @@ class VirtualSoftwareUpdateMessage(
         override fun encode(message: VirtualSoftwareUpdateMessage): Packet {
             val buf = Unpooled.buffer()
             val soft = message.software
-            buf.writeSimpleString(soft.id())
+            buf.writeSimpleString(soft.id(), true)
             buf.writeSimpleString(soft.name)
             buf.writeSimpleString(soft.extension)
             if(soft.has<VersionedComponent>()) {

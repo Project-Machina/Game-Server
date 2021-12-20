@@ -12,7 +12,7 @@ class InternetProtocolManager {
         var address: String
         do {
             address = generateAddress()
-        } while(!reservedAddresses.contains(address))
+        } while(reservedAddresses.contains(address))
         reservedAddresses.add(address)
         return address
     }

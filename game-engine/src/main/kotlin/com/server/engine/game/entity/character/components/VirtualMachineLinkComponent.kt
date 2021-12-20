@@ -27,13 +27,16 @@ class VirtualMachineLinkComponent(val source: Player) : com.server.engine.game.e
         get() = world.publicVirtualMachines[linkIP.value] ?: error("Not linked to any vm.")
 
     fun linkTo(address: String) {
-        if(linkIP.value != address && monitorJobs.isNotEmpty()) {
-            monitorJobs.forEach { it.cancel() }
+        val vm = world.publicVirtualMachines[address]
+        if(vm != null && source.controlledVirtualMachines.contains(vm.id)) {
+            if (linkIP.value != address && monitorJobs.isNotEmpty()) {
+                monitorJobs.forEach { it.cancel() }
+            }
+            linkIP.value = address
+            monitorJobs.add(linkVM.updateEvents
+                .onEach { it.handleEvent(source) }
+                .launchIn(GameDispatcher))
         }
-        linkIP.value = address
-        monitorJobs.add(linkVM.updateEvents
-            .onEach { it.handleEvent(source) }
-            .launchIn(GameDispatcher))
     }
 
     override fun save(): JsonObject {

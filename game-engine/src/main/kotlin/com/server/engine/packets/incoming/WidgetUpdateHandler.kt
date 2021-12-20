@@ -9,7 +9,7 @@ import com.server.engine.packets.message.WidgetChangeMessage
 import com.server.engine.utilities.readSimpleString
 
 class WidgetUpdateHandler(val player: Player) : PacketHandler<WidgetChangeMessage, Unit> {
-    override val opcode: Int = 5
+    override val opcode: Int = 4
     override fun decode(packet: Packet, session: NetworkSession) : WidgetChangeMessage {
         return WidgetChangeMessage(packet.content.readSimpleString())
     }

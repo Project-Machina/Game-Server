@@ -5,8 +5,10 @@ import com.server.engine.utilities.inject
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.*
 import kotlin.io.path.exists
 import kotlin.io.path.nameWithoutExtension
 import kotlin.io.path.readText
@@ -16,9 +18,12 @@ class GameWorld {
     private val format = Json { prettyPrint = true }
     private val dir = "C:\\Users\\david\\IdeaProjects\\ServerGameEngine\\world\\vms"
 
+    val virtualMachines = mutableMapOf<UUID, VirtualMachine>()
+
     val publicVirtualMachines = mutableMapOf<String, VirtualMachine>()
     val vmToAddress = mutableMapOf<VirtualMachine, String>()
     val domainToAddress = mutableMapOf<String, String>()
+    val addressToDomain = mutableMapOf<String, String>()
 
     val ip: InternetProtocolManager by inject()
 
@@ -30,6 +35,7 @@ class GameWorld {
     fun registerDomain(domain: String, address: String) {
         if(!validateDomain(domain) && publicVirtualMachines.containsKey(address)) {
             domainToAddress.putIfAbsent(domain, address)
+            addressToDomain.putIfAbsent(address, domain)
         }
     }
 
@@ -39,6 +45,7 @@ class GameWorld {
         } else address
         publicVirtualMachines.putIfAbsent(addr, vm)
         vmToAddress.putIfAbsent(vm, addr)
+        virtualMachines[vm.id] = vm
     }
 
     fun saveVirtualMachine(address: String) {
@@ -55,8 +62,11 @@ class GameWorld {
             val addr = file.nameWithoutExtension
             val info = file.readText()
             val element = Json.parseToJsonElement(info)
-            val virtualMachine = VirtualMachine.create()
-            virtualMachine.loadComponents(element.jsonObject)
+            val elementObject = element.jsonObject
+            val uuidString = elementObject["uuid"]!!.jsonPrimitive.content
+            val virtualMachine = VirtualMachine.create(UUID.fromString(uuidString))
+            virtualMachine.loadComponents(elementObject)
+            virtualMachines[virtualMachine.id] = virtualMachine
             if(reload) {
                 publicVirtualMachines[addr] = virtualMachine
                 vmToAddress[virtualMachine] = addr
@@ -76,6 +86,7 @@ class GameWorld {
     fun loadTestWorld() {
         val testVM = VirtualMachine.create()
         val testIP = "74.97.118.97"
+        testVM.name = "DrJavatar's VM"
         markPublic(testVM, testIP)
 
         val npcDefault = VirtualMachine.create()
@@ -94,8 +105,11 @@ class GameWorld {
                     val addr = vm.nameWithoutExtension
                     val info = vm.readText()
                     val element = Json.parseToJsonElement(info)
-                    val virtualMachine = VirtualMachine.create()
-                    virtualMachine.loadComponents(element.jsonObject)
+                    val elementObject = element.jsonObject
+                    val uuidString = elementObject["uuid"]!!.jsonPrimitive.content
+                    val virtualMachine = VirtualMachine.create(UUID.fromString(uuidString))
+                    virtualMachine.loadComponents(elementObject)
+                    virtualMachines[virtualMachine.id] = virtualMachine
                     publicVirtualMachines[addr] = virtualMachine
                     vmToAddress[virtualMachine] = addr
                 }

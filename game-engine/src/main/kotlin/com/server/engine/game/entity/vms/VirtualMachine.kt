@@ -4,6 +4,7 @@ import com.server.engine.game.components.ComponentFactory
 import com.server.engine.game.components.ComponentManager
 import com.server.engine.game.entity.TickingEntity
 import com.server.engine.game.entity.vms.commands.CommandManager
+import com.server.engine.game.entity.vms.components.NetworkCardComponent
 import com.server.engine.game.entity.vms.components.connection.ConnectionComponent
 import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
 import com.server.engine.game.entity.vms.components.hdd.StorageRackComponent
@@ -15,15 +16,19 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.serialization.json.*
 import org.koin.core.qualifier.named
+import java.util.*
 import kotlin.reflect.KClass
 
-class VirtualMachine private constructor() : ComponentManager<VMComponent>, TickingEntity {
+class VirtualMachine private constructor(val id: UUID = UUID.randomUUID()) : ComponentManager<VMComponent>, TickingEntity {
 
     private val _components = mutableMapOf<KClass<*>, VMComponent>()
     val components: Map<KClass<*>, VMComponent> get() = _components
 
+    var name: String = "Virtual Machine"
+
     fun init() {
         with(ConnectionComponent())
+        with(NetworkCardComponent())
         with(MotherboardComponent())
         with(StorageRackComponent())
         with(HardDriveComponent())
@@ -52,6 +57,7 @@ class VirtualMachine private constructor() : ComponentManager<VMComponent>, Tick
 
     override fun saveComponents(): JsonObject {
         return buildJsonObject {
+            put("uuid", id.toString())
             putJsonArray("components") {
                 components.values.forEach {
                     add(buildJsonObject {
@@ -89,8 +95,8 @@ class VirtualMachine private constructor() : ComponentManager<VMComponent>, Tick
             return components[C::class] as C
         }
 
-        fun create(): VirtualMachine {
-            val vm = VirtualMachine()
+        fun create(uuid: UUID = UUID.randomUUID()): VirtualMachine {
+            val vm = VirtualMachine(uuid)
             vm.init()
             return vm
         }
