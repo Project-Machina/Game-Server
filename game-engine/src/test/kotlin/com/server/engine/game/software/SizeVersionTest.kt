@@ -52,6 +52,18 @@ class SizeVersionTest {
         println("Max version for each software: ${version / 100}")
     }
 
+    @Test
+    fun `ram usage by size`() {
+        val version = 888.0
+        val size = calculateSizeByVersion(version)
+
+        val ramUsage = size * 0.01
+
+        println(size)
+        println(ramUsage.toInt())
+
+    }
+
     fun calculateSizeByVersion(version: Double) : Long {
         return 10 + version.pow(2.94).toLong()
     }

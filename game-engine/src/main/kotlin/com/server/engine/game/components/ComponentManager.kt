@@ -8,15 +8,15 @@ import kotlin.reflect.KClass
 interface ComponentManager<BASE : Component> {
 
     fun addComponent(component: BASE): ComponentManager<BASE>
+    fun putComponent(component: BASE): ComponentManager<BASE>
     fun removeComponent(kclass: KClass<out BASE>) : ComponentManager<BASE>
     fun hasComponent(kclass: KClass<out BASE>) : Boolean
+    fun addSingletonComponent(kclass: KClass<out BASE>, component: BASE) : ComponentManager<BASE>
 
     fun saveComponents() : JsonObject {
         return BLANK_JSON_OBJECT
     }
-    fun loadComponents(json: JsonObject) {
-
-    }
+    fun loadComponents(json: JsonObject) {}
 
     companion object {
         inline fun <reified BASE : Component> ComponentManager<BASE>.with(block: ComponentDSL<BASE>.() -> Unit) {

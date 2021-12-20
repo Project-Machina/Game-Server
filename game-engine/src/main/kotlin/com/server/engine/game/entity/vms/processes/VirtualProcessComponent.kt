@@ -5,12 +5,21 @@ import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
 import com.server.engine.game.entity.vms.components.motherboard.MotherboardComponent
 import com.server.engine.game.entity.vms.events.impl.VirtualProcessUpdateEvent
+import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.component
+import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.has
+import com.server.engine.game.entity.vms.processes.components.OnFinishProcessComponent
+import com.server.engine.game.entity.vms.processes.components.software.SoftwareLinkComponent
+import com.server.engine.game.entity.vms.software.VirtualSoftware
+import com.server.engine.game.entity.vms.software.VirtualSoftware.Companion.component
+import com.server.engine.game.entity.vms.software.VirtualSoftware.Companion.has
+import com.server.engine.game.entity.vms.software.component.ProcessOwnerComponent
 import com.server.engine.game.world.tick.GameTick
 import kotlinx.serialization.json.*
+import java.util.concurrent.ConcurrentHashMap
 
 class VirtualProcessComponent : VMComponent {
 
-    private val _activeProcesses = mutableMapOf<Int, VirtualProcess>()
+    private val _activeProcesses = ConcurrentHashMap<Int, VirtualProcess>()
     val activeProcesses : Map<Int, VirtualProcess> = _activeProcesses
     val threadUsage: Int get() = activeProcesses.values.sumOf { it.threadCost }
     val ramUsage: Long get() = activeProcesses.values.sumOf { it.ramCost }
@@ -24,12 +33,13 @@ class VirtualProcessComponent : VMComponent {
         return extendedRunningTime.toLong()
     }
 
-    fun addProcess(process: VirtualProcess) {
+    fun addProcess(process: VirtualProcess) : Int {
         val pid = getProcessId()
         if (pid > 0) {
             process.pid = pid
             _activeProcesses[pid] = process
         }
+        return pid
     }
 
     private fun getProcessId() : Int {
@@ -56,13 +66,21 @@ class VirtualProcessComponent : VMComponent {
 
             if(pc.isKilled) {
                 iter.remove()
+                if(pc.has<SoftwareLinkComponent>()) {
+                    val software = pc.component<SoftwareLinkComponent>().software
+                    if(software.has<ProcessOwnerComponent>()) {
+                        software.component<ProcessOwnerComponent>().pid = -1
+                    }
+                }
                 source.updateEvents.emit(VirtualProcessUpdateEvent(source, pc))
                 continue
             }
 
             if(pc.immediate) {
-                pc.behaviours.forEach { it.onTick(source, pc) }
-                pc.onFinishBehaviour.onTick(source, pc)
+                pc.components.values.filter { it !is OnFinishProcessComponent }.forEach { it.onTick(source, pc) }
+                if (pc.has<OnFinishProcessComponent>()) {
+                    pc.component<OnFinishProcessComponent>().onTick(source, pc)
+                }
                 iter.remove()
             } else {
 
@@ -75,10 +93,12 @@ class VirtualProcessComponent : VMComponent {
                             mb.availableThreads
                         )
                     }
-                    pc.behaviours.forEach { it.onTick(source, pc) }
+                    pc.components.values.filter { it !is OnFinishProcessComponent }.forEach { it.onTick(source, pc) }
                 }
                 if(pc.isComplete && pc.shouldComplete) {
-                    pc.onFinishBehaviour.onTick(source, pc)
+                    if (pc.has<OnFinishProcessComponent>()) {
+                        pc.component<OnFinishProcessComponent>().onTick(source, pc)
+                    }
                     iter.remove()
                 }
                 source.updateEvents.emit(VirtualProcessUpdateEvent(source, pc))
@@ -90,7 +110,7 @@ class VirtualProcessComponent : VMComponent {
         return buildJsonObject {
             put("processes", buildJsonArray {
                 activeProcesses.values.forEach {
-                    add(it.toJson())
+                    add(it.saveComponents())
                 }
             })
         }
@@ -100,7 +120,9 @@ class VirtualProcessComponent : VMComponent {
         if(json.containsKey("processes")) {
             val processArray = json["processes"]!!.jsonArray
             processArray.forEach {
-                addProcess(VirtualProcess.fromJson(it.jsonObject))
+                val pc = VirtualProcess("")
+                pc.loadComponents(it.jsonObject)
+                addProcess(pc)
             }
         }
     }

@@ -1,14 +1,12 @@
 package com.server.engine.game.process
 
 import com.server.engine.game.entity.vms.processes.VirtualProcess
-import com.server.engine.game.entity.vms.processes.VirtualProcessBehaviour
+import com.server.engine.game.entity.vms.processes.ProcessComponent
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import org.junit.jupiter.api.Test
 import kotlin.random.Random
-import kotlin.random.nextInt
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
 
@@ -20,11 +18,11 @@ class ProcessTimeCalculation {
         val threads = Random.nextInt(2048)
         val processes = mutableListOf<VirtualProcess>()
         repeat(255) {
-            val behs = mutableListOf<VirtualProcessBehaviour>()
+            val behs = mutableListOf<ProcessComponent>()
             repeat(Random.nextInt(10)) {
-                behs.add(VirtualProcessBehaviour.createAnonymous(Random.nextLong(60000), Random.nextInt(128)) { _, _ -> })
+                behs.add(ProcessComponent.createAnonymous(Random.nextLong(60000), Random.nextInt(128)) { _, _ -> })
             }
-            processes.add(VirtualProcess("test-$it", behaviours = behs))
+            processes.add(VirtualProcess("test-$it"))
         }
 
         val threadUsage = Random.nextInt(2048)

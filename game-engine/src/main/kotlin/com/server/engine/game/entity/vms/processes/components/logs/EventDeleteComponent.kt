@@ -1,19 +1,19 @@
-package com.server.engine.game.entity.vms.processes.behaviours
+package com.server.engine.game.entity.vms.processes.components.logs
 
 import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.NULL_MACHINE
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
 import com.server.engine.game.entity.vms.components.vevents.VirtualEventsComponent
 import com.server.engine.game.entity.vms.processes.VirtualProcess
-import com.server.engine.game.entity.vms.processes.VirtualProcessBehaviour
+import com.server.engine.game.entity.vms.processes.ProcessComponent
 import com.server.engine.game.world.GameWorld.Companion.vmachine
 import kotlinx.serialization.json.*
 
-class VirtualEventDeleteBehaviour(
+class EventDeleteComponent(
     val eventIds: MutableList<Int> = mutableListOf(),
     target: VirtualMachine = NULL_MACHINE,
     override var threadCost: Int = 1
-) : VirtualProcessBehaviour {
+) : ProcessComponent {
 
     override var runningTime: Long = 1000
     override var networkCost: Int = 0
@@ -51,11 +51,5 @@ class VirtualEventDeleteBehaviour(
         val target = vmachine(obj["target"]!!.jsonPrimitive.content)
         if(target != null)
             this.target = target
-    }
-
-    companion object : BehaviourFactory<VirtualEventDeleteBehaviour> {
-        override fun create(): VirtualEventDeleteBehaviour {
-            return VirtualEventDeleteBehaviour()
-        }
     }
 }

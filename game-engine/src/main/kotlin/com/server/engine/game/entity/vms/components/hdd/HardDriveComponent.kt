@@ -70,6 +70,16 @@ class HardDriveComponent(override val upgrades: UpgradableComponent = HardDriveU
         return list
     }
 
+    fun getSoftwareByNameAndVersion(name: String, version: Double) : List<VirtualSoftware> {
+        val list = mutableListOf<VirtualSoftware>()
+        for (value in softwares.values) {
+            if(value.fullName == name && value.has<VersionedComponent>() && value.component<VersionedComponent>().version == version) {
+                list.add(value)
+            }
+        }
+        return list
+    }
+
     override fun save(): JsonObject {
         return buildJsonObject {
             put("upgrades", upgrades.save())

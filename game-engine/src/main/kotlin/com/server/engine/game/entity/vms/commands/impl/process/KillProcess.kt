@@ -26,7 +26,7 @@ class KillProcess(
         if(pcm.activeProcesses.containsKey(pid)){
             val pc = pcm.activeProcesses[pid]!!
             pc.isKilled = true
-            vevents.addEvent(VirtualEvent("localhost", "Completed Process $pid - ${pc.name}."))
+            vevents.addEvent(VirtualEvent("localhost", "Killed Process $pid - ${pc.name}."))
         }
 
         return VirtualProcess.NO_PROCESS

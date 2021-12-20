@@ -1,28 +1,33 @@
 package com.server.engine.game.entity.vms.processes
 
-import com.server.engine.game.entity.vms.processes.behaviours.BehaviourFactory
+import com.server.engine.game.components.ComponentFactory
+import com.server.engine.game.components.ComponentManager
+import com.server.engine.utilities.boolean
 import com.server.engine.utilities.get
+import com.server.engine.utilities.string
 import kotlinx.serialization.json.*
 import org.koin.core.qualifier.named
+import kotlin.reflect.KClass
 
 class VirtualProcess(
-    val name: String,
-    val immediate: Boolean = false,
-    val isIndeterminate: Boolean = false,
-    val behaviours: List<VirtualProcessBehaviour> = mutableListOf(),
-    val onFinishBehaviour: VirtualProcessBehaviour = VirtualProcessBehaviour.NO_BEHAVIOUR,
-) {
+    var name: String,
+    var immediate: Boolean = false,
+    var isIndeterminate: Boolean = false
+) : ComponentManager<ProcessComponent> {
 
-    val minimalRunningTime: Long get() = behaviours.sumOf { it.runningTime }
+    private val _components = mutableMapOf<KClass<out ProcessComponent>, ProcessComponent>()
+    val components: Map<KClass<out ProcessComponent>, ProcessComponent> = _components
+
+    val minimalRunningTime: Long get() = _components.values.sumOf { it.runningTime }
     val threadCost: Int get() {
-        return if(isPaused || isComplete) 0 else behaviours.sumOf { it.threadCost }
+        return if(isPaused || isComplete) 0 else _components.values.sumOf { it.threadCost }
     }
     val ramCost: Long get() {
-        val total = behaviours.sumOf { it.ramCost }
+        val total = _components.values.sumOf { it.ramCost }
         return if(isPaused || isComplete) (total / 2) else total
     }
     val networkCost: Int get() {
-        return if(isPaused || isComplete) 0 else behaviours.sumOf { it.networkCost }
+        return if(isPaused || isComplete) 0 else _components.values.sumOf { it.networkCost }
     }
 
     val isComplete: Boolean get() {
@@ -40,52 +45,93 @@ class VirtualProcess(
     var shouldComplete: Boolean = false
     var isKilled: Boolean = false
 
-    fun toJson() : JsonObject {
+    override fun saveComponents(): JsonObject {
         return buildJsonObject {
             put("name", name)
             put("immediate", immediate)
             put("paused", isPaused)
             put("isIndeterminate", isIndeterminate)
-            put("behaviourKeys", buildJsonArray {
-                for (behaviour in behaviours) {
+            putJsonArray("components") {
+                _components.values.forEach {
                     add(buildJsonObject {
-                        put("key", behaviour::class.java.simpleName)
-                        put("attributes", behaviour.save())
+                        put("compType", it::class.simpleName)
+                        put("attributes", it.save())
                     })
                 }
-                if(onFinishBehaviour !== VirtualProcessBehaviour.NO_BEHAVIOUR) {
-                    add(buildJsonObject {
-                        put("key", onFinishBehaviour::class.simpleName)
-                        put("attributes", onFinishBehaviour.save())
-                    })
-                }
-            })
+            }
         }
+    }
+
+    override fun loadComponents(json: JsonObject) {
+        if(json.containsKey("name")) {
+            name = json.string("name")
+        }
+        if(json.containsKey("immediate")) {
+            immediate = json.boolean("immediate")
+        }
+        if(json.containsKey("paused")) {
+            isPaused = json.boolean("paused")
+        }
+        if(json.containsKey("isIndeterminate")) {
+            isIndeterminate = json.boolean("isIndeterminate")
+        }
+        if (json.containsKey("components")) {
+            val comps = json["components"]?.jsonArray ?: JsonArray(emptyList())
+            for (comp in comps) {
+                val obj = comp.jsonObject
+                if (obj.containsKey("compType") && obj.containsKey("attributes")) {
+                    val type = obj["compType"]!!.jsonPrimitive.content
+                    val compFactory: ComponentFactory<out ProcessComponent> = get(named(type))
+                    val c = compFactory.create()
+                    c.load(obj["attributes"]!!.jsonObject)
+                    with(c)
+                }
+            }
+        }
+    }
+
+    override fun addComponent(component: ProcessComponent): ComponentManager<ProcessComponent> = apply {
+        _components.putIfAbsent(component::class, component)
+    }
+
+    override fun putComponent(component: ProcessComponent) = apply {
+        _components[component::class] = component
+    }
+
+    override fun removeComponent(kclass: KClass<out ProcessComponent>): ComponentManager<ProcessComponent> = apply {
+        _components.remove(kclass)
+    }
+
+    override fun hasComponent(kclass: KClass<out ProcessComponent>): Boolean {
+        return _components.containsKey(kclass)
+    }
+
+    override fun addSingletonComponent(
+        kclass: KClass<out ProcessComponent>,
+        component: ProcessComponent
+    ): ComponentManager<ProcessComponent> {
+        _components[kclass] = component
+        return this
     }
 
     companion object {
         val NO_PROCESS = VirtualProcess("no_process")
+        inline fun <reified C : ProcessComponent> VirtualProcess.with(comp: C) {
+            addComponent(comp)
+        }
+        inline fun <reified C : ProcessComponent> VirtualProcess.replace(comp: C) {
+            putComponent(comp)
+        }
+        inline fun <reified C : ProcessComponent> VirtualProcess.component() : C {
+            return components[C::class] as C
+        }
 
-        fun fromJson(obj: JsonObject) : VirtualProcess {
-            val name = obj["name"]!!.jsonPrimitive.content
-            val immediate = obj["immediate"]!!.jsonPrimitive.boolean
-            val paused = obj["paused"]!!.jsonPrimitive.boolean
-            val isIndeterminate = obj["isIndeterminate"]!!.jsonPrimitive.boolean
-            val behaviours = mutableListOf<VirtualProcessBehaviour>()
-            val behaviourKeys = obj["behaviourKeys"]!!.jsonArray
-            for (behaviourKey in behaviourKeys) {
-                val behObj = behaviourKey.jsonObject
-                val key = behObj["key"]!!.jsonPrimitive.content
-                val behFactory: BehaviourFactory<*> = get(named(key))
-                val beh = behFactory.create()
-                val attObj = behObj["attributes"]!!.jsonObject
-                beh.load(attObj)
-                behaviours.add(beh)
-            }
-            val onFinishBehaviour = behaviours.removeLast()
-            val pc = VirtualProcess(name, immediate, isIndeterminate, behaviours, onFinishBehaviour)
-            pc.isPaused = paused
-            return pc
+        inline fun <reified C : ProcessComponent> VirtualProcess.has() : Boolean {
+            return hasComponent(C::class)
+        }
+
+        inline fun <reified BASE : ProcessComponent> VirtualProcess.singleton(comp: ProcessComponent) {
+            addSingletonComponent(BASE::class, comp)
         }
     }
 }

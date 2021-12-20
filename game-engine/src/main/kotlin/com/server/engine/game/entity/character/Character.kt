@@ -29,6 +29,19 @@ abstract class Character : ComponentManager<Component>, TickingEntity {
         return _components.containsKey(kclass)
     }
 
+    override fun putComponent(component: Component): ComponentManager<Component> {
+        _components[component::class] = component
+        return this
+    }
+
+    override fun addSingletonComponent(
+        kclass: KClass<out Component>,
+        component: Component
+    ): ComponentManager<Component> {
+        _components[kclass] = component
+        return this
+    }
+
     abstract override suspend fun onTick()
 
     abstract fun isActive() : Boolean

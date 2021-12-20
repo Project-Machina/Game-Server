@@ -9,7 +9,7 @@ class ProcessOwnerComponent : SoftwareComponent {
     var pid: Int = -1
 
     override val id: String
-        get() = "$pid"
+        get() = "null"
 
     override fun save(): JsonObject {
         return buildJsonObject {

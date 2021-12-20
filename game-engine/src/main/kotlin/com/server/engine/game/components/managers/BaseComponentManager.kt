@@ -26,4 +26,14 @@ open class BaseComponentManager<BASE : Component> : ComponentManager<BASE> {
         inline fun <reified BASE : Component, reified C : BASE> BaseComponentManager<BASE>.component() = components[C::class] as C
         inline fun <reified BASE : Component, reified C : BASE> BaseComponentManager<BASE>.has() = hasComponent(C::class)
     }
+
+    override fun putComponent(component: BASE): ComponentManager<BASE> {
+        _components[component::class] = component
+        return this
+    }
+
+    override fun addSingletonComponent(kclass: KClass<out BASE>, component: BASE): ComponentManager<BASE> {
+        _components[kclass] = component
+        return this
+    }
 }

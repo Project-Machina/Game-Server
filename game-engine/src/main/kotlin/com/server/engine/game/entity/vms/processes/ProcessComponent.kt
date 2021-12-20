@@ -1,18 +1,21 @@
 package com.server.engine.game.entity.vms.processes
 
+import com.server.engine.game.components.Component
 import com.server.engine.game.entity.vms.VirtualMachine
+import com.server.engine.utilities.int
+import com.server.engine.utilities.long
 import kotlinx.serialization.json.*
 
-interface VirtualProcessBehaviour {
+interface ProcessComponent : Component {
 
     var threadCost: Int
     var networkCost: Int
     var ramCost: Long
     var runningTime: Long
 
-    suspend fun onTick(source: VirtualMachine, process: VirtualProcess)
+    suspend fun onTick(source: VirtualMachine, process: VirtualProcess) {}
 
-    fun save(): JsonObject {
+    override fun save(): JsonObject {
         return buildJsonObject {
             put("threadCost", threadCost)
             put("networkCost", networkCost)
@@ -20,19 +23,19 @@ interface VirtualProcessBehaviour {
             put("runningTime", runningTime)
         }
     }
-    fun load(obj : JsonObject) {
-        threadCost = obj["threadCost"]!!.jsonPrimitive.int
-        networkCost = obj["networkCost"]!!.jsonPrimitive.int
-        ramCost = obj["ramCost"]!!.jsonPrimitive.long
-        runningTime = obj["runningTime"]!!.jsonPrimitive.long
+    override fun load(json : JsonObject) {
+        threadCost = json.int("threadCost")
+        networkCost = json.int("networkCost")
+        ramCost = json.long("ramCost")
+        runningTime = json.long("runningTime")
     }
 
     companion object {
 
         val NO_BEHAVIOUR = createAnonymous { _, _ -> }
 
-        fun createAnonymous(runningTime: Long = 3000L, threadCost: Int = 1, ramUsage: Long = 1, networkCost: Int = 0, onTick: suspend (VirtualMachine, VirtualProcess) -> Unit) : VirtualProcessBehaviour {
-            return object : VirtualProcessBehaviour {
+        fun createAnonymous(runningTime: Long = 3000L, threadCost: Int = 1, ramUsage: Long = 1, networkCost: Int = 0, onTick: suspend (VirtualMachine, VirtualProcess) -> Unit) : ProcessComponent {
+            return object : ProcessComponent {
                 override var networkCost: Int = networkCost
                 override var ramCost: Long = ramUsage
                 override var threadCost: Int = threadCost

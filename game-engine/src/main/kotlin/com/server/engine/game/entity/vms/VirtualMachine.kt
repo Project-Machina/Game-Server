@@ -119,4 +119,17 @@ class VirtualMachine private constructor(id: UUID = UUID.randomUUID()) : Compone
             return VirtualMachine()
         }
     }
+
+    override fun putComponent(component: VMComponent): ComponentManager<VMComponent> {
+        _components[component::class] = component
+        return this
+    }
+
+    override fun addSingletonComponent(
+        kclass: KClass<out VMComponent>,
+        component: VMComponent
+    ): ComponentManager<VMComponent> {
+        _components[kclass] = component
+        return this
+    }
 }

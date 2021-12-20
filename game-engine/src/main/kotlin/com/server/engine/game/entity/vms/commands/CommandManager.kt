@@ -10,6 +10,7 @@ import com.server.engine.game.entity.vms.commands.impl.TestCommand
 import com.server.engine.game.entity.vms.commands.impl.process.CompleteProcess
 import com.server.engine.game.entity.vms.commands.impl.process.KillProcess
 import com.server.engine.game.entity.vms.commands.impl.process.PauseProcess
+import com.server.engine.game.entity.vms.commands.impl.software.InstallSoftware
 import com.server.engine.game.entity.vms.commands.impl.vevents.DeleteLog
 import com.server.engine.game.entity.vms.components.motherboard.MotherboardComponent
 import com.server.engine.game.entity.vms.processes.VirtualProcess
@@ -26,7 +27,8 @@ class CommandManager : VMComponent {
         "killproc" to { a, p, s, _ -> KillProcess(a, p, s) },
         "pproc" to { a, p, s, _ -> PauseProcess(a, p, s) },
         "spawn" to { a, p, s, _ -> Spawn(a, p, s) },
-        "rmlg" to { a, p, s, t -> DeleteLog(a, p, s, t) }
+        "rmlg" to { a, p, s, t -> DeleteLog(a, p, s, t) },
+        "install" to { a, p, s, t -> InstallSoftware(a, p, s, t) }
     )
 
     fun execute(args: Array<String>, source: VirtualMachine, target: VirtualMachine) {
@@ -48,9 +50,7 @@ class CommandManager : VMComponent {
                 return
             }
 
-            if (pc.immediate) {
-                pcm.addProcess(pc)
-            } else if(pc.isIndeterminate) {
+            if (pc.immediate || pc.isIndeterminate) {
                 pcm.addProcess(pc)
             } else {
                 val newTime = pcm.calculateRunningTime(pc.minimalRunningTime, pc.threadCost, mb.availableThreads)

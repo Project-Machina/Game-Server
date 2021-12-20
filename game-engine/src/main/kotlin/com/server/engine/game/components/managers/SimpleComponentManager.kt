@@ -23,8 +23,21 @@ open class SimpleComponentManager : ComponentManager<Component> {
         return _components.containsKey(kclass)
     }
 
+    override fun putComponent(component: Component): ComponentManager<Component> {
+        _components[component::class] = component
+        return this
+    }
+
     companion object {
         inline fun <reified C : Component> SimpleComponentManager.component() = components[C::class] as C
         inline fun <reified C : Component> SimpleComponentManager.has() = hasComponent(C::class)
+    }
+
+    override fun addSingletonComponent(
+        kclass: KClass<out Component>,
+        component: Component
+    ): ComponentManager<Component> {
+        _components[kclass] = component
+        return this
     }
 }

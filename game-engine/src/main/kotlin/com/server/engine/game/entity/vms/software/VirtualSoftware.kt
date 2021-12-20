@@ -31,7 +31,7 @@ class VirtualSoftware(name: String, extension: String) : ComponentManager<Softwa
             .append(".")
             .append(extension)
             .append(":")
-            .append(components.values.map { it.id }.joinToString(":") { it })
+            .append(components.values.filter { it.id != "null" }.map { it.id }.joinToString(":") { it })
         return UUID.nameUUIDFromBytes(builder.toString().toByteArray()).toString()
     }
 
@@ -89,13 +89,35 @@ class VirtualSoftware(name: String, extension: String) : ComponentManager<Softwa
     }
 
     companion object {
+
+        val NULL_SOFTWARE = VirtualSoftware("null", "null")
+
         inline fun <reified C : SoftwareComponent> VirtualSoftware.with(comp: C) = apply {
             addComponent(comp)
+        }
+
+        inline fun<reified  C: SoftwareComponent> VirtualSoftware.replace(comp: C, block : C.() -> Unit) {
+            block(comp)
+            putComponent(comp)
         }
 
         inline fun <reified C : SoftwareComponent> VirtualSoftware.has(): Boolean = hasComponent(C::class)
         inline fun <reified C : SoftwareComponent> VirtualSoftware.component() : C {
             return components[C::class] as C
         }
+
+    }
+
+    override fun putComponent(component: SoftwareComponent): ComponentManager<SoftwareComponent> {
+        _components[component::class] = component
+        return this
+    }
+
+    override fun addSingletonComponent(
+        kclass: KClass<out SoftwareComponent>,
+        component: SoftwareComponent
+    ): ComponentManager<SoftwareComponent> {
+        _components[kclass] = component
+        return this
     }
 }

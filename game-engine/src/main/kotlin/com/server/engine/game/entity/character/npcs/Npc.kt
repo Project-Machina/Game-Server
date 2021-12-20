@@ -1,5 +1,7 @@
 package com.server.engine.game.entity.character.npcs
 
+import com.server.engine.game.components.Component
+import com.server.engine.game.components.ComponentManager
 import com.server.engine.game.entity.character.Character
 import com.server.engine.game.world.tick.Subscription
 import kotlinx.coroutines.flow.MutableStateFlow
