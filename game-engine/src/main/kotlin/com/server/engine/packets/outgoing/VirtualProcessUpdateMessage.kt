@@ -1,7 +1,6 @@
 package com.server.engine.packets.outgoing
 
 import com.server.engine.game.entity.vms.processes.VirtualProcess
-import com.server.engine.game.entity.vms.processes.VirtualProcessComponent
 import com.server.engine.network.channel.packets.Packet
 import com.server.engine.network.channel.packets.PacketEncoder
 import com.server.engine.utilities.writeSimpleString
@@ -25,7 +24,7 @@ class VirtualProcessUpdateMessage(val process: VirtualProcess) {
                 content.writeLong(pc.preferredRunningTime)
             }
 
-            return Packet(3, 0, content)
+            return Packet(3, content)
         }
     }
 }

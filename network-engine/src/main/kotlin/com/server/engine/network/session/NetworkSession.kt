@@ -5,7 +5,6 @@ import com.server.engine.network.channel.packets.Packet
 import com.server.engine.network.channel.packets.handlers.PacketHandler
 import io.netty.channel.Channel
 import io.netty.util.AttributeKey
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import org.koin.core.context.GlobalContext

@@ -27,7 +27,7 @@ class NettyTest {
         val buf = Unpooled.buffer()
         buf.writeSimpleString("Hello, World")
 
-        ch.writeOutbound(Packet(1, -1, buf))
+        ch.writeOutbound(Packet(1, buf))
         ch.writeInbound(ch.readOutbound())
 
         val msg = ch.readInbound<Packet>()
@@ -49,7 +49,7 @@ class NettyTest {
         override fun decode(ctx: ChannelHandlerContext, msg: ByteBuf, out: MutableList<Any>) {
             val opcode = msg.readUnsignedShort()
             val frame = msg.copy()
-            out.add(Packet(opcode, -1, frame))
+            out.add(Packet(opcode, frame))
         }
     }
 

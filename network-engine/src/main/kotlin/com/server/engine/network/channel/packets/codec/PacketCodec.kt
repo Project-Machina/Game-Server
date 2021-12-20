@@ -4,7 +4,6 @@ import com.server.engine.network.channel.packets.Packet
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.ByteToMessageCodec
-import io.netty.handler.codec.ByteToMessageDecoder
 
 class PacketCodec : ByteToMessageCodec<Packet>() {
     override fun decode(ctx: ChannelHandlerContext, buf: ByteBuf, out: MutableList<Any>) {
@@ -12,7 +11,7 @@ class PacketCodec : ByteToMessageCodec<Packet>() {
             val opcode = buf.readUnsignedShort()
             val frameLength = buf.readUnsignedShort()
             println("$opcode - $frameLength")
-            out.add(Packet(opcode, -1, buf.readBytes(frameLength)))
+            out.add(Packet(opcode, buf.readBytes(frameLength)))
         } else {
             println("No readable bytes ${buf.readableBytes()}")
         }

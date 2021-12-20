@@ -13,7 +13,7 @@ class VmCommandOutput(val output: String, val remote: Boolean) {
             content.writeSimpleString(message.output)
             content.writeBoolean(message.remote)
 
-            return Packet(1,0, content)
+            return Packet(1, content)
         }
     }
 }

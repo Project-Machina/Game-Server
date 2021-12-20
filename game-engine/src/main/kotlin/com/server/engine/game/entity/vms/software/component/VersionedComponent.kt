@@ -12,7 +12,9 @@ class VersionedComponent : SoftwareComponent {
     override val id: String get() = "$version"
 
     override val size: Long
-        get() = (version.pow(3) / 3).toLong()
+        get() {
+            return 10 + version.pow(2.94).toLong()
+        }
 
     override fun save(): JsonObject {
         return buildJsonObject {
@@ -29,6 +31,10 @@ class VersionedComponent : SoftwareComponent {
     companion object : ComponentFactory<VersionedComponent> {
         override fun create(): VersionedComponent {
             return VersionedComponent()
+        }
+
+        infix fun VersionedComponent.with(version: Double) {
+            this.version = version
         }
     }
 }

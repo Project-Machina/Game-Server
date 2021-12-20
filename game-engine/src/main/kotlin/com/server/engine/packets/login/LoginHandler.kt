@@ -36,7 +36,7 @@ class LoginHandler(override val opcode: Int = 0) : PacketHandler<LoginMessage, L
     }
 
     override fun decode(packet: Packet, session: NetworkSession): LoginMessage {
-        val (_, _, content) = packet
+        val (_, content) = packet
         return LoginMessage(content.readSimpleString(), content.readSimpleString(), session)
     }
 

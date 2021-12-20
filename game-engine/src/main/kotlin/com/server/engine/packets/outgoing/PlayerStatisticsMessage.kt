@@ -53,7 +53,7 @@ class PlayerStatisticsMessage(val player: Player) {
             content.writeInt(pcm.threadUsage)
             content.writeInt(pcm.activeProcesses.size)
 
-            return Packet(2, 0, content)
+            return Packet(2, content)
         }
     }
 }

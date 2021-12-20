@@ -12,7 +12,6 @@ import com.server.engine.network.channel.packets.Packet
 import com.server.engine.network.channel.packets.handlers.PacketHandler
 import com.server.engine.network.session.NetworkSession
 import com.server.engine.packets.message.VmCommandMessage
-import com.server.engine.packets.outgoing.VmCommandOutput
 import com.server.engine.utilities.inject
 import com.server.engine.utilities.readSimpleString
 

@@ -16,7 +16,7 @@ enum class LoginResponse {
         override fun encode(message: LoginResponse): Packet {
             val content = Unpooled.buffer()
             content.writeByte(message.ordinal)
-            return Packet(0, 0, content)
+            return Packet(0, content)
         }
     }
 
