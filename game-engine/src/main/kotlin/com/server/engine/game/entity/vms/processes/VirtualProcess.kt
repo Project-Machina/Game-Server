@@ -1,5 +1,6 @@
 package com.server.engine.game.entity.vms.processes
 
+import com.server.engine.game.entity.vms.processes.behaviours.BehaviourFactory
 import com.server.engine.utilities.get
 import kotlinx.serialization.json.*
 import org.koin.core.qualifier.named
@@ -7,8 +8,9 @@ import org.koin.core.qualifier.named
 class VirtualProcess(
     val name: String,
     val immediate: Boolean = false,
+    val isIndeterminate: Boolean = false,
     val behaviours: List<VirtualProcessBehaviour> = mutableListOf(),
-    val onFinishBehaviour: VirtualProcessBehaviour = VirtualProcessBehaviour.NO_BEHAVIOUR
+    val onFinishBehaviour: VirtualProcessBehaviour = VirtualProcessBehaviour.NO_BEHAVIOUR,
 ) {
 
     val minimalRunningTime: Long get() = behaviours.sumOf { it.runningTime }
@@ -43,11 +45,20 @@ class VirtualProcess(
             put("name", name)
             put("immediate", immediate)
             put("paused", isPaused)
+            put("isIndeterminate", isIndeterminate)
             put("behaviourKeys", buildJsonArray {
                 for (behaviour in behaviours) {
-                    add(behaviour::class.simpleName)
+                    add(buildJsonObject {
+                        put("key", behaviour::class.java.simpleName)
+                        put("attributes", behaviour.save())
+                    })
                 }
-                add(onFinishBehaviour::class.simpleName)
+                if(onFinishBehaviour !== VirtualProcessBehaviour.NO_BEHAVIOUR) {
+                    add(buildJsonObject {
+                        put("key", onFinishBehaviour::class.simpleName)
+                        put("attributes", onFinishBehaviour.save())
+                    })
+                }
             })
         }
     }
@@ -59,15 +70,20 @@ class VirtualProcess(
             val name = obj["name"]!!.jsonPrimitive.content
             val immediate = obj["immediate"]!!.jsonPrimitive.boolean
             val paused = obj["paused"]!!.jsonPrimitive.boolean
-            val behaviourKeys = obj["behaviourKeys"]!!.jsonArray
+            val isIndeterminate = obj["isIndeterminate"]!!.jsonPrimitive.boolean
             val behaviours = mutableListOf<VirtualProcessBehaviour>()
+            val behaviourKeys = obj["behaviourKeys"]!!.jsonArray
             for (behaviourKey in behaviourKeys) {
-                val key = behaviourKey.jsonPrimitive.content
-                val beh = get<VirtualProcessBehaviour>(named(key))
+                val behObj = behaviourKey.jsonObject
+                val key = behObj["key"]!!.jsonPrimitive.content
+                val behFactory: BehaviourFactory<*> = get(named(key))
+                val beh = behFactory.create()
+                val attObj = behObj["attributes"]!!.jsonObject
+                beh.load(attObj)
                 behaviours.add(beh)
             }
             val onFinishBehaviour = behaviours.removeLast()
-            val pc = VirtualProcess(name, immediate, behaviours, onFinishBehaviour)
+            val pc = VirtualProcess(name, immediate, isIndeterminate, behaviours, onFinishBehaviour)
             pc.isPaused = paused
             return pc
         }

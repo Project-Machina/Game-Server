@@ -22,8 +22,7 @@ class VirtualEvent(
     var timestamp: Timestamp = timestamp
         private set
 
-    val id: String
-        get() = "$source:$message:${timestamp.time}"
+    var eventId: Int = -1
 
     override fun save(): JsonObject {
         return buildJsonObject {
@@ -47,10 +46,6 @@ class VirtualEvent(
         if(json.containsKey("timestamp")) {
             timestamp = Timestamp(json["timestamp"]!!.jsonPrimitive.long)
         }
-    }
-
-    override fun toString(): String {
-        return "VirtualEvent(source='$source', message='$message', hiddenVersion=$hiddenVersion, timestamp=$timestamp, id='$id')"
     }
 
 

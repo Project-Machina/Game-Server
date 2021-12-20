@@ -13,7 +13,8 @@ class VirtalEventsSaving {
     fun `virtual events saving`() {
         val comp = VirtualEventsComponent()
 
-        comp.addEvent(VirtualEvent("test", "This is test event."))
+        val event = VirtualEvent("test", "This is test event.")
+        comp.addEvent(event)
 
         val format = Json { prettyPrint = true }
 
@@ -26,12 +27,11 @@ class VirtalEventsSaving {
 
         newComp.load(format.decodeFromString(string))
 
-        val e = newComp.events[0]
+        val e = newComp.events.values.single()
 
         assert(e.source == "test")
         assert(e.message == "This is test event.")
         assert(e.hiddenVersion == 0.0)
-        assert(e.id.startsWith("test:This is test event.")) { e.id }
     }
 
 }

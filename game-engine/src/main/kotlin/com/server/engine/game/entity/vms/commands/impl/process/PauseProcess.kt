@@ -27,8 +27,4 @@ class PauseProcess(
         return VirtualProcess.NO_PROCESS
     }
 
-    override fun fireEvent(): VirtualEvent {
-        TODO("Not yet implemented")
-    }
-
 }

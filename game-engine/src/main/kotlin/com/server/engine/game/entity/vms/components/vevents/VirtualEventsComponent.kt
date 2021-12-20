@@ -2,35 +2,47 @@ package com.server.engine.game.entity.vms.components.vevents
 
 import com.server.engine.game.entity.vms.VMComponent
 import kotlinx.serialization.json.*
-import java.util.*
 
-class VirtualEventsComponent : com.server.engine.game.entity.vms.VMComponent {
+class VirtualEventsComponent : VMComponent {
 
-    val events = LinkedList<VirtualEvent>()
+    val events = mutableMapOf<Int, VirtualEvent>()
 
     fun addEvent(event: VirtualEvent) {
-        events.addFirst(event)
-        if(events.size >= 1000) {
-            events.removeLast()
-        }
+        setEvent(getEventId(), event)
+    }
+
+    fun setEvent(id: Int, event: VirtualEvent) {
+        event.eventId = id
+        events[id] = event
     }
 
     fun clear() {
         events.clear()
     }
 
-    fun remove(event: VirtualEvent) {
-        remove(event.id)
+    fun remove(id: Int) {
+        events.remove(id)
     }
 
-    fun remove(id: String) {
-        events.removeIf { it.id == id }
+    fun getEventId() : Int {
+        var eventId = 0
+        var attempts  = 0
+        do {
+            if(attempts >= 2)
+                break
+            if(eventId >= 255) {
+                eventId = 0
+                attempts++
+            }
+            eventId++
+        } while(events.containsKey(eventId))
+        return eventId
     }
 
     override fun save(): JsonObject {
         return buildJsonObject {
             putJsonArray("events") {
-                for (event in events) {
+                for (event in events.values) {
                     add(event.save())
                 }
             }

@@ -3,6 +3,7 @@ package com.server.engine.game.command
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.default
 import org.junit.jupiter.api.Test
+import java.util.*
 
 class VmCommandTest {
 
@@ -68,6 +69,31 @@ class VmCommandTest {
         println(softVersion)
         println(someText)
         println(someNumber)
+
+    }
+
+    @Test
+    fun `test adding parser`() {
+        val command = "delete -i45 -i456 -i54 -i78"
+
+        val args = command.split(' ')
+
+        val name = args[0]
+        val cmdArgs = args.subList(1, args.size)
+
+        val parser = ArgParser(cmdArgs.toTypedArray())
+
+        val nums by parser.adding("-i", help = "test")
+
+        println(nums)
+
+    }
+
+    @Test
+    fun `uuid test`() {
+        val uuid = UUID.nameUUIDFromBytes(byteArrayOf())
+
+        println(uuid.toString())
 
     }
 

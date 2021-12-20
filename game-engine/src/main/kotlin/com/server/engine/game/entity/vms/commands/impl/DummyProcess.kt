@@ -6,6 +6,7 @@ import com.server.engine.game.entity.vms.components.vevents.VirtualEvent
 import com.server.engine.game.entity.vms.processes.VirtualProcess
 import com.server.engine.game.entity.vms.processes.VirtualProcessBehaviour
 import com.xenomachina.argparser.ArgParser
+import com.xenomachina.argparser.default
 
 class DummyProcess(
     override val args: Array<String>,
@@ -15,13 +16,15 @@ class DummyProcess(
 
     override val name: String = "dumb"
 
-    override fun execute(): VirtualProcess {
-        return VirtualProcess("Dummy", behaviours = listOf(VirtualProcessBehaviour.createAnonymous(5000) {
-            println("Dummy Process behaviour!")
-        }))
-    }
+    val isIndeterminate: Boolean by parser.flagging("-i", help = "Spawns a Indeterminate").default(false)
 
-    override fun fireEvent(): VirtualEvent {
-        TODO("Not yet implemented")
+    override fun execute(): VirtualProcess {
+        return VirtualProcess(
+            "Dummy",
+            isIndeterminate = isIndeterminate,
+            behaviours = listOf(VirtualProcessBehaviour.createAnonymous(5000) { vm, pc ->
+                println("Dummy Process behaviour!")
+            })
+        )
     }
 }

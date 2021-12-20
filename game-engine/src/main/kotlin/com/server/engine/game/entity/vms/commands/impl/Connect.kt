@@ -31,7 +31,4 @@ class Connect(
         } catch (_: Exception) {}
         return VirtualProcess.NO_PROCESS
     }
-    override fun fireEvent(): VirtualEvent {
-        TODO("Not yet implemented")
-    }
 }

@@ -9,6 +9,7 @@ import com.server.engine.game.entity.vms.components.connection.ConnectionCompone
 import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
 import com.server.engine.game.entity.vms.components.hdd.StorageRackComponent
 import com.server.engine.game.entity.vms.components.motherboard.MotherboardComponent
+import com.server.engine.game.entity.vms.components.vevents.VirtualEventsComponent
 import com.server.engine.game.entity.vms.events.UpdateEvent
 import com.server.engine.game.entity.vms.processes.VirtualProcessComponent
 import com.server.engine.utilities.get
@@ -19,9 +20,13 @@ import org.koin.core.qualifier.named
 import java.util.*
 import kotlin.reflect.KClass
 
-class VirtualMachine private constructor(val id: UUID = UUID.randomUUID()) : ComponentManager<VMComponent>, TickingEntity {
+class VirtualMachine private constructor(id: UUID = UUID.randomUUID()) : ComponentManager<VMComponent>, TickingEntity {
 
     private val _components = mutableMapOf<KClass<*>, VMComponent>()
+
+    var id: UUID = id
+        private set
+
     val components: Map<KClass<*>, VMComponent> get() = _components
 
     var name: String = "Virtual Machine"
@@ -33,6 +38,7 @@ class VirtualMachine private constructor(val id: UUID = UUID.randomUUID()) : Com
         with(StorageRackComponent())
         with(HardDriveComponent())
         with(CommandManager())
+        with(VirtualEventsComponent())
         with(VirtualProcessComponent())
     }
 
@@ -70,6 +76,7 @@ class VirtualMachine private constructor(val id: UUID = UUID.randomUUID()) : Com
     }
 
     override fun loadComponents(json: JsonObject) {
+        id = UUID.fromString(json["uuid"]!!.jsonPrimitive.content)
         if (json.containsKey("components")) {
             val comps = json["components"]?.jsonArray ?: JsonArray(emptyList())
             for (comp in comps) {
@@ -83,6 +90,10 @@ class VirtualMachine private constructor(val id: UUID = UUID.randomUUID()) : Com
                 }
             }
         }
+    }
+
+    override suspend fun onTick() {
+        components.values.forEach { it.onTick(this) }
     }
 
     companion object {
@@ -101,13 +112,11 @@ class VirtualMachine private constructor(val id: UUID = UUID.randomUUID()) : Com
             return vm
         }
 
+        val NULL_MACHINE = VirtualMachine(UUID.nameUUIDFromBytes(byteArrayOf(0)))
+
         @Deprecated(level = DeprecationLevel.WARNING, message = "This should only be use for unit tests.")
         fun unsafeCreate(): VirtualMachine {
             return VirtualMachine()
         }
-    }
-
-    override suspend fun onTick() {
-        components.values.forEach { it.onTick(this) }
     }
 }

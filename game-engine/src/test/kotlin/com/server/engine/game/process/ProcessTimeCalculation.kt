@@ -22,7 +22,7 @@ class ProcessTimeCalculation {
         repeat(255) {
             val behs = mutableListOf<VirtualProcessBehaviour>()
             repeat(Random.nextInt(10)) {
-                behs.add(VirtualProcessBehaviour.createAnonymous(Random.nextLong(60000), Random.nextInt(128)) {  })
+                behs.add(VirtualProcessBehaviour.createAnonymous(Random.nextLong(60000), Random.nextInt(128)) { _, _ -> })
             }
             processes.add(VirtualProcess("test-$it", behaviours = behs))
         }

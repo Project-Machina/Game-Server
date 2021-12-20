@@ -1,9 +1,6 @@
 package com.server.engine.application
 
-import com.server.engine.game.koinModule
-import com.server.engine.game.softCompsModule
-import com.server.engine.game.subscriptionModule
-import com.server.engine.game.vmCompsModule
+import com.server.engine.game.*
 import com.server.engine.game.world.GameWorld
 import com.server.engine.game.world.tick.GameTick
 import com.server.engine.game.world.tick.events.LoginSubscription
@@ -26,7 +23,8 @@ object Application {
                 koinModule,
                 subscriptionModule,
                 softCompsModule,
-                vmCompsModule
+                vmCompsModule,
+                processBehaviourModule
             )
         }
 

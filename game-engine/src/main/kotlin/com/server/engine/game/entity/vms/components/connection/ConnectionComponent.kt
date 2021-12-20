@@ -13,12 +13,13 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 
 class ConnectionComponent(override val upgrades: com.server.engine.game.entity.vms.UpgradableComponent = com.server.engine.game.entity.vms.UpgradableComponent) : SimpleComponentManager(),
-    com.server.engine.game.entity.vms.VMComponent {
+    VMComponent {
 
     private val world: GameWorld by inject()
 
     val remoteIP = MutableStateFlow("localhost")
     val domain = MutableStateFlow("none")
+    var isConnectionByDomain: Boolean = false
 
     val remoteVM: VirtualMachine
         get() {
@@ -44,10 +45,12 @@ class ConnectionComponent(override val upgrades: com.server.engine.game.entity.v
             if(ip != null) {
                 remoteIP.value = ip
                 domain.value = address
+                isConnectionByDomain = true
                 return true
             }
         } else if(world.publicVirtualMachines.containsKey(address)) {
             remoteIP.value = address
+            isConnectionByDomain = false
             return true
         }
         return false

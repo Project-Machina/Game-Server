@@ -18,8 +18,4 @@ class TestCommand(
         println("Test Command Fired!")
         return VirtualProcess.NO_PROCESS
     }
-
-    override fun fireEvent(): VirtualEvent {
-        TODO("Not yet implemented")
-    }
 }

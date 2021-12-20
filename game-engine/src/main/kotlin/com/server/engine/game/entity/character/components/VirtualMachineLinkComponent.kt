@@ -5,8 +5,6 @@ import com.server.engine.game.entity.character.player.Player
 import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.world.GameWorld
 import com.server.engine.utilities.inject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -30,9 +28,10 @@ class VirtualMachineLinkComponent(val source: Player) : com.server.engine.game.e
         val vm = world.publicVirtualMachines[address]
         if(vm != null && source.controlledVirtualMachines.contains(vm.id)) {
             if (linkIP.value != address && monitorJobs.isNotEmpty()) {
-                monitorJobs.forEach { it.cancel() }
+                monitorJobs.forEach(Job::cancel)
             }
             linkIP.value = address
+            source.lastControlledMachine = vm.id
             monitorJobs.add(linkVM.updateEvents
                 .onEach { it.handleEvent(source) }
                 .launchIn(GameDispatcher))

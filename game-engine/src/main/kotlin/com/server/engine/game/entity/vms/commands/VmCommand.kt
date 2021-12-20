@@ -13,7 +13,7 @@ interface VmCommand {
     val source: VirtualMachine
     val target: VirtualMachine get() = source
 
-    fun execute() : VirtualProcess
-    fun fireEvent(): VirtualEvent
+    val isRemote: Boolean get() = source !== target
 
+    fun execute() : VirtualProcess
 }

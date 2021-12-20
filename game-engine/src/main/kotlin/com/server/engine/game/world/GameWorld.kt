@@ -1,6 +1,7 @@
 package com.server.engine.game.world
 
 import com.server.engine.game.entity.vms.VirtualMachine
+import com.server.engine.utilities.get
 import com.server.engine.utilities.inject
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -117,6 +118,19 @@ class GameWorld {
         } else {
             println("No World data found.")
         }
+    }
+
+    companion object {
+        private val world: GameWorld = get()
+
+        fun vmachine(uuid: UUID) : VirtualMachine? {
+            return world.virtualMachines[uuid]
+        }
+
+        fun vmachine(uuid: String) : VirtualMachine? {
+            return vmachine(UUID.fromString(uuid))
+        }
+
     }
 
 }

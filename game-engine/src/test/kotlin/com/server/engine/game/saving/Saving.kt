@@ -1,5 +1,6 @@
 package com.server.engine.game.saving
 
+import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.has
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.with
@@ -27,7 +28,7 @@ class Saving {
 
         val format = Json { prettyPrint = true }
 
-        val vm = com.server.engine.game.entity.vms.VirtualMachine.unsafeCreate()
+        val vm = VirtualMachine.unsafeCreate()
         val hdd = HardDriveComponent()
 
         vm.with(hdd)

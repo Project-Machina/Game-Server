@@ -130,7 +130,6 @@ class HardDriveComponent(override val upgrades: UpgradableComponent = HardDriveU
         softwares.values.forEach {
             source.updateEvents.emit(VirtualSoftwareUpdateEvent(source, it))
         }
-        delay(1000)
     }
 
     companion object : ComponentFactory<HardDriveComponent> {

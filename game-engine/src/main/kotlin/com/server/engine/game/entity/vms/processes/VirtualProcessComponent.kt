@@ -6,8 +6,7 @@ import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
 import com.server.engine.game.entity.vms.components.motherboard.MotherboardComponent
 import com.server.engine.game.entity.vms.events.impl.VirtualProcessUpdateEvent
 import com.server.engine.game.world.tick.GameTick
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.*
 
 class VirtualProcessComponent : VMComponent {
 
@@ -62,22 +61,24 @@ class VirtualProcessComponent : VMComponent {
             }
 
             if(pc.immediate) {
-                pc.behaviours.forEach { it.onTick() }
-                pc.onFinishBehaviour.onTick()
+                pc.behaviours.forEach { it.onTick(source, pc) }
+                pc.onFinishBehaviour.onTick(source, pc)
                 iter.remove()
             } else {
 
                 if (!pc.isPaused && !pc.isComplete) {
-                    pc.elapsedTime += GameTick.GAME_TICK_MILLIS
-                    pc.preferredRunningTime = calculateRunningTime(
-                        pc.minimalRunningTime,
-                        pc.threadCost,
-                        mb.availableThreads
-                    )
-                    pc.behaviours.forEach { it.onTick() }
+                    if (!pc.isIndeterminate) {
+                        pc.elapsedTime += GameTick.GAME_TICK_MILLIS
+                        pc.preferredRunningTime = calculateRunningTime(
+                            pc.minimalRunningTime,
+                            pc.threadCost,
+                            mb.availableThreads
+                        )
+                    }
+                    pc.behaviours.forEach { it.onTick(source, pc) }
                 }
                 if(pc.isComplete && pc.shouldComplete) {
-                    pc.onFinishBehaviour.onTick()
+                    pc.onFinishBehaviour.onTick(source, pc)
                     iter.remove()
                 }
                 source.updateEvents.emit(VirtualProcessUpdateEvent(source, pc))
@@ -87,11 +88,20 @@ class VirtualProcessComponent : VMComponent {
 
     override fun save(): JsonObject {
         return buildJsonObject {
-
+            put("processes", buildJsonArray {
+                activeProcesses.values.forEach {
+                    add(it.toJson())
+                }
+            })
         }
     }
 
     override fun load(json: JsonObject) {
-        super.load(json)
+        if(json.containsKey("processes")) {
+            val processArray = json["processes"]!!.jsonArray
+            processArray.forEach {
+                addProcess(VirtualProcess.fromJson(it.jsonObject))
+            }
+        }
     }
 }

@@ -18,6 +18,7 @@ class VirtualProcessUpdateMessage(val process: VirtualProcess) {
                 content.writeBoolean(false)
                 content.writeInt(pc.pid)
                 content.writeBoolean(pc.isPaused)
+                content.writeBoolean(pc.isIndeterminate)
                 content.writeBoolean((pc.isComplete && pc.shouldComplete) || pc.isKilled)
                 content.writeSimpleString(pc.name)
                 content.writeLong(pc.elapsedTime)

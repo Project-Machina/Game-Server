@@ -52,8 +52,4 @@ class Spawn(override val args: Array<String>, override val parser: ArgParser, ov
 
         return VirtualProcess.NO_PROCESS
     }
-
-    override fun fireEvent(): VirtualEvent {
-        TODO("Not yet implemented")
-    }
 }

@@ -13,6 +13,7 @@ val outgoingPacketModule = module {
     MessageEncoder(VirtualProcessUpdateMessage)
     MessageEncoder(VirtualSoftwareUpdateMessage)
     MessageEncoder(VirtualMachineUpdateMessage)
+    MessageEncoder(VirtualEventMessage)
 }
 
 inline fun <reified M : Any> Module.MessageEncoder(encoder: PacketEncoder<M>) {
