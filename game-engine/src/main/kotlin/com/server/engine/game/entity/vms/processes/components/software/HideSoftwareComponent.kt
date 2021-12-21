@@ -3,7 +3,7 @@ package com.server.engine.game.entity.vms.processes.components.software
 import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
 import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
-import com.server.engine.game.entity.vms.events.impl.VirtualSoftwareUpdateEvent
+import com.server.engine.game.entity.vms.events.impl.SystemSoftwareAlert
 import com.server.engine.game.entity.vms.processes.VirtualProcess
 import com.server.engine.game.entity.vms.processes.components.OnFinishProcessComponent
 import com.server.engine.game.entity.vms.software.SoftwareBuilder.Companion.software
@@ -45,9 +45,9 @@ class HideSoftwareComponent(
                 hiddenVersion = hiderSoftware.component<VersionedComponent>().version
             }
             if(isRemote) {
-                target.updateEvents.tryEmit(VirtualSoftwareUpdateEvent(target, targetHDD))
+                target.systemOutput.tryEmit(SystemSoftwareAlert(target, targetHDD))
             } else {
-                source.updateEvents.tryEmit(VirtualSoftwareUpdateEvent(target, sourceHDD))
+                source.systemOutput.tryEmit(SystemSoftwareAlert(target, sourceHDD))
             }
         }
     }

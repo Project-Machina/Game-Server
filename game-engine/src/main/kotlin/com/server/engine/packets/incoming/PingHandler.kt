@@ -10,7 +10,7 @@ class PingHandler(override val opcode: Int = 1) : PacketHandler<String, Unit> {
         return packet.content.readSimpleString()
     }
 
-    override fun handle(message: String) {
+    override suspend fun handle(message: String) {
         println(message)
     }
 }

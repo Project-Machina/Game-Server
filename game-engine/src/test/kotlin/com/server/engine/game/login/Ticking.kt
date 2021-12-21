@@ -3,7 +3,7 @@ package com.server.engine.game.login
 import com.server.engine.game.entity.character.player.Player
 import com.server.engine.game.world.GameWorld
 import com.server.engine.game.world.InternetProtocolManager
-import com.server.engine.game.world.tick.GameTick
+import com.server.engine.game.world.tick.VirtualMachineTick
 import com.server.engine.game.world.tick.events.LoginSubscription
 import com.server.engine.network.session.NetworkSession
 import com.server.engine.utilities.inject
@@ -11,7 +11,6 @@ import io.netty.buffer.ByteBufAllocator
 import io.netty.channel.*
 import io.netty.util.Attribute
 import io.netty.util.AttributeKey
-import kotlinx.coroutines.Dispatchers
 import org.junit.jupiter.api.Test
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
@@ -26,14 +25,14 @@ class Ticking {
         startKoin {
             modules(module {
                 single { InternetProtocolManager() }
-                single { GameTick() }
+                single { VirtualMachineTick() }
                 single { GameWorld() }
             })
         }
 
 
         val player = Player("Javatar", NetworkSession(DummyChannel()))
-        val tick: GameTick by inject()
+        val tick: VirtualMachineTick by inject()
         val loginSub = LoginSubscription()
 
         tick.subscribe(loginSub)

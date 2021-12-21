@@ -11,7 +11,7 @@ class VirtualInformationMessage(val title: String, val message: String) {
             val content = Unpooled.buffer()
             content.writeSimpleString(message.title)
             content.writeSimpleString(message.message)
-            return Packet(VIRTUAL_ERROR, content)
+            return Packet(VIRTUAL_INFO, content)
         }
     }
 }

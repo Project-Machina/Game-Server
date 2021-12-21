@@ -4,17 +4,16 @@ import com.server.engine.game.entity.vms.VMComponent
 import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
 import com.server.engine.game.entity.vms.components.motherboard.MotherboardComponent
-import com.server.engine.game.entity.vms.events.impl.VirtualProcessUpdateEvent
-import com.server.engine.game.entity.vms.events.impl.VirtualSoftwareUpdateEvent
+import com.server.engine.game.entity.vms.events.impl.SystemProcessAlert
+import com.server.engine.game.entity.vms.events.impl.SystemSoftwareAlert
 import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.component
 import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.has
 import com.server.engine.game.entity.vms.processes.components.OnFinishProcessComponent
 import com.server.engine.game.entity.vms.processes.components.software.SoftwareLinkComponent
-import com.server.engine.game.entity.vms.software.VirtualSoftware
 import com.server.engine.game.entity.vms.software.VirtualSoftware.Companion.component
 import com.server.engine.game.entity.vms.software.VirtualSoftware.Companion.has
 import com.server.engine.game.entity.vms.software.component.ProcessOwnerComponent
-import com.server.engine.game.world.tick.GameTick
+import com.server.engine.game.world.tick.VirtualMachineTick
 import kotlinx.serialization.json.*
 import java.util.concurrent.ConcurrentHashMap
 
@@ -71,10 +70,10 @@ class VirtualProcessComponent : VMComponent {
                     val software = pc.component<SoftwareLinkComponent>().software
                     if(software.has<ProcessOwnerComponent>()) {
                         software.component<ProcessOwnerComponent>().pid = -1
-                        source.updateEvents.emit(VirtualSoftwareUpdateEvent(source))
+                        source.systemOutput.emit(SystemSoftwareAlert(source))
                     }
                 }
-                source.updateEvents.emit(VirtualProcessUpdateEvent(source, pc))
+                source.systemOutput.emit(SystemProcessAlert(source, pc))
                 continue
             }
 
@@ -88,7 +87,7 @@ class VirtualProcessComponent : VMComponent {
 
                 if (!pc.isPaused && !pc.isComplete) {
                     if (!pc.isIndeterminate) {
-                        pc.elapsedTime += GameTick.GAME_TICK_MILLIS
+                        pc.elapsedTime += VirtualMachineTick.GAME_TICK_MILLIS
                         pc.preferredRunningTime = calculateRunningTime(
                             pc.minimalRunningTime,
                             pc.threadCost,
@@ -103,7 +102,7 @@ class VirtualProcessComponent : VMComponent {
                     }
                     iter.remove()
                 }
-                source.updateEvents.emit(VirtualProcessUpdateEvent(source, pc))
+                source.systemOutput.emit(SystemProcessAlert(source, pc))
             }
         }
     }

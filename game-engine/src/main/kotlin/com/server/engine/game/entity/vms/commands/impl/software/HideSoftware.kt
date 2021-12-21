@@ -4,7 +4,7 @@ import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
 import com.server.engine.game.entity.vms.commands.VmCommand
 import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
-import com.server.engine.game.entity.vms.events.impl.VirtualInfoEvent
+import com.server.engine.game.entity.vms.events.impl.SystemAlert
 import com.server.engine.game.entity.vms.processes.VirtualProcess
 import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.singleton
 import com.server.engine.game.entity.vms.processes.components.OnFinishProcessComponent
@@ -12,8 +12,6 @@ import com.server.engine.game.entity.vms.processes.components.software.HideSoftw
 import com.server.engine.game.entity.vms.software.VirtualSoftware.Companion.component
 import com.server.engine.game.entity.vms.software.VirtualSoftware.Companion.has
 import com.server.engine.game.entity.vms.software.component.ProcessOwnerComponent
-import com.server.engine.packets.outgoing.VirtualEventMessage
-import com.server.engine.packets.outgoing.VirtualInformationMessage
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.default
 
@@ -40,14 +38,14 @@ class HideSoftware(
         } else sourceHDD.getSoftwaresByExtensionAndVersion("hdr", hidderVersion).singleOrNull()
 
         if(hidderSoft == null) {
-            source.updateEvents.tryEmit(VirtualInfoEvent(
+            source.systemOutput.tryEmit(SystemAlert(
                 "No hider software found.",
                 source
             ))
             return VirtualProcess.NO_PROCESS
         }
         if(hidderSoft.has<ProcessOwnerComponent>() && hidderSoft.component<ProcessOwnerComponent>().pid == -1) {
-            source.updateEvents.tryEmit(VirtualInfoEvent(
+            source.systemOutput.tryEmit(SystemAlert(
                 "No hider software running.",
                 source
             ))
@@ -59,7 +57,7 @@ class HideSoftware(
         } else sourceHDD.getSoftwareByNameAndVersion(softwareName, softwareVersion).singleOrNull()
 
         if(softwareToHide == null) {
-            source.updateEvents.tryEmit(VirtualInfoEvent(
+            source.systemOutput.tryEmit(SystemAlert(
                 "Unable to hide/find software.",
                 source
             ))

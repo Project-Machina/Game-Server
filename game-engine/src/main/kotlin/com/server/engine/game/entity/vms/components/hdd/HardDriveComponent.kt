@@ -3,14 +3,11 @@ package com.server.engine.game.entity.vms.components.hdd
 import com.server.engine.game.components.ComponentFactory
 import com.server.engine.game.entity.vms.UpgradableComponent
 import com.server.engine.game.entity.vms.VMComponent
-import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.components.power.PoweredComponent
-import com.server.engine.game.entity.vms.events.impl.VirtualSoftwareUpdateEvent
 import com.server.engine.game.entity.vms.software.SoftwareBuilder.Companion.software
 import com.server.engine.game.entity.vms.software.VirtualSoftware
 import com.server.engine.game.entity.vms.software.VirtualSoftware.Companion.component
 import com.server.engine.game.entity.vms.software.VirtualSoftware.Companion.has
-import com.server.engine.game.entity.vms.software.component.ProcessOwnerComponent
 import com.server.engine.game.entity.vms.software.component.VersionedComponent
 import com.server.engine.game.entity.vms.upgrades.HardDriveUpgradeComponent
 import kotlinx.serialization.json.*

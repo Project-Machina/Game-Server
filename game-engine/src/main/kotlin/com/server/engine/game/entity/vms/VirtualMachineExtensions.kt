@@ -3,7 +3,7 @@ package com.server.engine.game.entity.vms
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.has
 import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
-import com.server.engine.game.entity.vms.events.impl.VirtualSoftwareUpdateEvent
+import com.server.engine.game.entity.vms.events.impl.SystemSoftwareAlert
 import com.server.engine.game.entity.vms.software.VirtualSoftware
 
 fun VirtualMachine.addSoftware(vararg softwares: VirtualSoftware) {
@@ -12,6 +12,6 @@ fun VirtualMachine.addSoftware(vararg softwares: VirtualSoftware) {
         softwares.forEach { software ->
             hdd.addSoftware(software)
         }
-        updateEvents.tryEmit(VirtualSoftwareUpdateEvent(this, hdd))
+        systemOutput.tryEmit(SystemSoftwareAlert(this, hdd))
     }
 }

@@ -1,6 +1,7 @@
 package com.server.engine.game.entity.character.components
 
-import com.server.engine.dispatchers.GameDispatcher
+import com.server.engine.dispatchers.PlayerDispatcher
+import com.server.engine.dispatchers.VirtualMachineDispatcher
 import com.server.engine.game.entity.character.player.Player
 import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.world.GameWorld
@@ -32,9 +33,9 @@ class VirtualMachineLinkComponent(val source: Player) : com.server.engine.game.e
             }
             linkIP.value = address
             source.lastControlledMachine = vm.id
-            monitorJobs.add(linkVM.updateEvents
+            monitorJobs.add(linkVM.systemOutput
                 .onEach { it.handleEventForPlayer(source) }
-                .launchIn(GameDispatcher))
+                .launchIn(PlayerDispatcher))
         }
     }
 

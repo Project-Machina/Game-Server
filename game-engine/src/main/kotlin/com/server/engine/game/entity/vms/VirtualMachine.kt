@@ -1,5 +1,6 @@
 package com.server.engine.game.entity.vms
 
+import com.server.engine.dispatchers.VirtualMachineDispatcher
 import com.server.engine.game.components.ComponentFactory
 import com.server.engine.game.components.ComponentManager
 import com.server.engine.game.entity.TickingEntity
@@ -10,11 +11,13 @@ import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
 import com.server.engine.game.entity.vms.components.hdd.StorageRackComponent
 import com.server.engine.game.entity.vms.components.motherboard.MotherboardComponent
 import com.server.engine.game.entity.vms.components.vevents.VirtualEventsComponent
-import com.server.engine.game.entity.vms.events.UpdateEvent
+import com.server.engine.game.entity.vms.events.SystemOutput
 import com.server.engine.game.entity.vms.processes.VirtualProcessComponent
 import com.server.engine.utilities.get
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.json.*
 import org.koin.core.qualifier.named
 import java.util.*
@@ -40,9 +43,29 @@ class VirtualMachine private constructor(id: UUID = UUID.randomUUID()) : Compone
         with(CommandManager())
         with(VirtualEventsComponent())
         with(VirtualProcessComponent())
+
+        systemCalls.onEach {
+            if(has<CommandManager>()) {
+                val manager = component<CommandManager>()
+                if(it.isRemote && has<ConnectionComponent>()) {
+                    val con = component<ConnectionComponent>()
+                    if(con.remoteIP.value != "localhost") {
+                        val remoteVM = con.remoteVM
+                        manager.execute(it.args, this, remoteVM)
+                    }
+                } else {
+                    manager.execute(it.args, this)
+                }
+            }
+        }.launchIn(VirtualMachineDispatcher)
     }
 
-    val updateEvents = MutableSharedFlow<UpdateEvent<*>>(
+    val systemCalls = MutableSharedFlow<SystemCall>(
+        extraBufferCapacity = 255,
+        onBufferOverflow = BufferOverflow.DROP_LATEST
+    )
+
+    val systemOutput = MutableSharedFlow<SystemOutput<*>>(
         extraBufferCapacity = Short.MAX_VALUE.toInt(),
         onBufferOverflow = BufferOverflow.DROP_LATEST
     )

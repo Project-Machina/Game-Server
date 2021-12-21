@@ -16,7 +16,7 @@ class NetworkServer {
         try {
             bootstrap.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel::class.java)
-                .childHandler(NetworkChannelInitializer())
+                .childHandler(NetworkChannelInitializer(bootstrap))
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
 
             println("Starting network on port $port")

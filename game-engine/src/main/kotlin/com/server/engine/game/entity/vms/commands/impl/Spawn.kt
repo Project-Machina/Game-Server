@@ -7,7 +7,7 @@ import com.server.engine.game.entity.vms.commands.VmCommand
 import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
 import com.server.engine.game.entity.vms.components.hdd.StorageRackComponent
 import com.server.engine.game.entity.vms.components.motherboard.MotherboardComponent
-import com.server.engine.game.entity.vms.events.impl.VirtualSoftwareUpdateEvent
+import com.server.engine.game.entity.vms.events.impl.SystemSoftwareAlert
 import com.server.engine.game.entity.vms.processes.VirtualProcess
 import com.server.engine.game.entity.vms.software.SoftwareBuilder.Companion.software
 import com.server.engine.game.entity.vms.software.VirtualSoftware
@@ -43,7 +43,7 @@ class Spawn(override val args: Array<String>, override val parser: ArgParser, ov
         if(clearHDD) {
             val hdd = source.component<HardDriveComponent>()
             hdd.softwares.clear()
-            source.updateEvents.tryEmit(VirtualSoftwareUpdateEvent(source))
+            source.systemOutput.tryEmit(SystemSoftwareAlert(source))
         }
 
         if(massSoftTest) {

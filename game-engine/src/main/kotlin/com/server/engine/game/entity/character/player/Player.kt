@@ -1,12 +1,12 @@
 package com.server.engine.game.entity.character.player
 
-import com.server.engine.dispatchers.GameDispatcher
+import com.server.engine.dispatchers.PlayerDispatcher
 import com.server.engine.game.entity.character.Character
 import com.server.engine.game.entity.character.components.RankComponent
 import com.server.engine.game.entity.character.components.VirtualMachineLinkComponent
 import com.server.engine.game.entity.character.components.WidgetManagerComponent
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
-import com.server.engine.game.entity.vms.events.impl.VirtualSoftwareUpdateEvent
+import com.server.engine.game.entity.vms.events.impl.SystemSoftwareAlert
 import com.server.engine.game.world.GameWorld
 import com.server.engine.game.world.tick.Subscription
 import com.server.engine.network.session.NetworkSession
@@ -18,7 +18,6 @@ import com.server.engine.packets.outgoing.PlayerStatisticsMessage
 import com.server.engine.packets.outgoing.VirtualMachineUpdateMessage
 import com.server.engine.utilities.inject
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import java.util.*
@@ -35,7 +34,7 @@ class Player(val name: String, val session: NetworkSession) : Character() {
     private val _subscription = MutableStateFlow<Subscription<Player>?>(null)
     override var subscription: Subscription<Player>? by _subscription
 
-    fun onLogin() {
+    suspend fun onLogin() {
         with(VirtualMachineLinkComponent(this))
         with(WidgetManagerComponent())
         with(RankComponent())
@@ -59,7 +58,7 @@ class Player(val name: String, val session: NetworkSession) : Character() {
             if(it == "software") {
                 component<VirtualMachineLinkComponent>()
                     .linkVM.let { vm ->
-                        vm.updateEvents.tryEmit(VirtualSoftwareUpdateEvent(vm, vm.component()))
+                        vm.systemOutput.emit(SystemSoftwareAlert(vm, vm.component()))
                     }
             } else if(it == "hardware") {
                 controlledVirtualMachines.forEach { uuid ->
@@ -69,7 +68,7 @@ class Player(val name: String, val session: NetworkSession) : Character() {
                     }
                 }
             }
-        }.launchIn(GameDispatcher)
+        }.launchIn(PlayerDispatcher)
     }
 
     fun logout() {

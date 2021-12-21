@@ -6,6 +6,6 @@ interface PacketHandler<M, R : Any> : PacketDecoder<M> {
 
     val opcode: Int
 
-    fun handle(message: M) : R
+    suspend fun handle(message: M) : R
 
 }

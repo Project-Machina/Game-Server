@@ -7,8 +7,6 @@ import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
 import com.server.engine.game.entity.vms.components.hdd.StorageRackComponent
 import com.server.engine.game.entity.vms.components.motherboard.MotherboardComponent
 import com.server.engine.game.entity.vms.components.power.PowerStorageComponent
-import com.server.engine.game.entity.vms.processes.ProcessComponent
-import com.server.engine.game.entity.vms.processes.components.logs.EventDeleteComponent
 import com.server.engine.game.entity.vms.software.SoftwareComponent
 import com.server.engine.game.entity.vms.software.component.ProcessOwnerComponent
 import com.server.engine.game.entity.vms.software.component.TextComponent
@@ -16,9 +14,11 @@ import com.server.engine.game.entity.vms.software.component.VersionedComponent
 import com.server.engine.game.entity.vms.software.component.VisibleComponent
 import com.server.engine.game.world.GameWorld
 import com.server.engine.game.world.InternetProtocolManager
-import com.server.engine.game.world.tick.GameTick
+import com.server.engine.game.world.tick.NpcTick
+import com.server.engine.game.world.tick.PlayerTick
+import com.server.engine.game.world.tick.VirtualMachineTick
 import com.server.engine.game.world.tick.events.LoginSubscription
-import com.server.engine.game.world.tick.events.WorldTick
+import com.server.engine.game.world.tick.events.WorldTickSubscription
 import com.server.engine.network.channel.login.NetworkLoginHandler
 import com.server.engine.packets.login.LoginHandler
 import org.koin.core.qualifier.named
@@ -27,8 +27,10 @@ import org.koin.dsl.module
 
 val koinModule = module {
     single { InternetProtocolManager() }
-    single { GameTick() }
-    single { WorldTick() }
+    single { VirtualMachineTick() }
+    single { PlayerTick() }
+    single { NpcTick() }
+    single { WorldTickSubscription() }
     single { GameWorld() }
     single { LoginHandler() } bind NetworkLoginHandler::class
 }

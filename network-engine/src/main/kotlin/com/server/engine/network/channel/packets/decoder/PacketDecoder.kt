@@ -10,6 +10,7 @@ class PacketDecoder : MessageToMessageDecoder<ByteBuf>() {
         if (msg != null) {
             val opcode = msg.readUnsignedShort()
             val frame = msg.copy()
+            println("Decoding Packet $opcode")
             out.add(Packet(opcode, frame))
         }
     }

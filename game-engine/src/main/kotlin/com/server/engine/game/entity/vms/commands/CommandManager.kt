@@ -4,9 +4,8 @@ import com.server.engine.game.entity.vms.VMComponent
 import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
 import com.server.engine.game.entity.vms.commands.impl.Connect
-import com.server.engine.game.entity.vms.commands.impl.DummyProcess
+import com.server.engine.game.entity.vms.commands.impl.Echo
 import com.server.engine.game.entity.vms.commands.impl.Spawn
-import com.server.engine.game.entity.vms.commands.impl.TestCommand
 import com.server.engine.game.entity.vms.commands.impl.process.CompleteProcess
 import com.server.engine.game.entity.vms.commands.impl.process.KillProcess
 import com.server.engine.game.entity.vms.commands.impl.process.PauseProcess
@@ -22,18 +21,17 @@ class CommandManager : VMComponent {
 
     val commands = mutableMapOf<String, (Array<String>, ArgParser, VirtualMachine, VirtualMachine) -> VmCommand>(
         "connect" to { a, p, s, t -> Connect(a, p, s, t) },
-        "dummy" to { a, p, s, _ -> DummyProcess(a, p, s) },
-        "test" to { a, p, s, _ -> TestCommand(a, p, s) },
         "fproc" to { a, p, s, _ -> CompleteProcess(a, p, s) },
         "killproc" to { a, p, s, _ -> KillProcess(a, p, s) },
         "pproc" to { a, p, s, _ -> PauseProcess(a, p, s) },
         "spawn" to { a, p, s, _ -> Spawn(a, p, s) },
         "rmlg" to { a, p, s, t -> DeleteLog(a, p, s, t) },
         "install" to { a, p, s, t -> InstallSoftware(a, p, s, t) },
-        "hide" to { a, p, s, t -> HideSoftware(a, p, s, t) }
+        "hide" to { a, p, s, t -> HideSoftware(a, p, s, t) },
+        "echo" to { a, p, s, t -> Echo(a, p, s, t) }
     )
 
-    fun execute(args: Array<String>, source: VirtualMachine, target: VirtualMachine) {
+    fun execute(args: Array<String>, source: VirtualMachine, target: VirtualMachine = source) {
         val name = args[0]
         val commandArgs = args.copyOfRange(1, args.size)
         if (commands.containsKey(name)) {

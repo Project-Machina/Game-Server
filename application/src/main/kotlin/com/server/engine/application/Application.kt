@@ -2,9 +2,10 @@ package com.server.engine.application
 
 import com.server.engine.game.*
 import com.server.engine.game.world.GameWorld
-import com.server.engine.game.world.tick.GameTick
+import com.server.engine.game.world.tick.PlayerTick
+import com.server.engine.game.world.tick.VirtualMachineTick
 import com.server.engine.game.world.tick.events.LoginSubscription
-import com.server.engine.game.world.tick.events.WorldTick
+import com.server.engine.game.world.tick.events.WorldTickSubscription
 import com.server.engine.network.NetworkServer
 import com.server.engine.packets.outgoingPacketModule
 import com.server.engine.utilities.get
@@ -28,14 +29,16 @@ object Application {
 
         val net = NetworkServer()
         val world = get<GameWorld>()
-        val worldTick = get<WorldTick>()
+        val worldTick = get<WorldTickSubscription>()
 
         val loginSub: LoginSubscription = get()
-        val tick: GameTick = get()
+        val playerTick: PlayerTick = get()
+        val machineTick: VirtualMachineTick = get()
+
 
         world.loadTestWorld()
-        tick.subscribe(loginSub)
-        tick.subscribe(worldTick)
+        playerTick.subscribe(loginSub)
+        machineTick.subscribe(worldTick)
 
         net.start(43595)
 

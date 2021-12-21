@@ -2,14 +2,15 @@ package com.server.engine.game.world.tick.events
 
 import com.server.engine.game.entity.character.player.Player
 import com.server.engine.game.world.GameWorld
-import com.server.engine.game.world.tick.GameTick
+import com.server.engine.game.world.tick.PlayerTick
+import com.server.engine.game.world.tick.VirtualMachineTick
 import com.server.engine.game.world.tick.TickSubscription
 import com.server.engine.utilities.inject
 
 class LoginSubscription : TickSubscription {
 
     val world: GameWorld by inject()
-    val tick: GameTick by inject()
+    val tick: PlayerTick by inject()
 
     val loginQueue = ArrayDeque<Player>()
     val logoutQueue = ArrayDeque<Player>()

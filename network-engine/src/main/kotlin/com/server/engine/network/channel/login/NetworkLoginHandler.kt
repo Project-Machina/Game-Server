@@ -5,7 +5,7 @@ import com.server.engine.network.session.NetworkSession
 
 interface NetworkLoginHandler {
 
-    fun handle(message: LoginMessage) : LoginResponse
+    suspend fun handle(message: LoginMessage) : LoginResponse
 
     fun decode(packet: Packet, session: NetworkSession) : LoginMessage
 

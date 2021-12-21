@@ -13,7 +13,7 @@ class LogoutHandler(override val opcode: Int = 3, val player: Player) : PacketHa
 
     override fun decode(packet: Packet, session: NetworkSession) {}
 
-    override fun handle(message: Unit) {
+    override suspend fun handle(message: Unit) {
         loginSub.logoutQueue.add(player)
     }
 }

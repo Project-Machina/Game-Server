@@ -15,10 +15,11 @@ class LoginHandler(override val opcode: Int = 0) : PacketHandler<LoginMessage, L
 
     private val loginSub: LoginSubscription by inject()
 
-    override fun handle(message: LoginMessage): LoginResponse {
+    override suspend fun handle(message: LoginMessage): LoginResponse {
 
         if(loginAttempts.containsKey(message.username) && loginAttempts[message.username]!! >= 3)
             return LoginResponse.LOCKED
+
 
         //TODO - validate user through database
 

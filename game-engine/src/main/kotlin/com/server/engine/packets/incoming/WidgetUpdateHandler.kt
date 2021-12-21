@@ -14,7 +14,7 @@ class WidgetUpdateHandler(val player: Player) : PacketHandler<WidgetChangeMessag
         return WidgetChangeMessage(packet.content.readSimpleString())
     }
 
-    override fun handle(message: WidgetChangeMessage) {
+    override suspend fun handle(message: WidgetChangeMessage) {
         val widgetManager = player.component<WidgetManagerComponent>()
         widgetManager.currentWidget.value = message.widget
     }

@@ -1,27 +1,26 @@
 package com.server.engine.game.world.tick
 
-import com.server.engine.dispatchers.GameDispatcher
+import com.server.engine.dispatchers.PlayerDispatcher
 import com.server.engine.game.entity.character.player.Player
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import java.util.concurrent.Executors
-import kotlin.coroutines.CoroutineContext
 
-class GameTick {
+class PlayerTick {
 
     private val subscriptions = mutableListOf<Job>()
 
     val tick = flow {
         while(true) {
             emit(Unit)
-            delay(GAME_TICK_MILLIS)
+            delay(500)
         }
     }
 
     fun subscribe(sub: TickSubscription) : Job {
-        val job = tick.onEach { sub.onTick() }.launchIn(GameDispatcher)
+        val job = tick.onEach { sub.onTick() }.launchIn(PlayerDispatcher)
         subscriptions.add(job)
         return job
     }
@@ -33,16 +32,11 @@ class GameTick {
             } else {
                 player.logout()
             }
-        }.launchIn(GameDispatcher)
+        }.launchIn(PlayerDispatcher)
         val subscription = Subscription(player, job)
         player.subscription = subscription
         subscriptions.add(subscription)
         return subscription
     }
 
-    companion object {
-
-        const val GAME_TICK_MILLIS = 300L
-
-    }
 }

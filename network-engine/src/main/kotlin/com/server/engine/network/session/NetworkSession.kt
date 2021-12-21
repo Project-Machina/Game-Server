@@ -1,6 +1,6 @@
 package com.server.engine.network.session
 
-import com.server.engine.dispatchers.GameDispatcher
+import com.server.engine.dispatchers.PlayerDispatcher
 import com.server.engine.network.channel.packets.Packet
 import com.server.engine.network.channel.packets.handlers.PacketHandler
 import io.netty.channel.Channel
@@ -44,7 +44,7 @@ class NetworkSession(private val channel: Channel) {
                 emit(msg)
             }
             .onEach { handler.handle(it) }
-            .launchIn(GameDispatcher)
+            .launchIn(PlayerDispatcher)
     }
 
     fun shutdownGracefully() {

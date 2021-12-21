@@ -5,7 +5,8 @@ import com.server.engine.game.entity.vms.VirtualMachine.Companion.NULL_MACHINE
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
 import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
 import com.server.engine.game.entity.vms.components.motherboard.MotherboardComponent
-import com.server.engine.game.entity.vms.events.impl.VirtualSoftwareUpdateEvent
+import com.server.engine.game.entity.vms.events.impl.SystemAlert
+import com.server.engine.game.entity.vms.events.impl.SystemSoftwareAlert
 import com.server.engine.game.entity.vms.processes.VirtualProcess
 import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.singleton
 import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.with
@@ -63,6 +64,7 @@ class InstallSoftwareComponent(
         val requiredRAM = pc.ramCost + pcm.ramUsage
 
         if(requiredRAM >= mb.availableRam) {
+            source.systemOutput.emit(SystemAlert("Not enough RAM available.", source))
             return
         }
 
@@ -71,9 +73,9 @@ class InstallSoftwareComponent(
         }
 
         if(isRemote) {
-            target.updateEvents.tryEmit(VirtualSoftwareUpdateEvent(target, hdd))
+            target.systemOutput.tryEmit(SystemSoftwareAlert(target, hdd))
         } else {
-            source.updateEvents.tryEmit(VirtualSoftwareUpdateEvent(source, hdd))
+            source.systemOutput.tryEmit(SystemSoftwareAlert(source, hdd))
         }
     }
 
