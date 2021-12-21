@@ -8,7 +8,7 @@ import org.koin.dsl.module
 
 val outgoingPacketModule = module {
     MessageEncoder(LoginResponse)
-    MessageEncoder(VmCommandOutput)
+    MessageEncoder(VirtualInformationMessage)
     MessageEncoder(PlayerStatisticsMessage)
     MessageEncoder(VirtualProcessUpdateMessage)
     MessageEncoder(VirtualSoftwareUpdateMessage)

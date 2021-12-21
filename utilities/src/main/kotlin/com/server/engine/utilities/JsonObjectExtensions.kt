@@ -17,3 +17,11 @@ fun JsonObject.long(key: String) : Long {
 fun JsonObject.boolean(key: String) : Boolean {
     return this[key]?.jsonPrimitive?.boolean ?: false
 }
+
+fun JsonObject.double(key: String) : Double {
+    return this[key]?.jsonPrimitive?.double ?: 0.0
+}
+
+fun JsonObject.jobj(key: String) : JsonObject {
+    return this[key]?.jsonObject ?: JsonObject(emptyMap())
+}

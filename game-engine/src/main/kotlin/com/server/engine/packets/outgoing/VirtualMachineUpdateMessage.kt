@@ -48,7 +48,7 @@ class VirtualMachineUpdateMessage(val vm: VirtualMachine, val isLinked: Boolean 
 
             println(buf.readableBytes())
 
-            return Packet(5,  buf)
+            return Packet(VIRTUAL_MACHINE_UPDATE,  buf)
         }
     }
 }

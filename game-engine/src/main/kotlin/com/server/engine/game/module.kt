@@ -13,6 +13,7 @@ import com.server.engine.game.entity.vms.software.SoftwareComponent
 import com.server.engine.game.entity.vms.software.component.ProcessOwnerComponent
 import com.server.engine.game.entity.vms.software.component.TextComponent
 import com.server.engine.game.entity.vms.software.component.VersionedComponent
+import com.server.engine.game.entity.vms.software.component.VisibleComponent
 import com.server.engine.game.world.GameWorld
 import com.server.engine.game.world.InternetProtocolManager
 import com.server.engine.game.world.tick.GameTick
@@ -40,6 +41,7 @@ val softCompsModule = module {
     single<ComponentFactory<out SoftwareComponent>>(named(TextComponent::class.simpleName!!)) { TextComponent }
     single<ComponentFactory<out SoftwareComponent>>(named(VersionedComponent::class.simpleName!!)) { VersionedComponent }
     single<ComponentFactory<out SoftwareComponent>>(named(ProcessOwnerComponent::class.simpleName!!)) { ProcessOwnerComponent }
+    single<ComponentFactory<out SoftwareComponent>>(named(VisibleComponent::class.simpleName!!)) { VisibleComponent }
 }
 
 val vmCompsModule = module {

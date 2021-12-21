@@ -1,9 +1,12 @@
 package com.server.engine.game.entity.character.player
 
+import com.server.engine.dispatchers.GameDispatcher
 import com.server.engine.game.entity.character.Character
 import com.server.engine.game.entity.character.components.RankComponent
 import com.server.engine.game.entity.character.components.VirtualMachineLinkComponent
 import com.server.engine.game.entity.character.components.WidgetManagerComponent
+import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
+import com.server.engine.game.entity.vms.events.impl.VirtualSoftwareUpdateEvent
 import com.server.engine.game.world.GameWorld
 import com.server.engine.game.world.tick.Subscription
 import com.server.engine.network.session.NetworkSession
@@ -15,6 +18,9 @@ import com.server.engine.packets.outgoing.PlayerStatisticsMessage
 import com.server.engine.packets.outgoing.VirtualMachineUpdateMessage
 import com.server.engine.utilities.inject
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import java.util.*
 import java.util.concurrent.CancellationException
 
@@ -47,10 +53,29 @@ class Player(val name: String, val session: NetworkSession) : Character() {
         session.handlePacket(VmCommandHandler(player = this))
         session.handlePacket(LogoutHandler(player = this))
         session.handlePacket(WidgetUpdateHandler(player = this))
+
+        val widgetManager = component<WidgetManagerComponent>()
+        widgetManager.currentWidget.onEach {
+            if(it == "software") {
+                component<VirtualMachineLinkComponent>()
+                    .linkVM.let { vm ->
+                        vm.updateEvents.tryEmit(VirtualSoftwareUpdateEvent(vm, vm.component()))
+                    }
+            } else if(it == "hardware") {
+                controlledVirtualMachines.forEach { uuid ->
+                    val vm = world.virtualMachines[uuid]
+                    if(vm != null) {
+                        session.sendMessage(VirtualMachineUpdateMessage(vm, vm === component<VirtualMachineLinkComponent>().linkVM))
+                    }
+                }
+            }
+        }.launchIn(GameDispatcher)
     }
 
     fun logout() {
         if (subscription != null) {
+            component<VirtualMachineLinkComponent>().stopMonitorJobs()
+            session.shutdownGracefully()
             subscription?.cancel(CancellationException("Logging out player $name"))
             println("Logging out player $name.")
         }
@@ -58,14 +83,6 @@ class Player(val name: String, val session: NetworkSession) : Character() {
 
     override suspend fun onTick() {
         session.sendMessage(PlayerStatisticsMessage(this))
-        if(component<WidgetManagerComponent>().currentWidget.value == "hardware") {
-            controlledVirtualMachines.forEach { uuid ->
-                val vm = world.virtualMachines[uuid]
-                if(vm != null) {
-                    session.sendMessage(VirtualMachineUpdateMessage(vm, vm === component<VirtualMachineLinkComponent>().linkVM))
-                }
-            }
-        }
     }
 
     override fun isActive(): Boolean {

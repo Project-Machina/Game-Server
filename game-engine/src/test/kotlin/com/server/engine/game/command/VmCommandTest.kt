@@ -13,7 +13,7 @@ class VmCommandTest {
 
         val args = command.split(" ")
 
-        val name = args[0]
+        //val name = args[0]
         val cmdArgs = args.subList(1, args.size)
 
         val parser = ArgParser(cmdArgs.toTypedArray())

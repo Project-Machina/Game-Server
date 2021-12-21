@@ -26,7 +26,6 @@ class VmCommandHandler(override val opcode: Int = 2, val player: Player) : Packe
     override fun decode(packet: Packet, session: NetworkSession): VmCommandMessage {
         val command = packet.content.readSimpleString()
         val remote = packet.content.readBoolean()
-        println("Decoding Command packet: $command - $remote")
         return VmCommandMessage(command, remote)
     }
 

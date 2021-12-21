@@ -33,9 +33,13 @@ class VirtualMachineLinkComponent(val source: Player) : com.server.engine.game.e
             linkIP.value = address
             source.lastControlledMachine = vm.id
             monitorJobs.add(linkVM.updateEvents
-                .onEach { it.handleEvent(source) }
+                .onEach { it.handleEventForPlayer(source) }
                 .launchIn(GameDispatcher))
         }
+    }
+
+    fun stopMonitorJobs() {
+        monitorJobs.forEach(Job::cancel)
     }
 
     override fun save(): JsonObject {

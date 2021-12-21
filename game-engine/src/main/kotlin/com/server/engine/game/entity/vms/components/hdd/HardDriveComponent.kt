@@ -10,9 +10,9 @@ import com.server.engine.game.entity.vms.software.SoftwareBuilder.Companion.soft
 import com.server.engine.game.entity.vms.software.VirtualSoftware
 import com.server.engine.game.entity.vms.software.VirtualSoftware.Companion.component
 import com.server.engine.game.entity.vms.software.VirtualSoftware.Companion.has
+import com.server.engine.game.entity.vms.software.component.ProcessOwnerComponent
 import com.server.engine.game.entity.vms.software.component.VersionedComponent
 import com.server.engine.game.entity.vms.upgrades.HardDriveUpgradeComponent
-import kotlinx.coroutines.delay
 import kotlinx.serialization.json.*
 
 class HardDriveComponent(override val upgrades: UpgradableComponent = HardDriveUpgradeComponent()) :
@@ -68,6 +68,16 @@ class HardDriveComponent(override val upgrades: UpgradableComponent = HardDriveU
             }
         }
         return list
+    }
+
+    fun getSoftwaresByExtension(extension: String): List<VirtualSoftware> {
+        return softwares.values.filter { it.extension == extension }
+    }
+
+    fun getSoftwaresByExtensionAndVersion(extension: String, version: Double) : List<VirtualSoftware> {
+        return softwares.values.filter {
+            it.extension == extension && it.has<VersionedComponent>() && it.component<VersionedComponent>().version == version
+        }
     }
 
     fun getSoftwareByNameAndVersion(name: String, version: Double) : List<VirtualSoftware> {
@@ -133,12 +143,6 @@ class HardDriveComponent(override val upgrades: UpgradableComponent = HardDriveU
                     this.folders[name] = FolderComponent()
                 }
             }
-        }
-    }
-
-    override suspend fun onTick(source: VirtualMachine) {
-        softwares.values.forEach {
-            source.updateEvents.emit(VirtualSoftwareUpdateEvent(source, it))
         }
     }
 

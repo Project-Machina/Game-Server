@@ -24,6 +24,8 @@ class VirtualProcess(
     }
     val ramCost: Long get() {
         val total = _components.values.sumOf { it.ramCost }
+        if(isIndeterminate)
+            return total
         return if(isPaused || isComplete) (total / 2) else total
     }
     val networkCost: Int get() {

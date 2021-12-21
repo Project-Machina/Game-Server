@@ -6,8 +6,6 @@ import com.server.engine.game.world.tick.GameTick
 import com.server.engine.game.world.tick.events.LoginSubscription
 import com.server.engine.game.world.tick.events.WorldTick
 import com.server.engine.network.NetworkServer
-import com.server.engine.network.session.NetworkSession.Companion.toPacket
-import com.server.engine.packets.outgoing.VmCommandOutput
 import com.server.engine.packets.outgoingPacketModule
 import com.server.engine.utilities.get
 import org.koin.core.context.startKoin

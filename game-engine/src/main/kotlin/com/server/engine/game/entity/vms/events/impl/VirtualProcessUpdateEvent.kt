@@ -10,7 +10,7 @@ class VirtualProcessUpdateEvent(
     override val vm: VirtualMachine,
     override val source: VirtualProcess
 ) : UpdateEvent<VirtualProcess> {
-    override fun handleEvent(player: Player) {
+    override fun handleEventForPlayer(player: Player) {
         val session = player.session
         session.sendMessage(VirtualProcessUpdateMessage(source))
     }

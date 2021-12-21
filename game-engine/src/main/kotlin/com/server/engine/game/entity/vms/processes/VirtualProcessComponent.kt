@@ -5,6 +5,7 @@ import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
 import com.server.engine.game.entity.vms.components.motherboard.MotherboardComponent
 import com.server.engine.game.entity.vms.events.impl.VirtualProcessUpdateEvent
+import com.server.engine.game.entity.vms.events.impl.VirtualSoftwareUpdateEvent
 import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.component
 import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.has
 import com.server.engine.game.entity.vms.processes.components.OnFinishProcessComponent
@@ -70,6 +71,7 @@ class VirtualProcessComponent : VMComponent {
                     val software = pc.component<SoftwareLinkComponent>().software
                     if(software.has<ProcessOwnerComponent>()) {
                         software.component<ProcessOwnerComponent>().pid = -1
+                        source.updateEvents.emit(VirtualSoftwareUpdateEvent(source))
                     }
                 }
                 source.updateEvents.emit(VirtualProcessUpdateEvent(source, pc))

@@ -17,8 +17,7 @@ class PacketChannelHandler : SimpleChannelInboundHandler<Packet>() {
             ctx.writeAndFlush(packet)
         } else {
             val session = ctx.channel().session
-            val t = session.receivePacket(msg)
-            println(t)
+            session.receivePacket(msg)
         }
 
     }

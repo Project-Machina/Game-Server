@@ -17,7 +17,7 @@ class VirtualEventMessage(val event: VirtualEvent) {
             buf.writeSimpleString(event.source)
             buf.writeSimpleString(event.message)
 
-            return Packet(6, buf)
+            return Packet(VIRTUAL_EVENT, buf)
         }
     }
 }

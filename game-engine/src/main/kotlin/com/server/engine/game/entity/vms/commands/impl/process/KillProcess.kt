@@ -6,7 +6,9 @@ import com.server.engine.game.entity.vms.commands.VmCommand
 import com.server.engine.game.entity.vms.components.vevents.VirtualEvent
 import com.server.engine.game.entity.vms.components.vevents.VirtualEventsComponent
 import com.server.engine.game.entity.vms.processes.VirtualProcess
+import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.has
 import com.server.engine.game.entity.vms.processes.VirtualProcessComponent
+import com.server.engine.game.entity.vms.processes.components.software.SoftwareLinkComponent
 import com.xenomachina.argparser.ArgParser
 
 class KillProcess(

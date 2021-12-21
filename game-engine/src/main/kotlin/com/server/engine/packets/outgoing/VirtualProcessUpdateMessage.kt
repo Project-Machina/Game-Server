@@ -25,7 +25,7 @@ class VirtualProcessUpdateMessage(val process: VirtualProcess) {
                 content.writeLong(pc.preferredRunningTime)
             }
 
-            return Packet(3, content)
+            return Packet(VIRTUAL_PROCESS_UPDATE, content)
         }
     }
 }

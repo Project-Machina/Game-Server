@@ -3,9 +3,10 @@ package com.server.engine.game.entity.vms.processes.components.software
 import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.NULL_MACHINE
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
+import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
 import com.server.engine.game.entity.vms.components.motherboard.MotherboardComponent
+import com.server.engine.game.entity.vms.events.impl.VirtualSoftwareUpdateEvent
 import com.server.engine.game.entity.vms.processes.VirtualProcess
-import com.server.engine.game.entity.vms.processes.ProcessComponent
 import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.singleton
 import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.with
 import com.server.engine.game.entity.vms.processes.VirtualProcessComponent
@@ -30,11 +31,19 @@ class InstallSoftwareComponent(
 ) : OnFinishProcessComponent {
 
     override suspend fun onTick(source: VirtualMachine, process: VirtualProcess) {
-        val pcm: VirtualProcessComponent = if(source !== target && target !== NULL_MACHINE) {
+        val isRemote = source !== target && target !== NULL_MACHINE
+        val hdd: HardDriveComponent = if(isRemote) {
             target.component()
         } else source.component()
 
-        val mb: MotherboardComponent = if(source !== target && target !== NULL_MACHINE) {
+        if(!hdd.hasSoftware(software.id()))
+            return
+
+        val pcm: VirtualProcessComponent = if(isRemote) {
+            target.component()
+        } else source.component()
+
+        val mb: MotherboardComponent = if(isRemote) {
             target.component()
         } else source.component()
 
@@ -44,8 +53,9 @@ class InstallSoftwareComponent(
 
         var ramCost = (software.size * 0.01).toLong()
         if(ramCost <= 0) {
-           ramCost = 1
+            ramCost = 1
         }
+        println("Cost $ramCost")
 
         pc.singleton<ResourceComponent>(ResourceUsageComponent(ramCost = ramCost))
         pc.with(SoftwareLinkComponent(software))
@@ -58,6 +68,12 @@ class InstallSoftwareComponent(
 
         software.replace(ProcessOwnerComponent()) {
             pid = pcm.addProcess(pc)
+        }
+
+        if(isRemote) {
+            target.updateEvents.tryEmit(VirtualSoftwareUpdateEvent(target, hdd))
+        } else {
+            source.updateEvents.tryEmit(VirtualSoftwareUpdateEvent(source, hdd))
         }
     }
 
@@ -76,19 +92,19 @@ class InstallSoftwareComponent(
         }
     }
 
-    override fun load(obj: JsonObject) {
-        super.load(obj["stats"]!!.jsonObject)
-        if(obj.containsKey("target")) {
-            val target = vmachine(obj["target"]!!.jsonPrimitive.content)
+    override fun load(json: JsonObject) {
+        super.load(json["stats"]!!.jsonObject)
+        if(json.containsKey("target")) {
+            val target = vmachine(json["target"]!!.jsonPrimitive.content)
             if (target != null) {
                 this.target = target
             }
         }
-        if(obj.containsKey("software")) {
-            software = fromJson(obj["software"]!!.jsonObject)
+        if(json.containsKey("software")) {
+            software = fromJson(json["software"]!!.jsonObject)
         }
-        if(obj.containsKey("remSoftware")) {
-            remSoftware = fromJson(obj["remSoftware"]!!.jsonObject)
+        if(json.containsKey("remSoftware")) {
+            remSoftware = fromJson(json["remSoftware"]!!.jsonObject)
         }
     }
 }
