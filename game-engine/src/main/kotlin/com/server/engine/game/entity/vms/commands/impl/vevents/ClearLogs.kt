@@ -4,31 +4,34 @@ import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.has
 import com.server.engine.game.entity.vms.commands.VmCommand
-import com.server.engine.game.entity.vms.components.vevents.VirtualEvent
 import com.server.engine.game.entity.vms.components.vevents.VirtualEventsComponent
 import com.server.engine.game.entity.vms.events.impl.SystemAlert
 import com.server.engine.game.entity.vms.processes.VirtualProcess
+import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.singleton
+import com.server.engine.game.entity.vms.processes.components.OnFinishProcessComponent
+import com.server.engine.game.entity.vms.processes.components.logs.ClearLogsComponent
 import com.xenomachina.argparser.ArgParser
 
-class DeleteLog(
+class ClearLogs(
     override val args: Array<String>,
     override val parser: ArgParser,
     override val source: VirtualMachine
 ) : VmCommand {
 
-    override val name: String = "rmlg"
-
-    val logId by parser.storing("-i", help = "Event IDs") { toInt() }
+    override val name: String = "lgcls"
 
     override fun execute(): VirtualProcess {
-        if (source.has<VirtualEventsComponent>()) {
-            val events = source.component<VirtualEventsComponent>()
-            if(logId in events) {
-                events.remove(logId)
+        if(source.has<VirtualEventsComponent>()) {
+            val pc = VirtualProcess("Clearing Logs")
+            val logs = source.component<VirtualEventsComponent>()
+            var threadCost = logs.events.size / 5
+            if(threadCost <= 0) {
+               threadCost = 1
             }
-        } else {
-            source.systemOutput.tryEmit(SystemAlert("Machine does not support logs", source))
+            pc.singleton<OnFinishProcessComponent>(ClearLogsComponent(threadCost))
+            return pc
         }
+        source.systemOutput.tryEmit(SystemAlert("Machine does not support logs", source))
         return VirtualProcess.NO_PROCESS
     }
 }

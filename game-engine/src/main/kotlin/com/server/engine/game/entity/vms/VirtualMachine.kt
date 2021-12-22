@@ -12,6 +12,7 @@ import com.server.engine.game.entity.vms.components.hdd.StorageRackComponent
 import com.server.engine.game.entity.vms.components.motherboard.MotherboardComponent
 import com.server.engine.game.entity.vms.components.vevents.VirtualEventsComponent
 import com.server.engine.game.entity.vms.events.SystemOutput
+import com.server.engine.game.entity.vms.events.impl.SystemLogAlert
 import com.server.engine.game.entity.vms.processes.VirtualProcessComponent
 import com.server.engine.utilities.get
 import kotlinx.coroutines.channels.BufferOverflow
@@ -34,14 +35,16 @@ class VirtualMachine private constructor(id: UUID = UUID.randomUUID()) : Compone
 
     var name: String = "Virtual Machine"
 
-    fun init() {
+    fun init(hasLogs: Boolean = true) {
         with(ConnectionComponent())
         with(NetworkCardComponent())
         with(MotherboardComponent())
         with(StorageRackComponent())
         with(HardDriveComponent())
         with(CommandManager())
-        with(VirtualEventsComponent())
+        if (hasLogs) {
+            with(VirtualEventsComponent())
+        }
         with(VirtualProcessComponent())
 
         systemCalls.onEach {
@@ -117,6 +120,11 @@ class VirtualMachine private constructor(id: UUID = UUID.randomUUID()) : Compone
 
     override suspend fun onTick() {
         components.values.forEach { it.onTick(this) }
+        val events = component<VirtualEventsComponent>()
+        if (events.isDirty) {
+            systemOutput.emit(SystemLogAlert(this, component()))
+            events.markClean()
+        }
     }
 
     companion object {

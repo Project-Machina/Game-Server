@@ -23,7 +23,6 @@ class SystemSoftwareAlert(
         val seeker = hdd.getBestSoftware("skr")
         val isSeekRunning = seeker?.isRunning() ?: false
         val skrVersion = seeker?.component<VersionedComponent>()?.version ?: 0.0
-
         source.softwares.values.forEach {
             if(it.has<VisibleComponent>()) {
                 val hidderVersion = it.component<VisibleComponent>().hiddenVersion
@@ -35,9 +34,6 @@ class SystemSoftwareAlert(
                 softs.add(it)
             }
         }
-
-        if (softs.isNotEmpty()) {
-            player.session.sendMessage(VirtualSoftwareUpdateMessage(softs))
-        }
+        player.session.sendMessage(VirtualSoftwareUpdateMessage(softs))
     }
 }

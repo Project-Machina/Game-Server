@@ -1,6 +1,9 @@
 package com.server.engine.game.entity.vms.components.vevents
 
 import com.server.engine.game.components.ComponentFactory
+import com.server.engine.utilities.double
+import com.server.engine.utilities.long
+import com.server.engine.utilities.string
 import kotlinx.serialization.json.*
 import java.sql.Timestamp
 import java.time.LocalDateTime
@@ -10,7 +13,7 @@ class VirtualEvent(
     source: String,
     message: String,
     hiddenVersion: Double = 0.0,
-    timestamp: Timestamp = Timestamp(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC))
+    timestamp: Long = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
 ) : EventComponent {
 
     var source: String = source
@@ -19,7 +22,7 @@ class VirtualEvent(
         private set
     var hiddenVersion: Double = hiddenVersion
         private set
-    var timestamp: Timestamp = timestamp
+    var timestamp: Long = timestamp
         private set
 
     var eventId: Int = -1
@@ -29,22 +32,22 @@ class VirtualEvent(
             put("source", source)
             put("message", message)
             put("hiddenVersion", hiddenVersion)
-            put("timestamp", timestamp.time)
+            put("timestamp", timestamp)
         }
     }
 
     override fun load(json: JsonObject) {
         if(json.containsKey("source")) {
-            source = json["source"]!!.jsonPrimitive.content
+            source = json.string("source")
         }
         if(json.containsKey("message")) {
-            message = json["message"]!!.jsonPrimitive.content
+            message = json.string("message")
         }
         if(json.containsKey("hiddenVersion")) {
-            hiddenVersion = json["hiddenVersion"]!!.jsonPrimitive.double
+            hiddenVersion = json.double("hiddenVersion")
         }
         if(json.containsKey("timestamp")) {
-            timestamp = Timestamp(json["timestamp"]!!.jsonPrimitive.long)
+            timestamp = json.long("timestamp")
         }
     }
 

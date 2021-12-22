@@ -7,6 +7,7 @@ import com.server.engine.game.entity.vms.components.vevents.VirtualEvent
 import com.server.engine.game.entity.vms.components.vevents.VirtualEventsComponent
 import com.server.engine.game.entity.vms.processes.VirtualProcess
 import com.server.engine.game.entity.vms.processes.VirtualProcessComponent
+import com.server.engine.game.entity.vms.vlog
 import com.xenomachina.argparser.ArgParser
 
 class CompleteProcess(
@@ -19,15 +20,13 @@ class CompleteProcess(
 
     val pid: Int by parser.positional("Process Identification Number (PID)") { toInt() }
 
-
     override fun execute(): VirtualProcess {
         val pcm = source.component<VirtualProcessComponent>()
-        val vevents = source.component<VirtualEventsComponent>()
         if(pcm.activeProcesses.containsKey(pid)) {
             val pc = pcm.activeProcesses[pid]!!
             if(pc.isComplete) {
                 pc.shouldComplete = true
-                vevents.addEvent(VirtualEvent("localhost", "Completed Process $pid - ${pc.name}."))
+                source.vlog("localhost", "Completed Process $pid - ${pc.name}")
             }
         }
         return VirtualProcess.NO_PROCESS

@@ -13,7 +13,7 @@ class VirtualEventMessage(val event: VirtualEvent) {
             val event = message.event
 
             buf.writeInt(event.eventId)
-            buf.writeLong(event.timestamp.time)
+            buf.writeLong(event.timestamp)
             buf.writeSimpleString(event.source)
             buf.writeSimpleString(event.message)
 

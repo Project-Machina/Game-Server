@@ -9,6 +9,7 @@ import com.server.engine.game.entity.vms.processes.VirtualProcess
 import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.has
 import com.server.engine.game.entity.vms.processes.VirtualProcessComponent
 import com.server.engine.game.entity.vms.processes.components.software.SoftwareLinkComponent
+import com.server.engine.game.entity.vms.vlog
 import com.xenomachina.argparser.ArgParser
 
 class KillProcess(
@@ -24,13 +25,11 @@ class KillProcess(
 
     override fun execute(): VirtualProcess {
         val pcm = source.component<VirtualProcessComponent>()
-        val vevents = source.component<VirtualEventsComponent>()
         if(pcm.activeProcesses.containsKey(pid)){
             val pc = pcm.activeProcesses[pid]!!
             pc.isKilled = true
-            vevents.addEvent(VirtualEvent("localhost", "Killed Process $pid - ${pc.name}."))
+            source.vlog("localhost", "Killed $pid - ${pc.name}")
         }
-
         return VirtualProcess.NO_PROCESS
     }
 }

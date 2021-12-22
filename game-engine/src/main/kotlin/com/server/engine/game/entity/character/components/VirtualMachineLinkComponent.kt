@@ -4,6 +4,7 @@ import com.server.engine.dispatchers.PlayerDispatcher
 import com.server.engine.dispatchers.VirtualMachineDispatcher
 import com.server.engine.game.entity.character.player.Player
 import com.server.engine.game.entity.vms.VirtualMachine
+import com.server.engine.game.entity.vms.vlog
 import com.server.engine.game.world.GameWorld
 import com.server.engine.utilities.inject
 import kotlinx.coroutines.Job
@@ -33,6 +34,7 @@ class VirtualMachineLinkComponent(val source: Player) : com.server.engine.game.e
             }
             linkIP.value = address
             source.lastControlledMachine = vm.id
+            linkVM.vlog("controller", "Linked to localhost")
             monitorJobs.add(linkVM.systemOutput
                 .onEach { it.handleEventForPlayer(source) }
                 .launchIn(PlayerDispatcher))

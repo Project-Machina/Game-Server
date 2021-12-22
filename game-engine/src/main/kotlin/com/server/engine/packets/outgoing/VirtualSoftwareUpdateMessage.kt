@@ -40,9 +40,6 @@ class VirtualSoftwareUpdateMessage(
                     buf.writeInt(-1)
                 }
             }
-
-            println("Size ${buf.readableBytes()}")
-
             return Packet(VIRTUAL_SOFTWARE_UPDATE, buf)
         }
     }

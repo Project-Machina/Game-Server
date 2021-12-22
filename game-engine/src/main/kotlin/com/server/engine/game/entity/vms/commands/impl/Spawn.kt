@@ -12,6 +12,7 @@ import com.server.engine.game.entity.vms.processes.VirtualProcess
 import com.server.engine.game.entity.vms.software.SoftwareBuilder.Companion.software
 import com.server.engine.game.entity.vms.software.VirtualSoftware
 import com.server.engine.game.entity.vms.software.component.VersionedComponent
+import com.server.engine.game.entity.vms.vlog
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.default
 import kotlin.random.Random
@@ -29,10 +30,16 @@ class Spawn(override val args: Array<String>, override val parser: ArgParser, ov
 
     val overclock by parser.flagging("--xpu",help = "Overkill CPU")
 
+    val tlog by parser.flagging("--log", help = "spawns a log.")
+
     val softwareName by parser.storing("-n", help = "Software Name") { replace('_', ' ') }.default("")
     val softwareVersion by parser.storing("-v", help = "Software Version") { toDouble() }.default(0.0)
 
     override fun execute(): VirtualProcess {
+
+        if(tlog) {
+            source.vlog("localhost", "spawned by Javatar.")
+        }
 
         if(overclock) {
             val mb = source.component<MotherboardComponent>()
@@ -49,7 +56,7 @@ class Spawn(override val args: Array<String>, override val parser: ArgParser, ov
         if(massSoftTest) {
             val softs = mutableListOf<VirtualSoftware>()
             val exts = arrayOf("crc", "hash", "av", "vspam", "fwl", "skr", "hdr")
-            repeat(500) {
+            repeat(100) {
                 val s = software("Software $it", exts.random())
                 val random: Double = Random.nextDouble(100.0)
                 val version = String.format("%.1f", random).toDouble()

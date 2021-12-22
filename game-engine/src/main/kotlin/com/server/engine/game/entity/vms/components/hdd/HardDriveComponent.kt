@@ -147,5 +147,10 @@ class HardDriveComponent(override val upgrades: UpgradableComponent = HardDriveU
         override fun create(): HardDriveComponent {
             return HardDriveComponent()
         }
+
+        fun List<VirtualSoftware>.best() : VirtualSoftware? {
+            return filter { it.has<VersionedComponent>() }
+                .maxByOrNull { it.component<VersionedComponent>().version }
+        }
     }
 }
