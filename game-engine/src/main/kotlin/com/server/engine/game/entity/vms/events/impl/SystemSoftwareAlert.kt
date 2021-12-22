@@ -24,10 +24,9 @@ class SystemSoftwareAlert(
         val isSeekRunning = seeker?.isRunning() ?: false
         val skrVersion = seeker?.component<VersionedComponent>()?.version ?: 0.0
         source.softwares.values.forEach {
-            if(it.has<VisibleComponent>()) {
+            if(it.has<VisibleComponent>() && it.component<VisibleComponent>().hiddenVersion > 0.0) {
                 val hidderVersion = it.component<VisibleComponent>().hiddenVersion
-                val isHidden = hidderVersion > 0.0
-                val isVisible = isHidden && isSeekRunning && skrVersion >= hidderVersion
+                val isVisible = isSeekRunning && skrVersion >= hidderVersion
                 if(isVisible)
                     softs.add(it)
             } else {

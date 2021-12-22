@@ -11,6 +11,7 @@ import com.server.engine.game.entity.vms.commands.impl.process.KillProcess
 import com.server.engine.game.entity.vms.commands.impl.process.PauseProcess
 import com.server.engine.game.entity.vms.commands.impl.software.HideSoftware
 import com.server.engine.game.entity.vms.commands.impl.software.InstallSoftware
+import com.server.engine.game.entity.vms.commands.impl.software.SeekSoftware
 import com.server.engine.game.entity.vms.commands.impl.vevents.ClearLogs
 import com.server.engine.game.entity.vms.commands.impl.vevents.DeleteLog
 import com.server.engine.game.entity.vms.commands.impl.vevents.EditLog
@@ -32,6 +33,7 @@ class CommandManager : VMComponent {
         "spawn" to { a, p, s, _ -> Spawn(a, p, s) },
         "install" to { a, p, s, t -> InstallSoftware(a, p, s, t) },
         "hide" to { a, p, s, t -> HideSoftware(a, p, s, t) },
+        "seek" to { a, p, s, t -> SeekSoftware(a, p, s, t) },
         "echo" to { a, p, s, t -> Echo(a, p, s, t) },
         "lgcls" to { a, p, s, _ -> ClearLogs(a, p, s) },
         "elog" to { a, p, s, t -> EditLog(a, p, s, t) },

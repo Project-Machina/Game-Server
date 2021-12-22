@@ -96,7 +96,7 @@ class VirtualSoftware(name: String, extension: String) : ComponentManager<Softwa
             addComponent(comp)
         }
 
-        inline fun<reified  C: SoftwareComponent> VirtualSoftware.replace(comp: C, block : C.() -> Unit) {
+        inline fun<reified  C: SoftwareComponent> VirtualSoftware.replace(comp: C, block : C.() -> Unit = {}) {
             block(comp)
             putComponent(comp)
         }

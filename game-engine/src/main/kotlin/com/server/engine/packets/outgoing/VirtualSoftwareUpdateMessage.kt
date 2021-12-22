@@ -22,6 +22,7 @@ class VirtualSoftwareUpdateMessage(
             val softs = message.softs
             buf.writeShort(softs.size)
             softs.forEach { soft ->
+                println("${soft.fullName} - ${soft.isHidden()}")
                 buf.writeSimpleString(soft.id(), true)
                 buf.writeSimpleString(soft.name)
                 buf.writeSimpleString(soft.extension)
