@@ -1,5 +1,6 @@
 package com.server.engine.game.entity.vms.processes.components.software
 
+import com.server.engine.game.components.ComponentFactory
 import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.NULL_MACHINE
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
@@ -107,6 +108,12 @@ class InstallSoftwareComponent(
         }
         if(json.containsKey("remSoftware")) {
             remSoftware = fromJson(json["remSoftware"]!!.jsonObject)
+        }
+    }
+
+    companion object : ComponentFactory<InstallSoftwareComponent> {
+        override fun create(): InstallSoftwareComponent {
+            return InstallSoftwareComponent()
         }
     }
 }

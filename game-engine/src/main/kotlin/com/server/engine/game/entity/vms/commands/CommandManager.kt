@@ -26,7 +26,7 @@ import com.xenomachina.argparser.ArgParser
 class CommandManager : VMComponent {
 
     val commands = mutableMapOf<String, (Array<String>, ArgParser, VirtualMachine, VirtualMachine) -> VmCommand>(
-        "connect" to { a, p, s, t -> Connect(a, p, s, t) },
+        "connect" to { a, p, s, _ -> Connect(a, p, s) },
         "fproc" to { a, p, s, _ -> CompleteProcess(a, p, s) },
         "killproc" to { a, p, s, _ -> KillProcess(a, p, s) },
         "pproc" to { a, p, s, _ -> PauseProcess(a, p, s) },

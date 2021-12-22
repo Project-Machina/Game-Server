@@ -13,7 +13,8 @@ import com.server.engine.utilities.writeSimpleString
 import io.netty.buffer.Unpooled
 
 class VirtualSoftwareUpdateMessage(
-    val softs: List<VirtualSoftware>
+    val softs: List<VirtualSoftware>,
+    val isRemote: Boolean = false
 ) {
 
     companion object : PacketEncoder<VirtualSoftwareUpdateMessage> {
@@ -21,8 +22,8 @@ class VirtualSoftwareUpdateMessage(
             val buf = Unpooled.buffer()
             val softs = message.softs
             buf.writeShort(softs.size)
+            buf.writeBoolean(message.isRemote)
             softs.forEach { soft ->
-                println("${soft.fullName} - ${soft.isHidden()}")
                 buf.writeSimpleString(soft.id(), true)
                 buf.writeSimpleString(soft.name)
                 buf.writeSimpleString(soft.extension)

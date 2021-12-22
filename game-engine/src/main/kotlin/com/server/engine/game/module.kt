@@ -7,6 +7,12 @@ import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
 import com.server.engine.game.entity.vms.components.hdd.StorageRackComponent
 import com.server.engine.game.entity.vms.components.motherboard.MotherboardComponent
 import com.server.engine.game.entity.vms.components.power.PowerStorageComponent
+import com.server.engine.game.entity.vms.processes.ProcessComponent
+import com.server.engine.game.entity.vms.processes.components.logs.ClearLogsComponent
+import com.server.engine.game.entity.vms.processes.components.software.HideSoftwareComponent
+import com.server.engine.game.entity.vms.processes.components.software.InstallSoftwareComponent
+import com.server.engine.game.entity.vms.processes.components.software.SeekSoftwareComponent
+import com.server.engine.game.entity.vms.processes.components.software.SoftwareLinkComponent
 import com.server.engine.game.entity.vms.software.SoftwareComponent
 import com.server.engine.game.entity.vms.software.component.ProcessOwnerComponent
 import com.server.engine.game.entity.vms.software.component.TextComponent
@@ -25,7 +31,7 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
-val koinModule = module {
+val etcModule = module {
     single { InternetProtocolManager() }
     single { VirtualMachineTick() }
     single { PlayerTick() }
@@ -46,13 +52,18 @@ val softCompsModule = module {
     single<ComponentFactory<out SoftwareComponent>>(named(VisibleComponent::class.simpleName!!)) { VisibleComponent }
 }
 
+val processCompsModule = module {
+    single<ComponentFactory<out ProcessComponent>>(named(InstallSoftwareComponent::class.simpleName!!)) { InstallSoftwareComponent }
+    single<ComponentFactory<out ProcessComponent>>(named(HideSoftwareComponent::class.simpleName!!)) { HideSoftwareComponent }
+    single<ComponentFactory<out ProcessComponent>>(named(SeekSoftwareComponent::class.simpleName!!)) { SeekSoftwareComponent }
+    single<ComponentFactory<out ProcessComponent>>(named(SoftwareLinkComponent::class.simpleName!!)) { SoftwareLinkComponent }
+    single<ComponentFactory<out ProcessComponent>>(named(ClearLogsComponent::class.simpleName!!)) { ClearLogsComponent }
+}
+
 val vmCompsModule = module {
     single<ComponentFactory<out VMComponent>>(named(NetworkCardComponent::class.simpleName!!)) { NetworkCardComponent }
     single<ComponentFactory<out VMComponent>>(named(HardDriveComponent::class.simpleName!!)) { HardDriveComponent }
     single<ComponentFactory<out VMComponent>>(named(PowerStorageComponent::class.simpleName!!)) { PowerStorageComponent }
     single<ComponentFactory<out VMComponent>>(named(MotherboardComponent::class.simpleName!!)) { MotherboardComponent }
     single<ComponentFactory<out VMComponent>>(named(StorageRackComponent::class.simpleName!!)) { StorageRackComponent }
-}
-
-val processBehaviourModule = module {
 }

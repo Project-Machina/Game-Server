@@ -1,6 +1,8 @@
 package com.server.engine.game.world
 
 import com.server.engine.game.entity.vms.VirtualMachine
+import com.server.engine.game.entity.vms.VirtualMachine.Companion.with
+import com.server.engine.game.entity.vms.components.pages.HomePageComponent
 import com.server.engine.utilities.get
 import com.server.engine.utilities.inject
 import kotlinx.serialization.encodeToString
@@ -32,7 +34,16 @@ class GameWorld {
         loadWorld()
     }
 
+    fun getVirtualMachine(address: String = "") : VirtualMachine {
+        if(address.isEmpty())
+            return publicVirtualMachines["1.1.1.1"]!!
+        if(validateDomain(address))
+            return publicVirtualMachines[domainToAddress[address]!!]!!
+        return publicVirtualMachines[address]!!
+    }
+
     fun validateDomain(domain: String) = domainToAddress.containsKey(domain)
+
     fun registerDomain(domain: String, address: String) {
         if(!validateDomain(domain) && publicVirtualMachines.containsKey(address)) {
             domainToAddress.putIfAbsent(domain, address)
@@ -93,8 +104,16 @@ class GameWorld {
         val npcDefault = VirtualMachine.create()
         val defaultIP = "1.1.1.1"
         val domain = "First Whois.com"
+        npcDefault.with(HomePageComponent("default"))
         markPublic(npcDefault, defaultIP)
         registerDomain(domain, defaultIP)
+
+        val bankNpc = VirtualMachine.create()
+        val bankIP = "1.2.3.4"
+        val bankDomain = "Suite Bank.com"
+        bankNpc.with(HomePageComponent("default-bank"))
+        markPublic(bankNpc, bankIP)
+        registerDomain(bankDomain, bankIP)
     }
 
     fun loadWorld() {

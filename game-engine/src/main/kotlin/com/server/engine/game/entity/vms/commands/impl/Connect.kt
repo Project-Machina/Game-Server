@@ -5,6 +5,7 @@ import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
 import com.server.engine.game.entity.vms.commands.VmCommand
 import com.server.engine.game.entity.vms.components.connection.ConnectionComponent
 import com.server.engine.game.entity.vms.components.vevents.VirtualEvent
+import com.server.engine.game.entity.vms.events.impl.SystemServePageAlert
 import com.server.engine.game.entity.vms.processes.VirtualProcess
 import com.server.engine.game.entity.vms.processes.VirtualProcessComponent
 import com.server.engine.game.world.GameWorld
@@ -14,8 +15,7 @@ import com.xenomachina.argparser.ArgParser
 class Connect(
     override val args: Array<String>,
     override val parser: ArgParser,
-    override val source: VirtualMachine,
-    override val target: VirtualMachine
+    override val source: VirtualMachine
 ) : VmCommand {
     override val name: String = "connect"
     override fun execute(): VirtualProcess {
@@ -24,11 +24,17 @@ class Connect(
         val parts = address.split(".")
         try {
             if (parts.size == 2 && (parts[1] == "com" || parts[1] == "org" || parts[1] == "net")) {
-                con.connect(address)
+                if(con.connect(address)) {
+                    source.systemOutput.tryEmit(SystemServePageAlert(source, con.remoteVM))
+                }
             } else if (parts.size == 4 && parts.all { it.toIntOrNull() != null && it.toInt() in 0..255 }) {
-                con.connect(address)
+                if(con.connect(address)) {
+                    source.systemOutput.tryEmit(SystemServePageAlert(source, con.remoteVM))
+                }
             }
-        } catch (_: Exception) {}
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         return VirtualProcess.NO_PROCESS
     }
 }

@@ -19,11 +19,11 @@ object Application {
         startKoin {
             modules(
                 outgoingPacketModule,
-                koinModule,
+                etcModule,
                 subscriptionModule,
                 softCompsModule,
                 vmCompsModule,
-                processBehaviourModule
+                processCompsModule
             )
         }
 

@@ -9,8 +9,10 @@ import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
 import com.server.engine.game.entity.vms.components.hdd.StorageRackComponent
 import com.server.engine.game.entity.vms.components.motherboard.MotherboardComponent
 import com.server.engine.game.entity.vms.processes.VirtualProcessComponent
+import com.server.engine.game.world.GameWorld
 import com.server.engine.network.channel.packets.Packet
 import com.server.engine.network.channel.packets.PacketEncoder
+import com.server.engine.utilities.get
 import com.server.engine.utilities.writeSimpleString
 import io.netty.buffer.Unpooled
 import java.time.LocalDateTime
@@ -19,14 +21,14 @@ import java.time.ZoneOffset
 class PlayerStatisticsMessage(val player: Player) {
     companion object : PacketEncoder<PlayerStatisticsMessage> {
         override fun encode(message: PlayerStatisticsMessage): Packet {
+            val world: GameWorld = get()
             val content = Unpooled.buffer()
             val player = message.player
             val linkComp = player.component<VirtualMachineLinkComponent>()
             val linkIP = linkComp.linkIP.value
             val vm = linkComp.linkVM
             val remoteComp = vm.component<ConnectionComponent>()
-            val remoteIP = remoteComp.remoteIP.value
-            val domain = remoteComp.domain.value
+            val remoteIP = remoteComp.remoteAddress.value
             val rankComp = player.component<RankComponent>()
 
             val storageRack = vm.component<StorageRackComponent>()
@@ -34,8 +36,10 @@ class PlayerStatisticsMessage(val player: Player) {
             val motherboard = vm.component<MotherboardComponent>()
             val pcm = vm.component<VirtualProcessComponent>()
 
+            val domain = if(world.validateDomain(remoteIP)) remoteIP else world.addressToDomain[remoteIP]
+
             content.writeSimpleString(linkIP)
-            content.writeSimpleString(if (domain != "none") domain else remoteIP)
+            content.writeSimpleString(domain ?: remoteIP)
             content.writeLong(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC))
             content.writeInt(rankComp.rank)
             content.writeInt(rankComp.nextRankProgress)

@@ -1,5 +1,6 @@
 package com.server.engine.game.entity.vms.processes.components.software
 
+import com.server.engine.game.components.ComponentFactory
 import com.server.engine.game.entity.vms.processes.ProcessComponent
 import com.server.engine.game.entity.vms.software.VirtualSoftware
 import kotlinx.serialization.json.JsonObject
@@ -21,4 +22,11 @@ class SoftwareLinkComponent(
         soft.loadComponents(json)
         software = soft
     }
+
+    companion object : ComponentFactory<SoftwareLinkComponent> {
+        override fun create(): SoftwareLinkComponent {
+            return SoftwareLinkComponent()
+        }
+    }
+
 }

@@ -5,7 +5,9 @@ import com.server.engine.game.entity.character.Character
 import com.server.engine.game.entity.character.components.RankComponent
 import com.server.engine.game.entity.character.components.VirtualMachineLinkComponent
 import com.server.engine.game.entity.character.components.WidgetManagerComponent
+import com.server.engine.game.entity.vms.SystemCall
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
+import com.server.engine.game.entity.vms.components.connection.ConnectionComponent
 import com.server.engine.game.entity.vms.events.impl.SystemSoftwareAlert
 import com.server.engine.game.world.GameWorld
 import com.server.engine.game.world.tick.Subscription
@@ -39,8 +41,8 @@ class Player(val name: String, val session: NetworkSession) : Character() {
         with(WidgetManagerComponent())
         with(RankComponent())
 
+        val link = component<VirtualMachineLinkComponent>()
         if (name.lowercase() == "javatar") {
-            val link = component<VirtualMachineLinkComponent>()
             val vm = world.publicVirtualMachines["74.97.118.97"]
             if(vm != null) {
                 controlledVirtualMachines.add(vm.id)
@@ -55,16 +57,19 @@ class Player(val name: String, val session: NetworkSession) : Character() {
 
         val widgetManager = component<WidgetManagerComponent>()
         widgetManager.currentWidget.onEach {
-            if(it == "software") {
-                component<VirtualMachineLinkComponent>()
-                    .linkVM.let { vm ->
-                        vm.systemOutput.emit(SystemSoftwareAlert(vm, vm.component()))
-                    }
-            } else if(it == "hardware") {
-                controlledVirtualMachines.forEach { uuid ->
-                    val vm = world.virtualMachines[uuid]
-                    if(vm != null) {
-                        session.sendMessage(VirtualMachineUpdateMessage(vm, vm === component<VirtualMachineLinkComponent>().linkVM))
+            when (it) {
+                "software" -> {
+                    component<VirtualMachineLinkComponent>()
+                        .linkVM.let { vm ->
+                            vm.systemOutput.emit(SystemSoftwareAlert(vm, vm.component()))
+                        }
+                }
+                "hardware" -> {
+                    controlledVirtualMachines.forEach { uuid ->
+                        val vm = world.virtualMachines[uuid]
+                        if(vm != null) {
+                            session.sendMessage(VirtualMachineUpdateMessage(vm, vm === component<VirtualMachineLinkComponent>().linkVM))
+                        }
                     }
                 }
             }

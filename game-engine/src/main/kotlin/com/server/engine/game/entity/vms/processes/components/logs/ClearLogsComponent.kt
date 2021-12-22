@@ -1,5 +1,6 @@
 package com.server.engine.game.entity.vms.processes.components.logs
 
+import com.server.engine.game.components.ComponentFactory
 import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.has
@@ -17,6 +18,12 @@ class ClearLogsComponent(override var threadCost: Int) : OnFinishProcessComponen
         if(source.has<VirtualEventsComponent>()) {
             val logs = source.component<VirtualEventsComponent>()
             logs.clear()
+        }
+    }
+
+    companion object : ComponentFactory<ClearLogsComponent> {
+        override fun create(): ClearLogsComponent {
+            return ClearLogsComponent(0)
         }
     }
 }

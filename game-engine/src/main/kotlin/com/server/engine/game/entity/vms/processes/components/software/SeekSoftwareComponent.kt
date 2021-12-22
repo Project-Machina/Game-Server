@@ -1,5 +1,6 @@
 package com.server.engine.game.entity.vms.processes.components.software
 
+import com.server.engine.game.components.ComponentFactory
 import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
 import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
@@ -74,6 +75,12 @@ class SeekSoftwareComponent(
         }
         if (target != null) {
             this.target = target
+        }
+    }
+
+    companion object : ComponentFactory<SeekSoftwareComponent> {
+        override fun create(): SeekSoftwareComponent {
+            return SeekSoftwareComponent(0)
         }
     }
 }

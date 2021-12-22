@@ -52,7 +52,7 @@ class VirtualMachine private constructor(id: UUID = UUID.randomUUID()) : Compone
                 val manager = component<CommandManager>()
                 if(it.isRemote && has<ConnectionComponent>()) {
                     val con = component<ConnectionComponent>()
-                    if(con.remoteIP.value != "localhost") {
+                    if(con.remoteAddress.value != "localhost") {
                         val remoteVM = con.remoteVM
                         manager.execute(it.args, this, remoteVM)
                     }

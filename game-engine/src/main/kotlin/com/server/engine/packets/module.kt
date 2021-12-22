@@ -16,6 +16,7 @@ val outgoingPacketModule = module {
     MessageEncoder(VirtualEventMessage)
     MessageEncoder(VirtualLogUpdateMessage)
     MessageEncoder(VirtualProcessCreateMessage)
+    MessageEncoder(NpcPageMessage)
 }
 
 inline fun <reified M : Any> Module.MessageEncoder(encoder: PacketEncoder<M>) {
