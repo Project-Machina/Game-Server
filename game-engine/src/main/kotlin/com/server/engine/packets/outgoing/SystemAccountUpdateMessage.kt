@@ -16,7 +16,7 @@ class SystemAccountUpdateMessage(val account: SystemAccount? = null) {
                     buf.writeSimpleString(it.username)
                     buf.writeByte(it.permissions.size)
                     it.permissions.forEach {  p ->
-                        buf.writeSimpleString(p.name)
+                        buf.writeSimpleString(p.key)
                     }
                 }
             } else {

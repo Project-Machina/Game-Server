@@ -2,6 +2,7 @@ package com.server.engine.game.entity.vms.accounts
 
 import com.server.engine.game.components.ComponentFactory
 import com.server.engine.game.entity.vms.VMComponent
+import com.server.engine.utilities.boolean
 import com.server.engine.utilities.generatePassword
 import com.server.engine.utilities.string
 import kotlinx.serialization.json.*
@@ -9,20 +10,12 @@ import kotlinx.serialization.json.*
 class SystemAccountComponent : VMComponent {
 
     val accounts = mutableMapOf(
-        "root" to SystemAccount(
-            "root", permissions = mutableListOf(
-                Permission("ftp"),
-                Permission("ssh"),
-                Permission("accman"),
-                Permission("hidden"),
-                Permission("guest"),
-            )
-        )
+        "root" to SystemAccount("root", perms = listOf("ftp", "ssh", "accman", "hidden", "guest"))
     )
 
     val activeAccounts = mutableMapOf<String, SystemAccount>()
 
-    fun login(source: String, user: String, password: String): Boolean {
+    fun login(source: String, user: String = "", password: String = ""): Boolean {
         if (source == "link") {
             val root = accounts["root"]!!
             activeAccounts[source] = root
@@ -93,7 +86,10 @@ class SystemAccountComponent : VMComponent {
                         put("pass", it.password)
                         putJsonArray("perms") {
                             it.permissions.forEach {
-                                add(it.saveComponents())
+                                add(buildJsonObject {
+                                    put("name", it.key)
+                                    put("has", it.value)
+                                })
                             }
                         }
                     })
@@ -108,16 +104,18 @@ class SystemAccountComponent : VMComponent {
             accountsArray.map { it.jsonObject }.forEach { it ->
                 val user = it.string("user")
                 val pass = it.string("pass")
-                val perms = mutableListOf<Permission>()
+                val perms = mutableMapOf<String, Boolean>()
                 if (it.containsKey("perms")) {
-                    val permsArray = it.jsonArray.map { it.jsonObject }
+                    val permsArray = it["perms"]!!.jsonArray.map { it.jsonObject }
                     permsArray.forEach {
-                        val perm = Permission()
-                        perm.loadComponents(it)
-                        perms.add(perm)
+                        val name = it.string("name")
+                        val has = it.boolean("has")
+                        perms[name] = has
                     }
                 }
-                accounts[user] = SystemAccount(user, pass, perms)
+                accounts[user] = SystemAccount(user, pass).also {
+                    it.permissions.putAll(perms)
+                }
             }
         }
     }
@@ -128,7 +126,7 @@ class SystemAccountComponent : VMComponent {
         }
 
         fun SystemAccountComponent.setAccount(user: String, password: String, perms: MutableList<Permission> = mutableListOf()) {
-            val account = SystemAccount(user, password, perms)
+            val account = SystemAccount(user, password)
             accounts[user] = account
         }
     }
