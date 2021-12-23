@@ -2,13 +2,14 @@ package com.server.engine.game.entity.vms.commands.impl.software
 
 import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
+import com.server.engine.game.entity.vms.accounts.SystemAccountComponent
 import com.server.engine.game.entity.vms.commands.VmCommand
 import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
 import com.server.engine.game.entity.vms.events.impl.SystemAlert
 import com.server.engine.game.entity.vms.processes.VirtualProcess
+import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.NO_PROCESS
 import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.singleton
 import com.server.engine.game.entity.vms.processes.components.OnFinishProcessComponent
-import com.server.engine.game.entity.vms.processes.components.software.HideSoftwareComponent
 import com.server.engine.game.entity.vms.processes.components.software.SeekSoftwareComponent
 import com.server.engine.game.entity.vms.software.VirtualSoftware.Companion.component
 import com.server.engine.game.entity.vms.software.VirtualSoftware.Companion.has
@@ -31,57 +32,60 @@ class SeekSoftware(
     val seekerVersion: Double by parser.storing("--skr", help = "The Version to seek the software with.") { toDouble() }
         .default(0.0)
 
-    override fun execute(): VirtualProcess {
-        val sourceHDD = source.component<HardDriveComponent>()
-        val targetHDD = target.component<HardDriveComponent>()
+    override suspend fun execute(): VirtualProcess {
+        val taccman = target.component<SystemAccountComponent>()
+        if (isLocal || taccman.canExecuteSoftware(source.address)) {
+            val sourceHDD = source.component<HardDriveComponent>()
+            val targetHDD = target.component<HardDriveComponent>()
 
-        val seekerSoft = if (seekerVersion == 0.0) {
-            sourceHDD.getBestSoftware("skr")
-        } else sourceHDD.getSoftwaresByExtensionAndVersion("skr", seekerVersion).singleOrNull()
+            val seekerSoft = if (seekerVersion == 0.0) {
+                sourceHDD.getBestSoftware("skr")
+            } else sourceHDD.getSoftwaresByExtensionAndVersion("skr", seekerVersion).singleOrNull()
 
-        if (seekerSoft == null) {
-            source.systemOutput.tryEmit(
-                SystemAlert(
-                    "No seeker software found.",
-                    source
+            if (seekerSoft == null) {
+                source.systemOutput.emit(
+                    SystemAlert(
+                        "No seeker software found.",
+                        source
+                    )
+                )
+                return NO_PROCESS
+            }
+            if (seekerSoft.has<ProcessOwnerComponent>() && seekerSoft.component<ProcessOwnerComponent>().pid == -1) {
+                source.systemOutput.emit(
+                    SystemAlert(
+                        "No seeker software running.",
+                        source
+                    )
+                )
+                return NO_PROCESS
+            }
+
+            val softwareToSeek = targetHDD.getSoftwareByNameAndVersion(softwareName, softwareVersion).singleOrNull()
+
+            if (softwareToSeek == null) {
+                source.systemOutput.emit(
+                    SystemAlert(
+                        "Unable to seek/find software.",
+                        source
+                    )
+                )
+                return NO_PROCESS
+            }
+
+            val threadCost = (softwareToSeek.size / 500).toInt()
+            val pc = VirtualProcess("Seek ${softwareToSeek.fullName}")
+            pc.singleton<OnFinishProcessComponent>(
+                SeekSoftwareComponent(
+                    threadCost,
+                    target = target,
+                    seekerSoftware = seekerSoft,
+                    softwareToSeek = softwareToSeek
                 )
             )
-            return VirtualProcess.NO_PROCESS
+            return pc
         }
-        if (seekerSoft.has<ProcessOwnerComponent>() && seekerSoft.component<ProcessOwnerComponent>().pid == -1) {
-            source.systemOutput.tryEmit(
-                SystemAlert(
-                    "No seeker software running.",
-                    source
-                )
-            )
-            return VirtualProcess.NO_PROCESS
-        }
-
-        val softwareToSeek = if (isRemote) {
-            targetHDD.getSoftwareByNameAndVersion(softwareName, softwareVersion).singleOrNull()
-        } else sourceHDD.getSoftwareByNameAndVersion(softwareName, softwareVersion).singleOrNull()
-
-        if (softwareToSeek == null) {
-            source.systemOutput.tryEmit(
-                SystemAlert(
-                    "Unable to seek/find software.",
-                    source
-                )
-            )
-            return VirtualProcess.NO_PROCESS
-        }
-
-        val threadCost = (softwareToSeek.size / 500).toInt()
-        val pc = VirtualProcess("Seek ${softwareToSeek.fullName}")
-        pc.singleton<OnFinishProcessComponent>(
-            SeekSoftwareComponent(
-                threadCost,
-                target = target,
-                seekerSoftware = seekerSoft,
-                softwareToSeek = softwareToSeek
-            )
-        )
-        return pc
+        source.systemOutput.emit(SystemAlert("Access Denied", source, "Seek $softwareName", true))
+        return NO_PROCESS
     }
 }

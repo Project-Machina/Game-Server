@@ -4,12 +4,8 @@ import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
 import com.server.engine.game.entity.vms.commands.VmCommand
 import com.server.engine.game.entity.vms.components.connection.ConnectionComponent
-import com.server.engine.game.entity.vms.components.vevents.VirtualEvent
 import com.server.engine.game.entity.vms.events.impl.SystemServePageAlert
 import com.server.engine.game.entity.vms.processes.VirtualProcess
-import com.server.engine.game.entity.vms.processes.VirtualProcessComponent
-import com.server.engine.game.world.GameWorld
-import com.server.engine.utilities.inject
 import com.xenomachina.argparser.ArgParser
 
 class Connect(
@@ -18,7 +14,7 @@ class Connect(
     override val source: VirtualMachine
 ) : VmCommand {
     override val name: String = "connect"
-    override fun execute(): VirtualProcess {
+    override suspend fun execute(): VirtualProcess {
         val address = args.joinToString(" ") { it }
         val con = source.component<ConnectionComponent>()
         val parts = address.split(".")

@@ -35,7 +35,7 @@ class Spawn(override val args: Array<String>, override val parser: ArgParser, ov
     val softwareName by parser.storing("-n", help = "Software Name") { replace('_', ' ') }.default("")
     val softwareVersion by parser.storing("-v", help = "Software Version") { toDouble() }.default(0.0)
 
-    override fun execute(): VirtualProcess {
+    override suspend fun execute(): VirtualProcess {
 
         if(tlog) {
             source.vlog("localhost", "spawned by Javatar.")

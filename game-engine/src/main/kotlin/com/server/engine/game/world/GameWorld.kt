@@ -1,8 +1,15 @@
 package com.server.engine.game.world
 
 import com.server.engine.game.entity.vms.VirtualMachine
+import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.with
+import com.server.engine.game.entity.vms.accounts.SystemAccountComponent
+import com.server.engine.game.entity.vms.accounts.SystemAccountComponent.Companion.setAccount
+import com.server.engine.game.entity.vms.addSoftware
+import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
 import com.server.engine.game.entity.vms.components.pages.HomePageComponent
+import com.server.engine.game.entity.vms.software.SoftwareBuilder.Companion.software
+import com.server.engine.game.entity.vms.software.component.VersionedComponent
 import com.server.engine.utilities.get
 import com.server.engine.utilities.inject
 import kotlinx.serialization.encodeToString
@@ -107,6 +114,19 @@ class GameWorld {
         npcDefault.with(HomePageComponent("default"))
         markPublic(npcDefault, defaultIP)
         registerDomain(domain, defaultIP)
+        val accman = npcDefault.component<SystemAccountComponent>()
+        accman.setAccount("test", "1")
+        val hasher = software("Hasher", "hash") {
+            VersionedComponent init {
+                version = 1.0
+            }
+        }
+        val firewall = software("Firewall", "fwl") {
+            VersionedComponent init {
+                version = 1.0
+            }
+        }
+        npcDefault.addSoftware(hasher, firewall)
 
         val bankNpc = VirtualMachine.create()
         val bankIP = "1.2.3.4"

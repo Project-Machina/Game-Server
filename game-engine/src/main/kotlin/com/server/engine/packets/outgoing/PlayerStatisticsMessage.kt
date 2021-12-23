@@ -4,6 +4,7 @@ import com.server.engine.game.entity.character.components.RankComponent
 import com.server.engine.game.entity.character.components.VirtualMachineLinkComponent
 import com.server.engine.game.entity.character.player.Player
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
+import com.server.engine.game.entity.vms.accounts.SystemAccountComponent
 import com.server.engine.game.entity.vms.components.connection.ConnectionComponent
 import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
 import com.server.engine.game.entity.vms.components.hdd.StorageRackComponent
@@ -28,6 +29,7 @@ class PlayerStatisticsMessage(val player: Player) {
             val linkIP = linkComp.linkIP.value
             val vm = linkComp.linkVM
             val remoteComp = vm.component<ConnectionComponent>()
+            val remoteVM = remoteComp.remoteVM
             val remoteIP = remoteComp.remoteAddress.value
             val rankComp = player.component<RankComponent>()
 
@@ -38,8 +40,16 @@ class PlayerStatisticsMessage(val player: Player) {
 
             val domain = if(world.validateDomain(remoteIP)) remoteIP else world.addressToDomain[remoteIP]
 
+            val remoteAccman = remoteVM.component<SystemAccountComponent>()
+
+            val acc = remoteAccman.getActiveAccountFor(linkIP)
+
+            val remoteValue = if(acc != null) {
+                (domain ?: remoteIP) + " (${acc.username})"
+            } else domain ?: remoteIP
+
             content.writeSimpleString(linkIP)
-            content.writeSimpleString(domain ?: remoteIP)
+            content.writeSimpleString(remoteValue)
             content.writeLong(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC))
             content.writeInt(rankComp.rank)
             content.writeInt(rankComp.nextRankProgress)

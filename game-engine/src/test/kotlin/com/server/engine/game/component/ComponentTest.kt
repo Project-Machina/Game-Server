@@ -8,7 +8,10 @@ import com.server.engine.game.entity.vms.processes.VirtualProcess
 import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.singleton
 import com.server.engine.game.entity.vms.processes.components.OnFinishProcessComponent
 import com.server.engine.game.entity.vms.processes.components.software.InstallSoftwareComponent
+import com.server.engine.game.etcModule
 import org.junit.jupiter.api.Test
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
 import kotlin.reflect.KClass
 
 class ComponentTest {
@@ -31,10 +34,17 @@ class ComponentTest {
 
     @Test
     fun `process singleton test`() {
+
+        startKoin {
+            modules(etcModule)
+        }
+
         val pc = VirtualProcess("test")
         pc.singleton<OnFinishProcessComponent>(InstallSoftwareComponent())
         val t = pc.components.keys.single()
         assert(t.simpleName == "OnFinishProcessComponent")
+
+        stopKoin()
     }
 
 }

@@ -6,12 +6,13 @@ import com.server.engine.network.channel.packets.PacketEncoder
 import com.server.engine.utilities.writeSimpleString
 import io.netty.buffer.Unpooled
 
-class VirtualProcessCreateMessage(val process: VirtualProcess){
+class VirtualProcessCreateMessage(val process: VirtualProcess, val isRemote: Boolean) {
     companion object : PacketEncoder<VirtualProcessCreateMessage> {
         override fun encode(message: VirtualProcessCreateMessage): Packet {
             val content = Unpooled.buffer()
             val pc = message.process
-            if(pc.immediate) {
+            content.writeBoolean(message.isRemote)
+            if (pc.immediate) {
                 content.writeBoolean(true)
             } else {
                 content.writeBoolean(false)

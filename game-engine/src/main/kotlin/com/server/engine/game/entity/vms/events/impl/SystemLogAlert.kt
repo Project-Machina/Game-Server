@@ -14,10 +14,12 @@ import com.server.engine.packets.outgoing.VirtualLogUpdateMessage
 
 class SystemLogAlert(
     override val vm: VirtualMachine,
-    override val source: VirtualEventsComponent
+    override val source: VirtualEventsComponent,
 ) : SystemOutput<VirtualEventsComponent> {
 
-    override suspend fun handleEventForPlayer(player: Player) {
+    override val isRemote: Boolean = true
+
+    override suspend fun handleEventForPlayer(player: Player, isRemote: Boolean) {
         val logs = mutableListOf<VirtualEvent>()
         if(source.events.isNotEmpty()) {
             val hdd = vm.component<HardDriveComponent>()
@@ -31,6 +33,6 @@ class SystemLogAlert(
                 }
             }
         }
-        player.session.sendMessage(VirtualLogUpdateMessage(logs))
+        player.session.sendMessage(VirtualLogUpdateMessage(logs, isRemote))
     }
 }

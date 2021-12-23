@@ -20,7 +20,7 @@ class ClearLogs(
 
     override val name: String = "lgcls"
 
-    override fun execute(): VirtualProcess {
+    override suspend fun execute(): VirtualProcess {
         if(source.has<VirtualEventsComponent>()) {
             val pc = VirtualProcess("Clearing Logs")
             val logs = source.component<VirtualEventsComponent>()

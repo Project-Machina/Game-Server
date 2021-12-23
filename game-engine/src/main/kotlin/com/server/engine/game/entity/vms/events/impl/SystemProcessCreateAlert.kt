@@ -8,9 +8,11 @@ import com.server.engine.packets.outgoing.VirtualProcessCreateMessage
 
 class SystemProcessCreateAlert(
     override val vm: VirtualMachine,
-    override val source: VirtualProcess
+    override val source: VirtualProcess,
+    val isRemoteProcessCreation: Boolean
 ) : SystemOutput<VirtualProcess> {
-    override suspend fun handleEventForPlayer(player: Player) {
-        player.session.sendMessage(VirtualProcessCreateMessage(source))
+
+    override suspend fun handleEventForPlayer(player: Player, isRemote: Boolean) {
+        player.session.sendMessage(VirtualProcessCreateMessage(source, isRemoteProcessCreation))
     }
 }

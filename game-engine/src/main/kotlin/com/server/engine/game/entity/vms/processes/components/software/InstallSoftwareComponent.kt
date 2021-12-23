@@ -33,51 +33,34 @@ class InstallSoftwareComponent(
 ) : OnFinishProcessComponent {
 
     override suspend fun onTick(source: VirtualMachine, process: VirtualProcess) {
-        val isRemote = source !== target && target !== NULL_MACHINE
-        val hdd: HardDriveComponent = if(isRemote) {
-            target.component()
-        } else source.component()
+        val hdd: HardDriveComponent = target.component()
 
-        if(!hdd.hasSoftware(software.id()))
+        if (!hdd.hasSoftware(software.id()))
             return
+        val pcm: VirtualProcessComponent = target.component()
+        val mb: MotherboardComponent = target.component()
 
-        val pcm: VirtualProcessComponent = if(isRemote) {
-            target.component()
-        } else source.component()
+        println("${software.fullName} - ${target === source} - ${target.address} - ${source.address}")
 
-        val mb: MotherboardComponent = if(isRemote) {
-            target.component()
-        } else source.component()
-
-        val pc = if(remSoftware === VirtualSoftware.NULL_SOFTWARE) {
+        val pc = if (remSoftware === VirtualSoftware.NULL_SOFTWARE) {
             VirtualProcess(software.fullName, isIndeterminate = true)
         } else VirtualProcess("${software.fullName} (Encrypted)", isIndeterminate = true)
 
         var ramCost = (software.size * 0.01).toLong()
-        if(ramCost <= 0) {
+        if (ramCost <= 0) {
             ramCost = 1
         }
-        println("Cost $ramCost")
-
         pc.singleton<ResourceComponent>(ResourceUsageComponent(ramCost = ramCost))
         pc.with(SoftwareLinkComponent(software))
-
         val requiredRAM = pc.ramCost + pcm.ramUsage
-
-        if(requiredRAM >= mb.availableRam) {
+        if (requiredRAM >= mb.availableRam) {
             source.systemOutput.emit(SystemAlert("Not enough RAM available.", source))
             return
         }
-
         software.replace(ProcessOwnerComponent()) {
             pid = pcm.addProcess(pc)
         }
-
-        if(isRemote) {
-            target.systemOutput.tryEmit(SystemSoftwareAlert(target, hdd))
-        } else {
-            source.systemOutput.tryEmit(SystemSoftwareAlert(source, hdd))
-        }
+        target.systemOutput.emit(SystemSoftwareAlert(target, hdd))
     }
 
     override fun save(): JsonObject {
@@ -97,16 +80,16 @@ class InstallSoftwareComponent(
 
     override fun load(json: JsonObject) {
         super.load(json["stats"]!!.jsonObject)
-        if(json.containsKey("target")) {
+        if (json.containsKey("target")) {
             val target = vmachine(json["target"]!!.jsonPrimitive.content)
             if (target != null) {
                 this.target = target
             }
         }
-        if(json.containsKey("software")) {
+        if (json.containsKey("software")) {
             software = fromJson(json["software"]!!.jsonObject)
         }
-        if(json.containsKey("remSoftware")) {
+        if (json.containsKey("remSoftware")) {
             remSoftware = fromJson(json["remSoftware"]!!.jsonObject)
         }
     }

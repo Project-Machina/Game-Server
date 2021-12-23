@@ -3,7 +3,9 @@ package com.server.engine.game.entity.vms.components.hdd
 import com.server.engine.game.components.ComponentFactory
 import com.server.engine.game.entity.vms.UpgradableComponent
 import com.server.engine.game.entity.vms.VMComponent
+import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.components.power.PoweredComponent
+import com.server.engine.game.entity.vms.events.impl.SystemSoftwareAlert
 import com.server.engine.game.entity.vms.software.SoftwareBuilder.Companion.software
 import com.server.engine.game.entity.vms.software.VirtualSoftware
 import com.server.engine.game.entity.vms.software.VirtualSoftware.Companion.component
@@ -20,13 +22,21 @@ class HardDriveComponent(override val upgrades: UpgradableComponent = HardDriveU
 
     val driveUsage: Long get() = softwares.values.sumOf { it.size }
 
+    private var isDirty: Boolean = false
+
     fun addSoftware(software: VirtualSoftware) : Boolean {
         return if(softwares.containsKey(software.id())) {
+            isDirty = true
             true
         } else {
-            softwares.putIfAbsent(software.id(), software)
+            isDirty = softwares.putIfAbsent(software.id(), software) == null
             false
         }
+    }
+
+    fun deleteSoftware(software: VirtualSoftware) {
+        softwares.remove(software.id())
+        isDirty = true
     }
 
     fun getSoftware(id: String) : VirtualSoftware {
@@ -85,6 +95,17 @@ class HardDriveComponent(override val upgrades: UpgradableComponent = HardDriveU
             }
         }
         return list
+    }
+
+    override suspend fun onTick(source: VirtualMachine) {
+        if(isDirty) {
+            source.systemOutput.emit(SystemSoftwareAlert(source, this))
+            isDirty = false
+        }
+    }
+
+    fun markDirty() {
+        isDirty = true
     }
 
     override fun save(): JsonObject {

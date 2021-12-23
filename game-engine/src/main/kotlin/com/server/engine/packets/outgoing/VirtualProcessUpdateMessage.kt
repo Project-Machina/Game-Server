@@ -11,7 +11,6 @@ class VirtualProcessUpdateMessage(val process: VirtualProcess) {
         override fun encode(message: VirtualProcessUpdateMessage): Packet {
             val content = Unpooled.buffer()
             val pc = message.process
-
             if(pc.immediate) {
                 content.writeBoolean(true)
             } else {

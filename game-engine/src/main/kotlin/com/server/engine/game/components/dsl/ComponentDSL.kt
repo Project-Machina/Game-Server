@@ -10,6 +10,17 @@ class ComponentDSL<BASE : Component>(val manager: ComponentManager<BASE>) {
         manager.addComponent(comp)
     }
 
+    inline fun <reified C : BASE> C.init(init: C.() -> Unit) {
+        init(this)
+        add(this)
+    }
+
+    inline infix fun<reified  C: BASE> ComponentFactory<C>.init(init: C.() -> Unit) {
+        val comp = create()
+        init(comp)
+        add(comp)
+    }
+
     operator fun BASE.unaryPlus() {
         manager.addComponent(this)
     }

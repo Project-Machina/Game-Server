@@ -78,7 +78,10 @@ class Player(val name: String, val session: NetworkSession) : Character() {
 
     fun logout() {
         if (subscription != null) {
-            component<VirtualMachineLinkComponent>().stopMonitorJobs()
+            component<VirtualMachineLinkComponent>().let {
+                it.stopMonitorJobs()
+                it.stopRemoteMonitorJobs()
+            }
             session.shutdownGracefully()
             subscription?.cancel(CancellationException("Logging out player $name"))
             println("Logging out player $name.")

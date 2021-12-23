@@ -32,7 +32,6 @@ class Saving {
         val hdd = HardDriveComponent()
 
         vm.with(hdd)
-        vm.with(PowerStorageComponent())
 
         val soft = software("Notes", "txt") {
             +TextComponent

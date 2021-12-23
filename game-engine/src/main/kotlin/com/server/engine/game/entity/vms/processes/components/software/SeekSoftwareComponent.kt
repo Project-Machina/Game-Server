@@ -9,9 +9,7 @@ import com.server.engine.game.entity.vms.processes.VirtualProcess
 import com.server.engine.game.entity.vms.processes.components.OnFinishProcessComponent
 import com.server.engine.game.entity.vms.software.SoftwareBuilder
 import com.server.engine.game.entity.vms.software.VirtualSoftware
-import com.server.engine.game.entity.vms.software.VirtualSoftware.Companion.component
 import com.server.engine.game.entity.vms.software.VirtualSoftware.Companion.replace
-import com.server.engine.game.entity.vms.software.component.VersionedComponent
 import com.server.engine.game.entity.vms.software.component.VisibleComponent
 import com.server.engine.game.entity.vms.software.isRunning
 import com.server.engine.game.world.GameWorld
@@ -33,21 +31,16 @@ class SeekSoftwareComponent(
     override var runningTime: Long = 3000
 
     override suspend fun onTick(source: VirtualMachine, process: VirtualProcess) {
-        val isRemote = source !== target && target !== VirtualMachine.NULL_MACHINE
         val sourceHDD = source.component<HardDriveComponent>()
         val targetHDD = target.component<HardDriveComponent>()
-        val hasSoftware = if (isRemote) {
-            targetHDD.hasSoftware(softwareToSeek.id())
-        } else {
-            sourceHDD.hasSoftware(softwareToSeek.id())
-        }
+        val hasSoftware = targetHDD.hasSoftware(softwareToSeek.id())
         if (hasSoftware && sourceHDD.hasSoftware(seekerSoftware.id()) && !softwareToSeek.isRunning()) {
             softwareToSeek.replace(VisibleComponent())
-            if(isRemote) {
-                target.systemOutput.tryEmit(SystemSoftwareAlert(target, targetHDD))
-            } else {
-                source.systemOutput.tryEmit(SystemSoftwareAlert(target, sourceHDD))
-            }
+            target.systemOutput.emit(
+                SystemSoftwareAlert(
+                    target,
+                    targetHDD
+                ))
         }
     }
 

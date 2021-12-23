@@ -5,6 +5,7 @@ import com.server.engine.game.entity.vms.commands.VmCommand
 import com.server.engine.game.entity.vms.events.impl.SystemAlert
 import com.server.engine.game.entity.vms.processes.VirtualProcess
 import com.xenomachina.argparser.ArgParser
+import com.xenomachina.argparser.default
 
 class Echo(
     override val args: Array<String>,
@@ -15,15 +16,13 @@ class Echo(
 
     override val name: String = "echo"
 
-    override fun execute(): VirtualProcess {
+    val toTarget by parser.flagging("-t", help = "Send echo to target.").default(false)
+
+    override suspend fun execute(): VirtualProcess {
         val msg = args.joinToString(" ") { it }
-
-        if(isRemote) {
-            target.systemOutput.tryEmit(SystemAlert(msg, target))
-        } else {
-            source.systemOutput.tryEmit(SystemAlert(msg, source))
+        if (isLocal || (toTarget && !isLocal)) {
+            target.systemOutput.emit(SystemAlert(msg, target))
         }
-
         return VirtualProcess.NO_PROCESS
     }
 }

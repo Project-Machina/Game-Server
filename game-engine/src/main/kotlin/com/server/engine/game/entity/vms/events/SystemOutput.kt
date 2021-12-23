@@ -8,8 +8,10 @@ interface SystemOutput<T> {
 
     val vm: VirtualMachine
     val source: T
+    val isRemote: Boolean
+        get() = false
 
-    suspend fun handleEventForPlayer(player: Player)
+    suspend fun handleEventForPlayer(player: Player, isRemote: Boolean)
     suspend fun handleEventForNpc(npc: Npc){}
 
 }

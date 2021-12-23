@@ -1,13 +1,14 @@
 package com.server.engine.game.entity.vms.components.vevents
 
 import com.server.engine.game.entity.vms.VMComponent
+import com.server.engine.game.entity.vms.VirtualMachine
+import com.server.engine.game.entity.vms.events.impl.SystemLogAlert
 import kotlinx.serialization.json.*
 
 class VirtualEventsComponent : VMComponent {
 
     val events = mutableMapOf<Int, VirtualEvent>()
-    var isDirty: Boolean = false
-        private set
+    private var isDirty: Boolean = false
 
     fun addEvent(event: VirtualEvent) {
         setEvent(getEventId(), event)
@@ -47,8 +48,11 @@ class VirtualEventsComponent : VMComponent {
 
     operator fun contains(id: Int) = events.contains(id)
 
-    fun markClean() {
-        isDirty = false
+    override suspend fun onTick(source: VirtualMachine) {
+        if(isDirty) {
+            source.systemOutput.emit(SystemLogAlert(source, this))
+            isDirty = false
+        }
     }
 
     override fun save(): JsonObject {

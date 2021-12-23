@@ -14,7 +14,7 @@ import io.netty.buffer.Unpooled
 
 class VirtualMachineUpdateMessage(val vm: VirtualMachine, val isLinked: Boolean = false) {
     companion object : PacketEncoder<VirtualMachineUpdateMessage> {
-        val world: GameWorld by inject()
+        private val world: GameWorld by inject()
         override fun encode(message: VirtualMachineUpdateMessage): Packet {
             val buf = Unpooled.buffer()
             val vm = message.vm

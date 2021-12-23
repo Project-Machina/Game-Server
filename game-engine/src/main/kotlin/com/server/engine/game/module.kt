@@ -2,6 +2,7 @@ package com.server.engine.game
 
 import com.server.engine.game.components.ComponentFactory
 import com.server.engine.game.entity.vms.VMComponent
+import com.server.engine.game.entity.vms.accounts.SystemAccountComponent
 import com.server.engine.game.entity.vms.components.NetworkCardComponent
 import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
 import com.server.engine.game.entity.vms.components.hdd.StorageRackComponent
@@ -66,4 +67,5 @@ val vmCompsModule = module {
     single<ComponentFactory<out VMComponent>>(named(PowerStorageComponent::class.simpleName!!)) { PowerStorageComponent }
     single<ComponentFactory<out VMComponent>>(named(MotherboardComponent::class.simpleName!!)) { MotherboardComponent }
     single<ComponentFactory<out VMComponent>>(named(StorageRackComponent::class.simpleName!!)) { StorageRackComponent }
+    single<ComponentFactory<out VMComponent>>(named(SystemAccountComponent::class.simpleName!!)) { SystemAccountComponent }
 }

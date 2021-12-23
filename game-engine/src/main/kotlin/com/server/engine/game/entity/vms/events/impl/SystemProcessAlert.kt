@@ -10,8 +10,8 @@ class SystemProcessAlert(
     override val vm: VirtualMachine,
     override val source: VirtualProcess
 ) : SystemOutput<VirtualProcess> {
-    override suspend fun handleEventForPlayer(player: Player) {
-        val session = player.session
-        session.sendMessage(VirtualProcessUpdateMessage(source))
+
+    override suspend fun handleEventForPlayer(player: Player, isRemote: Boolean) {
+        player.session.sendMessage(VirtualProcessUpdateMessage(source))
     }
 }

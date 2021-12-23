@@ -4,6 +4,7 @@ import com.server.engine.dispatchers.VirtualMachineDispatcher
 import com.server.engine.game.components.ComponentFactory
 import com.server.engine.game.components.ComponentManager
 import com.server.engine.game.entity.TickingEntity
+import com.server.engine.game.entity.vms.accounts.SystemAccountComponent
 import com.server.engine.game.entity.vms.commands.CommandManager
 import com.server.engine.game.entity.vms.components.NetworkCardComponent
 import com.server.engine.game.entity.vms.components.connection.ConnectionComponent
@@ -13,8 +14,11 @@ import com.server.engine.game.entity.vms.components.motherboard.MotherboardCompo
 import com.server.engine.game.entity.vms.components.vevents.VirtualEventsComponent
 import com.server.engine.game.entity.vms.events.SystemOutput
 import com.server.engine.game.entity.vms.events.impl.SystemLogAlert
+import com.server.engine.game.entity.vms.events.impl.SystemSoftwareAlert
 import com.server.engine.game.entity.vms.processes.VirtualProcessComponent
+import com.server.engine.game.world.GameWorld
 import com.server.engine.utilities.get
+import com.server.engine.utilities.inject
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.launchIn
@@ -26,35 +30,41 @@ import kotlin.reflect.KClass
 
 class VirtualMachine private constructor(id: UUID = UUID.randomUUID()) : ComponentManager<VMComponent>, TickingEntity {
 
+    private val world: GameWorld by inject()
     private val _components = mutableMapOf<KClass<*>, VMComponent>()
 
     var id: UUID = id
         private set
+
+    val address: String get() = world.vmToAddress[this] ?: "localhost"
 
     val components: Map<KClass<*>, VMComponent> get() = _components
 
     var name: String = "Virtual Machine"
 
     fun init(hasLogs: Boolean = true) {
-        with(ConnectionComponent())
+        with(ConnectionComponent(this))
         with(NetworkCardComponent())
         with(MotherboardComponent())
         with(StorageRackComponent())
         with(HardDriveComponent())
         with(CommandManager())
+        with(SystemAccountComponent())
         if (hasLogs) {
             with(VirtualEventsComponent())
         }
         with(VirtualProcessComponent())
 
         systemCalls.onEach {
-            if(has<CommandManager>()) {
+            if (has<CommandManager>()) {
                 val manager = component<CommandManager>()
-                if(it.isRemote && has<ConnectionComponent>()) {
+                if (it.isRemote && has<ConnectionComponent>()) {
                     val con = component<ConnectionComponent>()
-                    if(con.remoteAddress.value != "localhost") {
+                    if (con.remoteAddress.value != "localhost") {
                         val remoteVM = con.remoteVM
-                        manager.execute(it.args, this, remoteVM)
+                        val accs = remoteVM.component<SystemAccountComponent>()
+                        if (accs.isActive(address))
+                            manager.execute(it.args, this, remoteVM)
                     }
                 } else {
                     manager.execute(it.args, this)
@@ -120,11 +130,6 @@ class VirtualMachine private constructor(id: UUID = UUID.randomUUID()) : Compone
 
     override suspend fun onTick() {
         components.values.forEach { it.onTick(this) }
-        val events = component<VirtualEventsComponent>()
-        if (events.isDirty) {
-            systemOutput.emit(SystemLogAlert(this, component()))
-            events.markClean()
-        }
     }
 
     companion object {
@@ -143,7 +148,7 @@ class VirtualMachine private constructor(id: UUID = UUID.randomUUID()) : Compone
             return vm
         }
 
-        val NULL_MACHINE = VirtualMachine(UUID.nameUUIDFromBytes(byteArrayOf(0)))
+        val NULL_MACHINE = unsafeCreate()
 
         @Deprecated(level = DeprecationLevel.WARNING, message = "This should only be use for unit tests.")
         fun unsafeCreate(): VirtualMachine {

@@ -11,8 +11,9 @@ class SystemAlert(
     val title: String = "Alert",
     val critical: Boolean = false
 ) : SystemOutput<Unit> {
+
     override val source: Unit = Unit
-    override suspend fun handleEventForPlayer(player: Player) {
+    override suspend fun handleEventForPlayer(player: Player, isRemote: Boolean) {
         player.session.sendMessage(VirtualInformationMessage(title, message, critical))
     }
 }

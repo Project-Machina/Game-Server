@@ -15,9 +15,12 @@ import com.server.engine.packets.outgoing.VirtualSoftwareUpdateMessage
 
 class SystemSoftwareAlert(
     override val vm: VirtualMachine,
-    override val source: HardDriveComponent = vm.component()
+    override val source: HardDriveComponent = vm.component(),
 ) : SystemOutput<HardDriveComponent> {
-    override suspend fun handleEventForPlayer(player: Player) {
+
+    override val isRemote: Boolean = true
+
+    override suspend fun handleEventForPlayer(player: Player, isRemote: Boolean) {
         val softs = mutableListOf<VirtualSoftware>()
         val hdd = vm.component<HardDriveComponent>()
         val seeker = hdd.getBestSoftware("skr")
@@ -33,6 +36,6 @@ class SystemSoftwareAlert(
                 softs.add(it)
             }
         }
-        player.session.sendMessage(VirtualSoftwareUpdateMessage(softs))
+        player.session.sendMessage(VirtualSoftwareUpdateMessage(softs, isRemote))
     }
 }

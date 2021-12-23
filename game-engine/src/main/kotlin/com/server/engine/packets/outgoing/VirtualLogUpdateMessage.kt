@@ -6,12 +6,13 @@ import com.server.engine.network.channel.packets.PacketEncoder
 import com.server.engine.utilities.writeSimpleString
 import io.netty.buffer.Unpooled
 
-class VirtualLogUpdateMessage(val logs: List<VirtualEvent>) {
+class VirtualLogUpdateMessage(val logs: List<VirtualEvent>, val isRemote: Boolean = false) {
     companion object : PacketEncoder<VirtualLogUpdateMessage> {
         override fun encode(message: VirtualLogUpdateMessage): Packet {
             val buf = Unpooled.buffer()
 
             buf.writeShort(message.logs.size)
+            buf.writeBoolean(message.isRemote)
 
             for (log in message.logs) {
 

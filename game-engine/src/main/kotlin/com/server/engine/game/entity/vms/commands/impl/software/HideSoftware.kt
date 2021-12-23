@@ -2,10 +2,13 @@ package com.server.engine.game.entity.vms.commands.impl.software
 
 import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
+import com.server.engine.game.entity.vms.accounts.SystemAccount
+import com.server.engine.game.entity.vms.accounts.SystemAccountComponent
 import com.server.engine.game.entity.vms.commands.VmCommand
 import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
 import com.server.engine.game.entity.vms.events.impl.SystemAlert
 import com.server.engine.game.entity.vms.processes.VirtualProcess
+import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.NO_PROCESS
 import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.singleton
 import com.server.engine.game.entity.vms.processes.components.OnFinishProcessComponent
 import com.server.engine.game.entity.vms.processes.components.software.HideSoftwareComponent
@@ -27,51 +30,61 @@ class HideSoftware(
     val softwareName by parser.storing("-n", help = "Software name to hide.") { replace('_', ' ') }
     val softwareVersion by parser.storing("-v", help = "Software version to hide.") { toDouble() }
 
-    val hidderVersion: Double by parser.storing("--hdr", help = "The Version to hide the software with.") { toDouble() }.default(0.0)
+    val hidderVersion: Double by parser.storing("--hdr", help = "The Version to hide the software with.") { toDouble() }
+        .default(0.0)
 
-    override fun execute(): VirtualProcess {
-        val sourceHDD = source.component<HardDriveComponent>()
-        val targetHDD = target.component<HardDriveComponent>()
+    override suspend fun execute(): VirtualProcess {
+        val taccman = target.component<SystemAccountComponent>()
+        if (isLocal || taccman.canExecuteSoftware(source.address)) {
+            val sourceHDD = source.component<HardDriveComponent>()
+            val targetHDD = target.component<HardDriveComponent>()
 
-        val hidderSoft = if(hidderVersion == 0.0) {
-            sourceHDD.getBestSoftware("hdr")
-        } else sourceHDD.getSoftwaresByExtensionAndVersion("hdr", hidderVersion).singleOrNull()
+            val hidderSoft = if (hidderVersion == 0.0) {
+                sourceHDD.getBestSoftware("hdr")
+            } else sourceHDD.getSoftwaresByExtensionAndVersion("hdr", hidderVersion).singleOrNull()
 
-        if(hidderSoft == null) {
-            source.systemOutput.tryEmit(SystemAlert(
-                "No hider software found.",
-                source
-            ))
-            return VirtualProcess.NO_PROCESS
+            if (hidderSoft == null) {
+                source.systemOutput.tryEmit(
+                    SystemAlert(
+                        "No hider software found.",
+                        source
+                    )
+                )
+                return NO_PROCESS
+            }
+            if (hidderSoft.has<ProcessOwnerComponent>() && hidderSoft.component<ProcessOwnerComponent>().pid == -1) {
+                source.systemOutput.tryEmit(
+                    SystemAlert(
+                        "No hider software running.",
+                        source
+                    )
+                )
+                return NO_PROCESS
+            }
+            val softwareToHide = targetHDD.getSoftwareByNameAndVersion(softwareName, softwareVersion).singleOrNull()
+            if (softwareToHide == null) {
+                source.systemOutput.tryEmit(
+                    SystemAlert(
+                        "Unable to hide/find software.",
+                        source
+                    )
+                )
+                return NO_PROCESS
+            }
+
+            val threadCost = (softwareToHide.size / 500).toInt()
+            val pc = VirtualProcess("Hide ${softwareToHide.fullName}")
+            pc.singleton<OnFinishProcessComponent>(
+                HideSoftwareComponent(
+                    threadCost,
+                    target = target,
+                    hiderSoftware = hidderSoft,
+                    softwareToHide = softwareToHide
+                )
+            )
+            return pc
         }
-        if(hidderSoft.has<ProcessOwnerComponent>() && hidderSoft.component<ProcessOwnerComponent>().pid == -1) {
-            source.systemOutput.tryEmit(SystemAlert(
-                "No hider software running.",
-                source
-            ))
-            return VirtualProcess.NO_PROCESS
-        }
-
-        val softwareToHide = if(isRemote) {
-            targetHDD.getSoftwareByNameAndVersion(softwareName, softwareVersion).singleOrNull()
-        } else sourceHDD.getSoftwareByNameAndVersion(softwareName, softwareVersion).singleOrNull()
-
-        if(softwareToHide == null) {
-            source.systemOutput.tryEmit(SystemAlert(
-                "Unable to hide/find software.",
-                source
-            ))
-            return VirtualProcess.NO_PROCESS
-        }
-
-        val threadCost = (softwareToHide.size / 500).toInt()
-        val pc = VirtualProcess("Hide ${softwareToHide.fullName}")
-        pc.singleton<OnFinishProcessComponent>(HideSoftwareComponent(
-            threadCost,
-            target = target,
-            hiderSoftware = hidderSoft,
-            softwareToHide = softwareToHide
-        ))
-        return pc
+        source.systemOutput.emit(SystemAlert("Access Denied", source, "Hide $softwareName", true))
+        return NO_PROCESS
     }
 }

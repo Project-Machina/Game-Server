@@ -2,6 +2,7 @@ package com.server.engine.game.entity.vms.processes.components.software
 
 import com.server.engine.game.components.ComponentFactory
 import com.server.engine.game.entity.vms.VirtualMachine
+import com.server.engine.game.entity.vms.VirtualMachine.Companion.NULL_MACHINE
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
 import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
 import com.server.engine.game.entity.vms.events.impl.SystemSoftwareAlert
@@ -33,23 +34,19 @@ class HideSoftwareComponent(
 ) : OnFinishProcessComponent {
 
     override suspend fun onTick(source: VirtualMachine, process: VirtualProcess) {
-        val isRemote = source !== target && target !== VirtualMachine.NULL_MACHINE
         val sourceHDD = source.component<HardDriveComponent>()
         val targetHDD = target.component<HardDriveComponent>()
-        val hasSoftware = if (isRemote) {
-            targetHDD.hasSoftware(softwareToHide.id())
-        } else {
-            sourceHDD.hasSoftware(softwareToHide.id())
-        }
+        val hasSoftware = targetHDD.hasSoftware(softwareToHide.id())
         if (hasSoftware && sourceHDD.hasSoftware(hiderSoftware.id()) && !softwareToHide.isRunning()) {
             softwareToHide.replace(VisibleComponent()) {
                 hiddenVersion = hiderSoftware.component<VersionedComponent>().version
             }
-            if(isRemote) {
-                target.systemOutput.tryEmit(SystemSoftwareAlert(target, targetHDD))
-            } else {
-                source.systemOutput.tryEmit(SystemSoftwareAlert(target, sourceHDD))
-            }
+            target.systemOutput.emit(
+                SystemSoftwareAlert(
+                    target,
+                    targetHDD
+                )
+            )
         }
     }
 
