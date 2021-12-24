@@ -10,7 +10,9 @@ import com.server.engine.game.entity.vms.software.SoftwareBuilder.Companion.soft
 import com.server.engine.game.entity.vms.software.VirtualSoftware
 import com.server.engine.game.entity.vms.software.VirtualSoftware.Companion.component
 import com.server.engine.game.entity.vms.software.VirtualSoftware.Companion.has
+import com.server.engine.game.entity.vms.software.component.ProcessOwnerComponent
 import com.server.engine.game.entity.vms.software.component.VersionedComponent
+import com.server.engine.game.entity.vms.software.version
 import com.server.engine.game.entity.vms.upgrades.HardDriveUpgradeComponent
 import kotlinx.serialization.json.*
 
@@ -51,6 +53,13 @@ class HardDriveComponent(override val upgrades: UpgradableComponent = HardDriveU
         return softwares.values
             .filter { it.extension == extension && it.has<VersionedComponent>() }
             .maxByOrNull { it.component<VersionedComponent>().version }
+    }
+
+    fun getBestRunningSoftware(extension: String) : VirtualSoftware? {
+        return softwares.values
+            .filter { it.extension == extension && it.has<VersionedComponent>() }
+            .filter { it.has<ProcessOwnerComponent>() && it.component<ProcessOwnerComponent>().pid != -1 }
+            .maxByOrNull { it.version }
     }
 
     fun getWeakestSoftware(extension: String) : VirtualSoftware? {

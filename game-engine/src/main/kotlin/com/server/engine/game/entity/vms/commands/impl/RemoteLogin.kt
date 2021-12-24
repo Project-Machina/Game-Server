@@ -3,8 +3,10 @@ package com.server.engine.game.entity.vms.commands.impl
 import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
 import com.server.engine.game.entity.vms.accounts.SystemAccountComponent
+import com.server.engine.game.entity.vms.alert
 import com.server.engine.game.entity.vms.commands.VmCommand
 import com.server.engine.game.entity.vms.components.connection.ConnectionComponent
+import com.server.engine.game.entity.vms.events.AlertType
 import com.server.engine.game.entity.vms.events.impl.SystemAlert
 import com.server.engine.game.entity.vms.events.impl.SystemRemoteLoginAlert
 import com.server.engine.game.entity.vms.events.impl.SystemSoftwareAlert
@@ -33,15 +35,16 @@ class RemoteLogin(
             world.domainToAddress[address]
         } else address
         if(addr == null) {
-            source.systemOutput.emit(SystemAlert("Address doest not exist", source, "Login"))
+            source.alert("Address doest not exist", "Login")
             return VirtualProcess.NO_PROCESS
         }
-        if(con.remoteAddress.value != addr) {
-            source.systemOutput.emit(SystemAlert("Please connect to the target before logging in.", source, "Login"))
+        //TODO add this back when domain protection is written
+        /*if(con.remoteAddress.value != addr) {
+            source.alert("Please connect to the target before logging in.", "Login")
             return VirtualProcess.NO_PROCESS
-        }
+        }*/
         if(source.address == address) {
-            source.systemOutput.emit(SystemAlert("Can't change accounts on linked machine.", source))
+            source.alert("Can't change accounts on linked machine.")
             return VirtualProcess.NO_PROCESS
         }
         val target = con.remoteVM
@@ -56,7 +59,7 @@ class RemoteLogin(
             source.systemOutput.emit(SystemRemoteLoginAlert(source, target))
             return VirtualProcess.NO_PROCESS
         }
-        source.systemOutput.emit(SystemAlert("Access Denied", source, "Login", true))
+        source.alert("Access Denied", "Login", AlertType.ACCESS_DENIED)
         return VirtualProcess.NO_PROCESS
     }
 

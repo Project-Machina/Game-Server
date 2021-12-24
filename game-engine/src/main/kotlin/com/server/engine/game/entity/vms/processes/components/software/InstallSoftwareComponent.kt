@@ -4,10 +4,13 @@ import com.server.engine.game.components.ComponentFactory
 import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.NULL_MACHINE
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
+import com.server.engine.game.entity.vms.VirtualMachine.Companion.has
+import com.server.engine.game.entity.vms.components.connection.ConnectionComponent
 import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
 import com.server.engine.game.entity.vms.components.motherboard.MotherboardComponent
 import com.server.engine.game.entity.vms.events.impl.SystemAlert
 import com.server.engine.game.entity.vms.events.impl.SystemSoftwareAlert
+import com.server.engine.game.entity.vms.fireSoftwareChange
 import com.server.engine.game.entity.vms.processes.VirtualProcess
 import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.singleton
 import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.with
@@ -40,8 +43,6 @@ class InstallSoftwareComponent(
         val pcm: VirtualProcessComponent = target.component()
         val mb: MotherboardComponent = target.component()
 
-        println("${software.fullName} - ${target === source} - ${target.address} - ${source.address}")
-
         val pc = if (remSoftware === VirtualSoftware.NULL_SOFTWARE) {
             VirtualProcess(software.fullName, isIndeterminate = true)
         } else VirtualProcess("${software.fullName} (Encrypted)", isIndeterminate = true)
@@ -61,6 +62,11 @@ class InstallSoftwareComponent(
             pid = pcm.addProcess(pc)
         }
         target.systemOutput.emit(SystemSoftwareAlert(target, hdd))
+
+        if(target.has<ConnectionComponent>()) {
+            val vm = target.component<ConnectionComponent>().remoteVM
+            vm.fireSoftwareChange()
+        }
     }
 
     override fun save(): JsonObject {

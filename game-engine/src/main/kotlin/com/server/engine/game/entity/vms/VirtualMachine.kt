@@ -13,8 +13,6 @@ import com.server.engine.game.entity.vms.components.hdd.StorageRackComponent
 import com.server.engine.game.entity.vms.components.motherboard.MotherboardComponent
 import com.server.engine.game.entity.vms.components.vevents.VirtualEventsComponent
 import com.server.engine.game.entity.vms.events.SystemOutput
-import com.server.engine.game.entity.vms.events.impl.SystemLogAlert
-import com.server.engine.game.entity.vms.events.impl.SystemSoftwareAlert
 import com.server.engine.game.entity.vms.processes.VirtualProcessComponent
 import com.server.engine.game.world.GameWorld
 import com.server.engine.utilities.get
@@ -61,10 +59,7 @@ class VirtualMachine private constructor(id: UUID = UUID.randomUUID()) : Compone
                 if (it.isRemote && has<ConnectionComponent>()) {
                     val con = component<ConnectionComponent>()
                     if (con.remoteAddress.value != "localhost") {
-                        val remoteVM = con.remoteVM
-                        val accs = remoteVM.component<SystemAccountComponent>()
-                        if (accs.isActive(address))
-                            manager.execute(it.args, this, remoteVM)
+                        manager.execute(it.args, this, con.remoteVM)
                     }
                 } else {
                     manager.execute(it.args, this)

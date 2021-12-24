@@ -10,7 +10,7 @@ import kotlinx.serialization.json.*
 class SystemAccountComponent : VMComponent {
 
     val accounts = mutableMapOf(
-        "root" to SystemAccount("root", perms = listOf("ftp", "ssh", "accman", "hidden", "guest"))
+        "root" to SystemAccount("root", perms = listOf("ftp", "ssh", "accman", "guest"))
     )
 
     val activeAccounts = mutableMapOf<String, SystemAccount>()

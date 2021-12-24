@@ -2,9 +2,11 @@ package com.server.engine.game.entity.vms.commands.impl.vevents
 
 import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
+import com.server.engine.game.entity.vms.alert
 import com.server.engine.game.entity.vms.commands.VmCommand
 import com.server.engine.game.entity.vms.components.vevents.VirtualEvent
 import com.server.engine.game.entity.vms.components.vevents.VirtualEventsComponent
+import com.server.engine.game.entity.vms.events.AlertType
 import com.server.engine.game.entity.vms.events.impl.SystemAlert
 import com.server.engine.game.entity.vms.processes.VirtualProcess
 import com.xenomachina.argparser.ArgParser
@@ -28,7 +30,7 @@ class EditLog(
         if(logId in events) {
             val log = events.events[logId]!!
             if(log.hiddenVersion > 0.0) {
-                source.systemOutput.tryEmit(SystemAlert("Access Denied", source, "Log Edit", true))
+                source.alert("Access Denied", "Log Edit", AlertType.ACCESS_DENIED)
                 return VirtualProcess.NO_PROCESS
             }
             events.setEvent(log.eventId, VirtualEvent(logSource, logMessage, log.hiddenVersion, logTime))

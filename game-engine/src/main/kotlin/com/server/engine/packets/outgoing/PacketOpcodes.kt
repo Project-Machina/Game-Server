@@ -10,3 +10,4 @@ const val VIRTUAL_LOG = 7
 const val PROCESS_CREATED = 8
 const val NPC_FILE_DATA = 9
 const val SYSTEM_ACCOUNT_UPDATE = 10
+const val PARAMETER_MESSAGE = 11

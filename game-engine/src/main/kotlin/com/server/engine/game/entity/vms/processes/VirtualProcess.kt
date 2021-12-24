@@ -2,6 +2,7 @@ package com.server.engine.game.entity.vms.processes
 
 import com.server.engine.game.components.ComponentFactory
 import com.server.engine.game.components.ComponentManager
+import com.server.engine.game.entity.vms.processes.components.OnFinishProcessComponent
 import com.server.engine.utilities.boolean
 import com.server.engine.utilities.get
 import com.server.engine.utilities.string
@@ -86,7 +87,11 @@ class VirtualProcess(
                     val compFactory: ComponentFactory<out ProcessComponent> = get(named(type))
                     val c = compFactory.create()
                     c.load(obj["attributes"]!!.jsonObject)
-                    with(c)
+                    if(c is OnFinishProcessComponent) {
+                        singleton<OnFinishProcessComponent>(c)
+                    } else {
+                        with(c)
+                    }
                 }
             }
         }

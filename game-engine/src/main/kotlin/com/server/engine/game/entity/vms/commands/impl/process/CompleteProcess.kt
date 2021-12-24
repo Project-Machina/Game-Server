@@ -3,6 +3,7 @@ package com.server.engine.game.entity.vms.commands.impl.process
 import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
 import com.server.engine.game.entity.vms.commands.VmCommand
+import com.server.engine.game.entity.vms.isLoggedIn
 import com.server.engine.game.entity.vms.processes.VirtualProcess
 import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.component
 import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.has
@@ -28,7 +29,7 @@ class CompleteProcess(
             val pc = pcm.activeProcesses[pid]!!
             if(pc.isComplete) {
                 pc.shouldComplete = true
-                if(isRemote) {
+                if(isRemote && target.isLoggedIn(source.address)) {
                     source.vlog("localhost", "Completed Process - ${pc.name} at ${target.address}")
                     target.vlog(source.address, "Completed Process - ${pc.name}")
                 } else {

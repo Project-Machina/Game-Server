@@ -4,8 +4,10 @@ import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
 import com.server.engine.game.entity.vms.accounts.SystemAccount
 import com.server.engine.game.entity.vms.accounts.SystemAccountComponent
+import com.server.engine.game.entity.vms.alert
 import com.server.engine.game.entity.vms.commands.VmCommand
 import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
+import com.server.engine.game.entity.vms.events.AlertType
 import com.server.engine.game.entity.vms.events.impl.SystemAlert
 import com.server.engine.game.entity.vms.processes.VirtualProcess
 import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.NO_PROCESS
@@ -84,7 +86,7 @@ class HideSoftware(
             )
             return pc
         }
-        source.systemOutput.emit(SystemAlert("Access Denied", source, "Hide $softwareName", true))
+        source.alert("Access Denied", "Hide $softwareName", AlertType.ACCESS_DENIED)
         return NO_PROCESS
     }
 }

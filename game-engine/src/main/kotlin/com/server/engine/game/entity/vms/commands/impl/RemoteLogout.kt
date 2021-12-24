@@ -1,28 +1,27 @@
 package com.server.engine.game.entity.vms.commands.impl
 
 import com.server.engine.game.entity.vms.VirtualMachine
-import com.server.engine.game.entity.vms.alert
+import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
+import com.server.engine.game.entity.vms.accounts.SystemAccountComponent
 import com.server.engine.game.entity.vms.commands.VmCommand
-import com.server.engine.game.entity.vms.events.AlertType
-import com.server.engine.game.entity.vms.events.impl.SystemAlert
+import com.server.engine.game.entity.vms.events.impl.SystemRemoteLogoutAlert
 import com.server.engine.game.entity.vms.processes.VirtualProcess
 import com.xenomachina.argparser.ArgParser
-import com.xenomachina.argparser.default
 
-class Echo(
+class RemoteLogout(
     override val args: Array<String>,
     override val parser: ArgParser,
     override val source: VirtualMachine,
     override val target: VirtualMachine
 ) : VmCommand {
 
-    override val name: String = "echo"
-
-    val toTarget by parser.flagging("-t", help = "Send echo to target.").default(false)
-
+    override val name: String = "logout"
     override suspend fun execute(): VirtualProcess {
-        val msg = args.joinToString(" ") { it }
-        source.alert("Access $msg", "Echo", AlertType.ACCESS_GRANTED)
+        val taccman = target.component<SystemAccountComponent>()
+        if (taccman.logout(source.address)) {
+            source.systemOutput.emit(SystemRemoteLogoutAlert(source, target))
+        }
         return VirtualProcess.NO_PROCESS
     }
+
 }

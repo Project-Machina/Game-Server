@@ -1,6 +1,5 @@
 package com.server.engine.game.entity.vms.upgrades
 
-import com.server.engine.game.entity.vms.UpgradableComponent
 import com.server.engine.game.entity.vms.UpgradableComponent.Companion.BASE_COST
 import kotlin.math.roundToInt
 

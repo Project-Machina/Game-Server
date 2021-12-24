@@ -1,5 +1,6 @@
 package com.server.engine.game.entity.vms.events.impl
 
+import com.server.engine.game.entity.character.components.VirtualMachineLinkComponent
 import com.server.engine.game.entity.character.player.Player
 import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
@@ -22,7 +23,9 @@ class SystemSoftwareAlert(
 
     override suspend fun handleEventForPlayer(player: Player, isRemote: Boolean) {
         val softs = mutableListOf<VirtualSoftware>()
-        val hdd = vm.component<HardDriveComponent>()
+        val hdd: HardDriveComponent = if(isRemote) {
+            player.component<VirtualMachineLinkComponent>().linkVM.component()
+        } else vm.component()
         val seeker = hdd.getBestSoftware("skr")
         val isSeekRunning = seeker?.isRunning() ?: false
         val skrVersion = seeker?.component<VersionedComponent>()?.version ?: 0.0
