@@ -15,7 +15,6 @@ class ParameterMessage(val params: Map<String, Any?>, val clear: Boolean = false
                 message.params.forEach { (key, msg) ->
                     buf.writeSimpleString(key)
                     buf.writeBoolean(msg == null)
-                    println("Key $key - $msg")
                     if (msg != null) {
                         buf.writeBoolean(msg is String)
                         if(msg is String) {

@@ -19,8 +19,6 @@ class SystemAccountUpdateMessage(val account: SystemAccount? = null) {
                         buf.writeSimpleString(p.key)
                     }
                 }
-            } else {
-                println("Account nulled, not logged in!")
             }
             return Packet(SYSTEM_ACCOUNT_UPDATE, buf)
         }
