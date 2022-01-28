@@ -77,6 +77,10 @@ class SystemAccountComponent : VMComponent {
         return isSSH(source) || isRoot(source)
     }
 
+    fun canEditLogs(source: String) : Boolean {
+        return !isGuest(source)
+    }
+
     override fun save(): JsonObject {
         return buildJsonObject {
             putJsonArray("accounts") {

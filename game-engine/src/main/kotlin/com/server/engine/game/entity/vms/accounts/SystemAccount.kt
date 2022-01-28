@@ -39,7 +39,7 @@ class SystemAccount(
         return true
     }
 
-    fun isRoot() = hasPerms("ftp", "ssh", "accman", "hidden", "guest")
+    fun isRoot() = hasPerms("ftp", "ssh", "accman", "guest")
     fun isFTP() = hasPerm("ftp")
     fun isSSH() = hasPerm("ssh")
     fun isAccountManager() = hasPerm("accman")

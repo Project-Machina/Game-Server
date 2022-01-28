@@ -87,7 +87,7 @@ class VirtualProcessComponent : VMComponent {
 
                 if (!pc.isPaused && !pc.isComplete) {
                     if (!pc.isIndeterminate) {
-                        pc.elapsedTime += VirtualMachineTick.GAME_TICK_MILLIS
+                        pc.elapsedTime += VirtualMachineTick.VM_TICK_MILLIS
                         pc.preferredRunningTime = calculateRunningTime(
                             pc.minimalRunningTime,
                             pc.threadCost,

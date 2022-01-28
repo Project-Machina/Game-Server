@@ -4,8 +4,8 @@ import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.has
 import com.server.engine.game.entity.vms.accounts.SystemAccountComponent
 import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
-import com.server.engine.game.entity.vms.components.vevents.VirtualEvent
-import com.server.engine.game.entity.vms.components.vevents.VirtualEventsComponent
+import com.server.engine.game.entity.vms.components.vevents.SystemLog
+import com.server.engine.game.entity.vms.components.vevents.SystemLogsComponent
 import com.server.engine.game.entity.vms.events.AlertType
 import com.server.engine.game.entity.vms.events.impl.SystemAlert
 import com.server.engine.game.entity.vms.events.impl.SystemLogAlert
@@ -24,9 +24,9 @@ fun VirtualMachine.addSoftware(vararg softwares: VirtualSoftware) {
 }
 
 fun VirtualMachine.vlog(source: String, msg: String, encryptedVersion: Double = 0.0) {
-    if(has<VirtualEventsComponent>()) {
-        val vevents = component<VirtualEventsComponent>()
-        vevents.addEvent(VirtualEvent(source, msg, encryptedVersion))
+    if(has<SystemLogsComponent>()) {
+        val vevents = component<SystemLogsComponent>()
+        vevents.addLog(SystemLog(source, msg, encryptedVersion))
     }
 }
 

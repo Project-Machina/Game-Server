@@ -11,7 +11,7 @@ import com.server.engine.game.entity.vms.components.connection.ConnectionCompone
 import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
 import com.server.engine.game.entity.vms.components.hdd.StorageRackComponent
 import com.server.engine.game.entity.vms.components.motherboard.MotherboardComponent
-import com.server.engine.game.entity.vms.components.vevents.VirtualEventsComponent
+import com.server.engine.game.entity.vms.components.vevents.SystemLogsComponent
 import com.server.engine.game.entity.vms.events.SystemOutput
 import com.server.engine.game.entity.vms.processes.VirtualProcessComponent
 import com.server.engine.game.world.GameWorld
@@ -49,7 +49,7 @@ class VirtualMachine private constructor(id: UUID = UUID.randomUUID()) : Compone
         with(CommandManager())
         with(SystemAccountComponent())
         if (hasLogs) {
-            with(VirtualEventsComponent())
+            with(SystemLogsComponent())
         }
         with(VirtualProcessComponent())
 

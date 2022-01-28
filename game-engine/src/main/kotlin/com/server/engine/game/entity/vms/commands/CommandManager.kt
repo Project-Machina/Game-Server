@@ -8,6 +8,7 @@ import com.server.engine.game.entity.vms.commands.impl.exploitation.Bruteforce
 import com.server.engine.game.entity.vms.commands.impl.process.CompleteProcess
 import com.server.engine.game.entity.vms.commands.impl.process.KillProcess
 import com.server.engine.game.entity.vms.commands.impl.process.PauseProcess
+import com.server.engine.game.entity.vms.commands.impl.software.HideLog
 import com.server.engine.game.entity.vms.commands.impl.software.HideSoftware
 import com.server.engine.game.entity.vms.commands.impl.software.InstallSoftware
 import com.server.engine.game.entity.vms.commands.impl.software.SeekSoftware
@@ -36,6 +37,7 @@ class CommandManager : VMComponent {
         "lgcls" to { a, p, s, _ -> ClearLogs(a, p, s) },
         "elog" to { a, p, s, t -> EditLog(a, p, s, t) },
         "rmlg" to { a, p, s, _ -> DeleteLog(a, p, s) },
+        "hidelg" to { a, p, s, t -> HideLog(a, p, s, t) },
         "login" to { a, p, s, _ -> RemoteLogin(a, p, s) },
         "logout" to { a, p, s, t -> RemoteLogout(a, p, s, t) },
         "bf" to { a, p, s, t -> Bruteforce(a, p, s, t) }
@@ -48,7 +50,7 @@ class CommandManager : VMComponent {
             val parser = ArgParser(commandArgs)
             val vmCommand = commands[name]!!.invoke(commandArgs, parser, source, target)
             val pc = vmCommand.execute()
-            if(pc === VirtualProcess.NO_PROCESS) {
+            if (pc === VirtualProcess.NO_PROCESS) {
                 return
             }
 
@@ -58,7 +60,7 @@ class CommandManager : VMComponent {
 
             val requiredRAM = pc.ramCost + targetPcm.ramUsage
 
-            if(requiredRAM >= mb.availableRam) {
+            if (requiredRAM >= mb.availableRam) {
                 source.systemOutput.emit(SystemAlert("Not enough RAM", source, "Resource Alert"))
                 return
             }

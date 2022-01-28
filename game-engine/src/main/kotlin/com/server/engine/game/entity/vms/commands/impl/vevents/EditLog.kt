@@ -4,10 +4,9 @@ import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
 import com.server.engine.game.entity.vms.alert
 import com.server.engine.game.entity.vms.commands.VmCommand
-import com.server.engine.game.entity.vms.components.vevents.VirtualEvent
-import com.server.engine.game.entity.vms.components.vevents.VirtualEventsComponent
+import com.server.engine.game.entity.vms.components.vevents.SystemLog
+import com.server.engine.game.entity.vms.components.vevents.SystemLogsComponent
 import com.server.engine.game.entity.vms.events.AlertType
-import com.server.engine.game.entity.vms.events.impl.SystemAlert
 import com.server.engine.game.entity.vms.processes.VirtualProcess
 import com.xenomachina.argparser.ArgParser
 
@@ -26,14 +25,14 @@ class EditLog(
     val logTime: Long by parser.storing("-t", help = "Log Timestamp") { toLong() }
 
     override suspend fun execute(): VirtualProcess {
-        val events: VirtualEventsComponent = target.component()
+        val events: SystemLogsComponent = target.component()
         if(logId in events) {
-            val log = events.events[logId]!!
+            val log = events.systemLogs[logId]!!
             if(log.hiddenVersion > 0.0) {
                 source.alert("Access Denied", "Log Edit", AlertType.ACCESS_DENIED)
                 return VirtualProcess.NO_PROCESS
             }
-            events.setEvent(log.eventId, VirtualEvent(logSource, logMessage, log.hiddenVersion, logTime))
+            events.setLog(log.logId, SystemLog(logSource, logMessage, log.hiddenVersion, logTime))
         }
         return VirtualProcess.NO_PROCESS
     }

@@ -3,35 +3,49 @@ package com.server.engine.game.entity.vms.components.vevents
 import com.server.engine.game.entity.vms.VMComponent
 import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.events.impl.SystemLogAlert
+import com.server.engine.game.world.GameWorld
+import com.server.engine.game.world.tick.VirtualMachineTick.Companion.VM_TICK_MILLIS
 import kotlinx.serialization.json.*
 
-class VirtualEventsComponent : VMComponent {
+class SystemLogsComponent : VMComponent {
 
-    val events = mutableMapOf<Int, VirtualEvent>()
+    val systemLogs = mutableMapOf<Int, SystemLog>()
     private var isDirty: Boolean = false
 
-    fun addEvent(event: VirtualEvent) {
-        setEvent(getEventId(), event)
+    fun addLog(log: SystemLog) {
+        if(log.logId == -1) {
+            setLog(getLogId(), log)
+        } else {
+            setLog(log.logId, log)
+        }
         isDirty = true
     }
 
-    fun setEvent(id: Int, event: VirtualEvent) {
-        event.eventId = id
-        events[id] = event
+    fun setLog(id: Int, log: SystemLog) {
+        log.logId = id
+        systemLogs[id] = log
         isDirty = true
     }
 
     fun clear() {
-        events.clear()
+        systemLogs.clear()
         isDirty = true
     }
 
     fun remove(id: Int) {
-        events.remove(id)
+        systemLogs.remove(id)
         isDirty = true
     }
 
-    fun getEventId() : Int {
+    fun hideLog(logId: Int, version: Double) {
+        val log = systemLogs[logId]
+        if(log != null) {
+            log.hide(version)
+            isDirty = true
+        }
+    }
+
+    fun getLogId() : Int {
         var eventId = 0
         var attempts  = 0
         do {
@@ -42,24 +56,28 @@ class VirtualEventsComponent : VMComponent {
                 attempts++
             }
             eventId++
-        } while(events.containsKey(eventId))
+        } while(systemLogs.containsKey(eventId))
         return eventId
     }
 
-    operator fun contains(id: Int) = events.contains(id)
+    operator fun contains(id: Int) = systemLogs.containsKey(id)
+
+    private var lastUpdate: Long = 0
 
     override suspend fun onTick(source: VirtualMachine) {
-        if(isDirty) {
+        lastUpdate += VM_TICK_MILLIS
+        if(isDirty || lastUpdate >= 600) {
             source.systemOutput.emit(SystemLogAlert(source, this))
             isDirty = false
+            lastUpdate = 0
         }
     }
 
     override fun save(): JsonObject {
         return buildJsonObject {
             putJsonArray("events") {
-                for (event in events.values) {
-                    add(event.save())
+                for (log in systemLogs.values) {
+                    add(log.save())
                 }
             }
         }
@@ -69,9 +87,9 @@ class VirtualEventsComponent : VMComponent {
         if(json.containsKey("events")) {
             val events = json["events"]!!.jsonArray
             for (event in events) {
-                val e = VirtualEvent.create()
+                val e = SystemLog.create()
                 e.load(event.jsonObject)
-                addEvent(e)
+                addLog(e)
             }
         }
     }

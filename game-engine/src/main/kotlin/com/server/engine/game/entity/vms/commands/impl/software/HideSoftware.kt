@@ -17,6 +17,7 @@ import com.server.engine.game.entity.vms.processes.components.software.HideSoftw
 import com.server.engine.game.entity.vms.software.VirtualSoftware.Companion.component
 import com.server.engine.game.entity.vms.software.VirtualSoftware.Companion.has
 import com.server.engine.game.entity.vms.software.component.ProcessOwnerComponent
+import com.server.engine.game.entity.vms.software.isRunning
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.default
 
@@ -54,7 +55,7 @@ class HideSoftware(
                 )
                 return NO_PROCESS
             }
-            if (hidderSoft.has<ProcessOwnerComponent>() && hidderSoft.component<ProcessOwnerComponent>().pid == -1) {
+            if (!hidderSoft.isRunning()) {
                 source.systemOutput.tryEmit(
                     SystemAlert(
                         "No hider software running.",

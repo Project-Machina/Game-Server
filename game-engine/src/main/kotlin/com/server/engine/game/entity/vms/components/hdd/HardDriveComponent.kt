@@ -26,8 +26,8 @@ class HardDriveComponent(override val upgrades: UpgradableComponent = HardDriveU
 
     private var isDirty: Boolean = false
 
-    fun addSoftware(software: VirtualSoftware) : Boolean {
-        return if(softwares.containsKey(software.id())) {
+    fun addSoftware(software: VirtualSoftware): Boolean {
+        return if (softwares.containsKey(software.id())) {
             isDirty = true
             true
         } else {
@@ -41,45 +41,51 @@ class HardDriveComponent(override val upgrades: UpgradableComponent = HardDriveU
         isDirty = true
     }
 
-    fun getSoftware(id: String) : VirtualSoftware {
+    fun getSoftware(id: String): VirtualSoftware {
         return softwares[id] ?: error("Software does not exist.")
     }
 
-    fun hasSoftware(id: String) : Boolean {
+    fun hasSoftware(id: String): Boolean {
         return softwares.containsKey(id)
     }
 
-    fun getBestSoftware(extension: String) : VirtualSoftware? {
+    fun getBestSoftware(extension: String): VirtualSoftware? {
         return softwares.values
             .filter { it.extension == extension && it.has<VersionedComponent>() }
             .maxByOrNull { it.component<VersionedComponent>().version }
     }
 
-    fun getBestRunningSoftware(extension: String) : VirtualSoftware? {
+    fun getBestRunningSoftware(extension: String): VirtualSoftware? {
         return softwares.values
             .filter { it.extension == extension && it.has<VersionedComponent>() }
             .filter { it.has<ProcessOwnerComponent>() && it.component<ProcessOwnerComponent>().pid != -1 }
             .maxByOrNull { it.version }
     }
 
-    fun getWeakestSoftware(extension: String) : VirtualSoftware? {
+    fun getBestRunningSoftwareByVersion(extension: String, version: Double): VirtualSoftware? {
+        return softwares.values
+            .filter { it.extension == extension && it.has<VersionedComponent>() && it.version == version }
+            .maxByOrNull { it.version }
+    }
+
+    fun getWeakestSoftware(extension: String): VirtualSoftware? {
         return softwares.values
             .filter { it.extension == extension && it.has<VersionedComponent>() }
             .minByOrNull { it.component<VersionedComponent>().version }
     }
 
-    fun getSoftwaresInFolder(folderName: String) : List<VirtualSoftware> {
+    fun getSoftwaresInFolder(folderName: String): List<VirtualSoftware> {
         val folder = this.folders[folderName]
-        if(folder != null) {
+        if (folder != null) {
             return folder.softwares.filter { softwares.containsKey(it) }.map { softwares[it]!! }
         }
         return emptyList()
     }
 
-    fun getSoftwaresByName(name: String) : List<VirtualSoftware> {
+    fun getSoftwaresByName(name: String): List<VirtualSoftware> {
         val list = mutableListOf<VirtualSoftware>()
         for (value in softwares.values) {
-            if(value.fullName == name) {
+            if (value.fullName == name) {
                 list.add(value)
             }
         }
@@ -90,16 +96,16 @@ class HardDriveComponent(override val upgrades: UpgradableComponent = HardDriveU
         return softwares.values.filter { it.extension == extension }
     }
 
-    fun getSoftwaresByExtensionAndVersion(extension: String, version: Double) : List<VirtualSoftware> {
+    fun getSoftwaresByExtensionAndVersion(extension: String, version: Double): List<VirtualSoftware> {
         return softwares.values.filter {
             it.extension == extension && it.has<VersionedComponent>() && it.component<VersionedComponent>().version == version
         }
     }
 
-    fun getSoftwareByNameAndVersion(name: String, version: Double) : List<VirtualSoftware> {
+    fun getSoftwareByNameAndVersion(name: String, version: Double): List<VirtualSoftware> {
         val list = mutableListOf<VirtualSoftware>()
         for (value in softwares.values) {
-            if(value.fullName == name && value.has<VersionedComponent>() && value.component<VersionedComponent>().version == version) {
+            if (value.fullName == name && value.has<VersionedComponent>() && value.component<VersionedComponent>().version == version) {
                 list.add(value)
             }
         }
@@ -107,7 +113,7 @@ class HardDriveComponent(override val upgrades: UpgradableComponent = HardDriveU
     }
 
     override suspend fun onTick(source: VirtualMachine) {
-        if(isDirty) {
+        if (isDirty) {
             source.systemOutput.emit(SystemSoftwareAlert(source, this))
             isDirty = false
         }
@@ -140,29 +146,29 @@ class HardDriveComponent(override val upgrades: UpgradableComponent = HardDriveU
     }
 
     override fun load(json: JsonObject) {
-        if(json.containsKey("upgrades")) {
+        if (json.containsKey("upgrades")) {
             upgrades.load(json["upgrades"]!!.jsonObject)
         }
-        if(json.containsKey("power_used")) {
+        if (json.containsKey("power_used")) {
             powerConsumption.load(json["power_used"]!!.jsonObject)
         }
-        if(json.containsKey("softwares")) {
+        if (json.containsKey("softwares")) {
             val comps = json["softwares"]?.jsonArray ?: JsonArray(emptyList())
             for (comp in comps) {
                 val software = comp.jsonObject
-                if(software.containsKey("name")) {
+                if (software.containsKey("name")) {
                     val soft = software()
                     soft.loadComponents(software)
                     addSoftware(soft)
                 }
             }
         }
-        if(json.containsKey("folders")) {
+        if (json.containsKey("folders")) {
             val folders = json["folders"]!!.jsonArray
             for (folder in folders) {
                 val obj = folder.jsonObject
                 val name = obj["folderName"]!!.jsonPrimitive.content
-                if(obj.containsKey("softwares")) {
+                if (obj.containsKey("softwares")) {
                     val fc = FolderComponent()
                     fc.load(obj["softwares"]!!.jsonObject)
                     this.folders[name] = fc
@@ -178,7 +184,7 @@ class HardDriveComponent(override val upgrades: UpgradableComponent = HardDriveU
             return HardDriveComponent()
         }
 
-        fun List<VirtualSoftware>.best() : VirtualSoftware? {
+        fun List<VirtualSoftware>.best(): VirtualSoftware? {
             return filter { it.has<VersionedComponent>() }
                 .maxByOrNull { it.component<VersionedComponent>().version }
         }

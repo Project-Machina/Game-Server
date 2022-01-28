@@ -4,7 +4,7 @@ import com.server.engine.game.components.ComponentFactory
 import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.has
-import com.server.engine.game.entity.vms.components.vevents.VirtualEventsComponent
+import com.server.engine.game.entity.vms.components.vevents.SystemLogsComponent
 import com.server.engine.game.entity.vms.processes.VirtualProcess
 import com.server.engine.game.entity.vms.processes.components.OnFinishProcessComponent
 
@@ -15,8 +15,8 @@ class ClearLogsComponent(override var threadCost: Int) : OnFinishProcessComponen
     override var runningTime: Long = 3000
 
     override suspend fun onTick(source: VirtualMachine, process: VirtualProcess) {
-        if(source.has<VirtualEventsComponent>()) {
-            val logs = source.component<VirtualEventsComponent>()
+        if(source.has<SystemLogsComponent>()) {
+            val logs = source.component<SystemLogsComponent>()
             logs.clear()
         }
     }

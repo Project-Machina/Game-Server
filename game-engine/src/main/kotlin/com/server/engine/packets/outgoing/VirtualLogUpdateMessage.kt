@@ -1,12 +1,12 @@
 package com.server.engine.packets.outgoing
 
-import com.server.engine.game.entity.vms.components.vevents.VirtualEvent
+import com.server.engine.game.entity.vms.components.vevents.SystemLog
 import com.server.engine.network.channel.packets.Packet
 import com.server.engine.network.channel.packets.PacketEncoder
 import com.server.engine.utilities.writeSimpleString
 import io.netty.buffer.Unpooled
 
-class VirtualLogUpdateMessage(val logs: List<VirtualEvent>, val isRemote: Boolean = false) {
+class VirtualLogUpdateMessage(val logs: List<SystemLog>, val isRemote: Boolean = false) {
     companion object : PacketEncoder<VirtualLogUpdateMessage> {
         override fun encode(message: VirtualLogUpdateMessage): Packet {
             val buf = Unpooled.buffer()
@@ -16,7 +16,7 @@ class VirtualLogUpdateMessage(val logs: List<VirtualEvent>, val isRemote: Boolea
 
             for (log in message.logs) {
 
-                buf.writeInt(log.eventId)
+                buf.writeInt(log.logId)
                 buf.writeSimpleString(log.source)
                 buf.writeSimpleString(log.message)
                 buf.writeLong(log.timestamp)

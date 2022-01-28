@@ -1,9 +1,8 @@
 package com.server.engine.game.world.tick
 
-import com.server.engine.dispatchers.PlayerDispatcher
 import com.server.engine.dispatchers.VirtualMachineDispatcher
-import com.server.engine.game.entity.character.player.Player
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -15,7 +14,7 @@ class VirtualMachineTick {
     val tick = flow {
         while(true) {
             emit(Unit)
-            delay(GAME_TICK_MILLIS)
+            delay(VM_TICK_MILLIS)
         }
     }
 
@@ -27,7 +26,7 @@ class VirtualMachineTick {
 
     companion object {
 
-        const val GAME_TICK_MILLIS = 300L
+        const val VM_TICK_MILLIS = 300L
 
     }
 }

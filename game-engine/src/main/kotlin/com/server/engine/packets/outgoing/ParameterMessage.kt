@@ -16,11 +16,19 @@ class ParameterMessage(val params: Map<String, Any?>, val clear: Boolean = false
                     buf.writeSimpleString(key)
                     buf.writeBoolean(msg == null)
                     if (msg != null) {
-                        buf.writeBoolean(msg is String)
-                        if(msg is String) {
-                            buf.writeSimpleString(msg)
-                        } else if(msg is Int) {
-                            buf.writeInt(msg)
+                        when(msg) {
+                            is Boolean -> {
+                                buf.writeByte(1)
+                                buf.writeBoolean(msg)
+                            }
+                            is String -> {
+                                buf.writeByte(2)
+                                buf.writeSimpleString(msg)
+                            }
+                            is Int -> {
+                                buf.writeByte(3)
+                                buf.writeInt(msg)
+                            }
                         }
                     }
                 }

@@ -4,7 +4,7 @@ import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.has
 import com.server.engine.game.entity.vms.commands.VmCommand
-import com.server.engine.game.entity.vms.components.vevents.VirtualEventsComponent
+import com.server.engine.game.entity.vms.components.vevents.SystemLogsComponent
 import com.server.engine.game.entity.vms.events.impl.SystemAlert
 import com.server.engine.game.entity.vms.processes.VirtualProcess
 import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.singleton
@@ -21,10 +21,10 @@ class ClearLogs(
     override val name: String = "lgcls"
 
     override suspend fun execute(): VirtualProcess {
-        if(source.has<VirtualEventsComponent>()) {
+        if(source.has<SystemLogsComponent>()) {
             val pc = VirtualProcess("Clearing Logs")
-            val logs = source.component<VirtualEventsComponent>()
-            var threadCost = logs.events.size / 5
+            val logs = source.component<SystemLogsComponent>()
+            var threadCost = logs.systemLogs.size / 5
             if(threadCost <= 0) {
                threadCost = 1
             }

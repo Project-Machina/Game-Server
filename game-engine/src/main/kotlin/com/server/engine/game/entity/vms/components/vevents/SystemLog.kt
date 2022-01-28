@@ -2,14 +2,14 @@ package com.server.engine.game.entity.vms.components.vevents
 
 import com.server.engine.game.components.ComponentFactory
 import com.server.engine.utilities.double
+import com.server.engine.utilities.int
 import com.server.engine.utilities.long
 import com.server.engine.utilities.string
 import kotlinx.serialization.json.*
-import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
-class VirtualEvent(
+class SystemLog(
     source: String,
     message: String,
     hiddenVersion: Double = 0.0,
@@ -25,10 +25,15 @@ class VirtualEvent(
     var timestamp: Long = timestamp
         private set
 
-    var eventId: Int = -1
+    var logId: Int = -1
+
+    fun hide(version: Double) {
+        this.hiddenVersion = version
+    }
 
     override fun save(): JsonObject {
         return buildJsonObject {
+            put("logId", logId)
             put("source", source)
             put("message", message)
             put("hiddenVersion", hiddenVersion)
@@ -37,6 +42,9 @@ class VirtualEvent(
     }
 
     override fun load(json: JsonObject) {
+        if(json.containsKey("logId")) {
+            logId = json.int("logId")
+        }
         if(json.containsKey("source")) {
             source = json.string("source")
         }
@@ -52,10 +60,10 @@ class VirtualEvent(
     }
 
 
-    companion object : ComponentFactory<VirtualEvent> {
-        val NO_EVENT = create()
-        override fun create(): VirtualEvent {
-            return VirtualEvent("", "")
+    companion object : ComponentFactory<SystemLog> {
+        val NULL_LOG = create()
+        override fun create(): SystemLog {
+            return SystemLog("", "")
         }
     }
 

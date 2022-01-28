@@ -12,6 +12,7 @@ import com.server.engine.game.entity.vms.processes.ProcessComponent
 import com.server.engine.game.entity.vms.processes.components.OnFinishProcessComponent
 import com.server.engine.game.entity.vms.processes.components.exploitation.BruteforceComponent
 import com.server.engine.game.entity.vms.processes.components.logs.ClearLogsComponent
+import com.server.engine.game.entity.vms.processes.components.logs.HideLogComponent
 import com.server.engine.game.entity.vms.processes.components.software.HideSoftwareComponent
 import com.server.engine.game.entity.vms.processes.components.software.InstallSoftwareComponent
 import com.server.engine.game.entity.vms.processes.components.software.SeekSoftwareComponent
@@ -61,6 +62,7 @@ val processCompsModule = module {
     single<ComponentFactory<out OnFinishProcessComponent>>(named(SeekSoftwareComponent::class.simpleName!!)) { SeekSoftwareComponent }
     single<ComponentFactory<out OnFinishProcessComponent>>(named(ClearLogsComponent::class.simpleName!!)) { ClearLogsComponent }
     single<ComponentFactory<out OnFinishProcessComponent>>(named(BruteforceComponent::class.simpleName!!)) { BruteforceComponent }
+    single<ComponentFactory<out OnFinishProcessComponent>>(named(HideLogComponent::class.simpleName!!)) { HideLogComponent }
     single<ComponentFactory<out ProcessComponent>>(named(SoftwareLinkComponent::class.simpleName!!)) { SoftwareLinkComponent }
 }
 

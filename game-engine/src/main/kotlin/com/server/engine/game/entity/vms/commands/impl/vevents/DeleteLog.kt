@@ -4,7 +4,7 @@ import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.has
 import com.server.engine.game.entity.vms.commands.VmCommand
-import com.server.engine.game.entity.vms.components.vevents.VirtualEventsComponent
+import com.server.engine.game.entity.vms.components.vevents.SystemLogsComponent
 import com.server.engine.game.entity.vms.events.impl.SystemAlert
 import com.server.engine.game.entity.vms.processes.VirtualProcess
 import com.xenomachina.argparser.ArgParser
@@ -20,8 +20,8 @@ class DeleteLog(
     val logId by parser.storing("-i", help = "Event IDs") { toInt() }
 
     override suspend fun execute(): VirtualProcess {
-        if (source.has<VirtualEventsComponent>()) {
-            val events = source.component<VirtualEventsComponent>()
+        if (source.has<SystemLogsComponent>()) {
+            val events = source.component<SystemLogsComponent>()
             if(logId in events) {
                 events.remove(logId)
             }

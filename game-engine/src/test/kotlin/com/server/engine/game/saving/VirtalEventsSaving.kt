@@ -1,7 +1,7 @@
 package com.server.engine.game.saving
 
-import com.server.engine.game.entity.vms.components.vevents.VirtualEvent
-import com.server.engine.game.entity.vms.components.vevents.VirtualEventsComponent
+import com.server.engine.game.entity.vms.components.vevents.SystemLog
+import com.server.engine.game.entity.vms.components.vevents.SystemLogsComponent
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -11,10 +11,10 @@ class VirtalEventsSaving {
 
     @Test
     fun `virtual events saving`() {
-        val comp = VirtualEventsComponent()
+        val comp = SystemLogsComponent()
 
-        val event = VirtualEvent("test", "This is test event.")
-        comp.addEvent(event)
+        val event = SystemLog("test", "This is test event.")
+        comp.addLog(event)
 
         val format = Json { prettyPrint = true }
 
@@ -23,11 +23,11 @@ class VirtalEventsSaving {
 
         println(string)
 
-        val newComp = VirtualEventsComponent()
+        val newComp = SystemLogsComponent()
 
         newComp.load(format.decodeFromString(string))
 
-        val e = newComp.events.values.single()
+        val e = newComp.systemLogs.values.single()
 
         assert(e.source == "test")
         assert(e.message == "This is test event.")
