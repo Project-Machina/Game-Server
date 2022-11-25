@@ -3,7 +3,9 @@ package com.server.engine.game.entity.vms.processes.components.software
 import com.server.engine.game.components.ComponentFactory
 import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
+import com.server.engine.game.entity.vms.components.connection.ConnectionComponent
 import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
+import com.server.engine.game.entity.vms.events.impl.SystemAlert
 import com.server.engine.game.entity.vms.events.impl.SystemSoftwareAlert
 import com.server.engine.game.entity.vms.processes.VirtualProcess
 import com.server.engine.game.entity.vms.processes.components.OnFinishProcessComponent
@@ -31,6 +33,19 @@ class SeekSoftwareComponent(
     override var runningTime: Long = 3000
 
     override suspend fun onTick(source: VirtualMachine, process: VirtualProcess) {
+        if (target !== source) {
+            val sourceConn = source.component<ConnectionComponent>()
+            if (!sourceConn.isConnectedTo(target.address)) {
+                source.systemOutput.emit(
+                    SystemAlert(
+                        "Connection lost... please reestablish",
+                        source,
+                        "Software Seek",
+                    )
+                )
+                return
+            }
+        }
         val sourceHDD = source.component<HardDriveComponent>()
         val targetHDD = target.component<HardDriveComponent>()
         val hasSoftware = targetHDD.hasSoftware(softwareToSeek.id())
@@ -40,7 +55,8 @@ class SeekSoftwareComponent(
                 SystemSoftwareAlert(
                     target,
                     targetHDD
-                ))
+                )
+            )
         }
     }
 

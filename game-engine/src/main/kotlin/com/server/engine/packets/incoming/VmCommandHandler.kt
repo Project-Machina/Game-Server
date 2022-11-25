@@ -21,7 +21,8 @@ class VmCommandHandler(override val opcode: Int = 2, val player: Player) : Packe
     val world: GameWorld by inject()
 
     val commandWhiteList = mutableMapOf(
-        "spawn" to listOf("javatar")
+        "spawn" to listOf("javatar"),
+        "echo" to listOf("javatar")
     )
 
     override fun decode(packet: Packet, session: NetworkSession): VmCommandMessage {

@@ -13,7 +13,9 @@ class SystemServePageAlert(override val vm: VirtualMachine, override val source:
     override suspend fun handleEventForPlayer(player: Player, isRemote: Boolean) {
         if(source.has<HomePageComponent>()) {
             val home = source.component<HomePageComponent>()
-            player.session.sendMessage(NpcPageMessage(home.name))
+            player.session.sendMessage(NpcPageMessage(false, home.path))
+        } else {
+            player.session.sendMessage(NpcPageMessage(true, ""))
         }
     }
 }

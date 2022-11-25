@@ -45,9 +45,6 @@ class VirtualMachineUpdateMessage(val vm: VirtualMachine, val isLinked: Boolean 
             buf.writeInt(mb.powerConsumption.watts)
             buf.writeInt(rack.powerConsumption.watts)
             buf.writeInt(network.powerConsumption.watts)
-
-            println(buf.readableBytes())
-
             return Packet(VIRTUAL_MACHINE_UPDATE,  buf)
         }
     }

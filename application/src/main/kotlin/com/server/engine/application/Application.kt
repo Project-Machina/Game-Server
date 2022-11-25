@@ -9,6 +9,8 @@ import com.server.engine.game.world.tick.events.WorldTickSubscription
 import com.server.engine.network.NetworkServer
 import com.server.engine.packets.outgoingPacketModule
 import com.server.engine.utilities.get
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.koin.core.context.startKoin
 
 object Application {
@@ -41,7 +43,6 @@ object Application {
         machineTick.subscribe(worldTick)
 
         net.start(43595)
-
     }
 
 }

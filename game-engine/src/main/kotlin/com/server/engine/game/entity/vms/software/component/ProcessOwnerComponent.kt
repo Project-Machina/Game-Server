@@ -11,6 +11,12 @@ class ProcessOwnerComponent : SoftwareComponent {
     override val id: String
         get() = "null"
 
+    override val copy: Boolean = false
+
+    override fun copy(): SoftwareComponent {
+        return ProcessOwnerComponent().also { it.pid = pid }
+    }
+
     override fun save(): JsonObject {
         return buildJsonObject {
             put("pid", pid)

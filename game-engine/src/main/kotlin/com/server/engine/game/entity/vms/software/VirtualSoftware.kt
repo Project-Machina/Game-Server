@@ -3,6 +3,7 @@ package com.server.engine.game.entity.vms.software
 import com.server.engine.game.components.ComponentFactory
 import com.server.engine.game.components.ComponentManager
 import com.server.engine.game.entity.vms.software.VirtualSoftware.Companion.has
+import com.server.engine.game.entity.vms.software.component.ProcessOwnerComponent
 import com.server.engine.game.entity.vms.software.component.VersionedComponent
 import com.server.engine.utilities.get
 import kotlinx.serialization.json.*
@@ -33,6 +34,16 @@ class VirtualSoftware(name: String, extension: String) : ComponentManager<Softwa
             .append(":")
             .append(components.values.filter { it.id != "null" }.map { it.id }.joinToString(":") { it })
         return UUID.nameUUIDFromBytes(builder.toString().toByteArray()).toString()
+    }
+
+    fun copy() : VirtualSoftware {
+        val soft = VirtualSoftware(name, extension)
+        for (component in components) {
+            if(component.value.copy) {
+               soft.addComponent(component.value.copy())
+            }
+        }
+        return soft
     }
 
     override fun saveComponents(): JsonObject {

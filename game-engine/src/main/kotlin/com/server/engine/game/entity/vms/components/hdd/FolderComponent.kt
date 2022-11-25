@@ -1,12 +1,12 @@
 package com.server.engine.game.entity.vms.components.hdd
 
-import com.server.engine.game.entity.vms.software.VirtualSoftware
 import com.server.engine.game.entity.vms.UpgradableComponent
 import com.server.engine.game.entity.vms.VMComponent
+import com.server.engine.game.entity.vms.software.VirtualSoftware
 import kotlinx.serialization.json.*
 
-class FolderComponent(override val upgrades: com.server.engine.game.entity.vms.UpgradableComponent = com.server.engine.game.entity.vms.UpgradableComponent) :
-    com.server.engine.game.entity.vms.VMComponent {
+class FolderComponent(override val upgrades: UpgradableComponent = UpgradableComponent) :
+    VMComponent {
 
     val softwares = mutableListOf<String>()
 

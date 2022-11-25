@@ -22,7 +22,7 @@ class Echo(
 
     override suspend fun execute(): VirtualProcess {
         val msg = args.joinToString(" ") { it }
-        source.alert("Access $msg", "Echo", AlertType.ACCESS_GRANTED)
+        source.alert(msg, "Echo", AlertType.ACCESS_GRANTED)
         return VirtualProcess.NO_PROCESS
     }
 }

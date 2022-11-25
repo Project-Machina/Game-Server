@@ -36,8 +36,19 @@ class InstallSoftwareComponent(
 ) : OnFinishProcessComponent {
 
     override suspend fun onTick(source: VirtualMachine, process: VirtualProcess) {
-        val hdd: HardDriveComponent = target.component()
+        if (target !== source) {
+            val sourceConn = source.component<ConnectionComponent>()
+            if(!sourceConn.isConnectedTo(target.address)) {
+                source.systemOutput.emit(SystemAlert(
+                    "Connection lost... please reestablish",
+                    source,
+                    "Software Install",
+                ))
+                return
+            }
+        }
 
+        val hdd: HardDriveComponent = target.component()
         if (!hdd.hasSoftware(software.id()))
             return
         val pcm: VirtualProcessComponent = target.component()
@@ -65,7 +76,7 @@ class InstallSoftwareComponent(
 
         if(target.has<ConnectionComponent>()) {
             val vm = target.component<ConnectionComponent>().remoteVM
-            vm.fireSoftwareChange()
+            vm?.fireSoftwareChange()
         }
     }
 

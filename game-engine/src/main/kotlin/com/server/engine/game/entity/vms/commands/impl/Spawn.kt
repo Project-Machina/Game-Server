@@ -24,13 +24,13 @@ class Spawn(override val args: Array<String>, override val parser: ArgParser, ov
     val moreHardware by parser.flagging("-m", help = "Adds hardware").default(false)
     val moreStorage by parser.flagging("-s", help = "More Storage").default(false)
 
-    val softSuite by parser.flagging("--suite", help = "Spawns software suite.")
-    val massSoftTest by parser.flagging("--mass", help = "Spawns a much of random software.")
-    val clearHDD by parser.flagging("--cls", help = "Quicly formats hard drive.")
+    val softSuite by parser.flagging("--suite", help = "Spawns software suite.").default(false)
+    val massSoftTest by parser.flagging("--mass", help = "Spawns a much of random software.").default(false)
+    val clearHDD by parser.flagging("--cls", help = "Quicly formats hard drive.").default(false)
 
-    val overclock by parser.flagging("--xpu",help = "Overkill CPU")
+    val overclock by parser.flagging("--xpu",help = "Overkill CPU").default(false)
 
-    val tlog by parser.flagging("--log", help = "spawns a log.")
+    val tlog by parser.flagging("--log", help = "spawns a log.").default(false)
 
     val softwareName by parser.storing("-n", help = "Software Name") { replace('_', ' ') }.default("")
     val softwareVersion by parser.storing("-v", help = "Software Version") { toDouble() }.default(0.0)

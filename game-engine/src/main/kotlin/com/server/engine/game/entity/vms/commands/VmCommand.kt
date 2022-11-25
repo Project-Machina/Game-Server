@@ -12,7 +12,7 @@ interface VmCommand {
     val source: VirtualMachine
     val target: VirtualMachine get() = source
 
-    val isLocal: Boolean get() = source === target
+    val isLink: Boolean get() = source === target
     val isRemote: Boolean get() = source !== target
 
     suspend fun execute(): VirtualProcess

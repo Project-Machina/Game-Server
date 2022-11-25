@@ -13,7 +13,8 @@ import kotlin.reflect.KClass
 class VirtualProcess(
     var name: String,
     var immediate: Boolean = false,
-    var isIndeterminate: Boolean = false
+    var isIndeterminate: Boolean = false,
+    var usesNetwork: Boolean = false
 ) : ComponentManager<ProcessComponent> {
 
     private val _components = mutableMapOf<KClass<out ProcessComponent>, ProcessComponent>()
@@ -28,9 +29,6 @@ class VirtualProcess(
         if(isIndeterminate)
             return total
         return if(isPaused || isComplete) (total / 2) else total
-    }
-    val networkCost: Int get() {
-        return if(isPaused || isComplete) 0 else _components.values.sumOf { it.networkCost }
     }
 
     val isComplete: Boolean get() {
@@ -54,6 +52,7 @@ class VirtualProcess(
             put("immediate", immediate)
             put("paused", isPaused)
             put("isIndeterminate", isIndeterminate)
+            put("useNetwork", usesNetwork)
             putJsonArray("components") {
                 _components.values.forEach {
                     add(buildJsonObject {
@@ -77,6 +76,9 @@ class VirtualProcess(
         }
         if(json.containsKey("isIndeterminate")) {
             isIndeterminate = json.boolean("isIndeterminate")
+        }
+        if(json.containsKey("useNetwork")) {
+            usesNetwork = json.boolean("useNetwork")
         }
         if (json.containsKey("components")) {
             val comps = json["components"]?.jsonArray ?: JsonArray(emptyList())

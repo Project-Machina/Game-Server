@@ -2,15 +2,19 @@ package com.server.engine.packets.outgoing
 
 import com.server.engine.network.channel.packets.Packet
 import com.server.engine.network.channel.packets.PacketEncoder
+import com.server.engine.utilities.writeSimpleString
 import io.netty.buffer.Unpooled
 import java.io.File
 
-class NpcPageMessage(val name: String)  {
+class NpcPageMessage(val useDefault: Boolean, val path: String)  {
     companion object : PacketEncoder<NpcPageMessage> {
         override fun encode(message: NpcPageMessage): Packet {
-            val file = File("/home/david/IdeaProjects/ServerGameEngine/world/assets/${message.name}.fxml")
-            val buf = Unpooled.wrappedBuffer(file.readBytes())
-            return Packet(NPC_FILE_DATA, buf)
+            val buffer = Unpooled.buffer()
+            buffer.writeBoolean(message.useDefault)
+            if (!message.useDefault) {
+                buffer.writeSimpleString(message.path, true)
+            }
+            return Packet(NPC_FILE_DATA, buffer)
         }
     }
 }

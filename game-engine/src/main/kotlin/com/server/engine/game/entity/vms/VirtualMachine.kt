@@ -4,6 +4,7 @@ import com.server.engine.dispatchers.VirtualMachineDispatcher
 import com.server.engine.game.components.ComponentFactory
 import com.server.engine.game.components.ComponentManager
 import com.server.engine.game.entity.TickingEntity
+import com.server.engine.game.entity.vms.VirtualMachine.Companion.remove
 import com.server.engine.game.entity.vms.accounts.SystemAccountComponent
 import com.server.engine.game.entity.vms.commands.CommandManager
 import com.server.engine.game.entity.vms.components.NetworkCardComponent
@@ -40,6 +41,10 @@ class VirtualMachine private constructor(id: UUID = UUID.randomUUID()) : Compone
 
     var name: String = "Virtual Machine"
 
+    fun executeCommand(name: String, vararg args: String) {
+        systemCalls.tryEmit(SystemCall(name, arrayOf(*args), false))
+    }
+
     fun init(hasLogs: Boolean = true) {
         with(ConnectionComponent(this))
         with(NetworkCardComponent())
@@ -58,8 +63,9 @@ class VirtualMachine private constructor(id: UUID = UUID.randomUUID()) : Compone
                 val manager = component<CommandManager>()
                 if (it.isRemote && has<ConnectionComponent>()) {
                     val con = component<ConnectionComponent>()
-                    if (con.remoteAddress.value != "localhost") {
-                        manager.execute(it.args, this, con.remoteVM)
+                    val remoteVM = con.remoteVM
+                    if (con.remoteAddress.value != "localhost" && remoteVM != null) {
+                        manager.execute(it.args, this, remoteVM)
                     }
                 } else {
                     manager.execute(it.args, this)
@@ -135,6 +141,10 @@ class VirtualMachine private constructor(id: UUID = UUID.randomUUID()) : Compone
         inline fun <reified C : VMComponent> VirtualMachine.has(): Boolean = hasComponent(C::class)
         inline fun <reified C : VMComponent> VirtualMachine.component(): C {
             return components[C::class] as C
+        }
+
+        inline fun <reified C: VMComponent> VirtualMachine.remove() {
+            removeComponent(C::class)
         }
 
         fun create(uuid: UUID = UUID.randomUUID()): VirtualMachine {

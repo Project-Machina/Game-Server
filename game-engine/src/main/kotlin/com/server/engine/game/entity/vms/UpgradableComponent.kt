@@ -22,7 +22,7 @@ interface UpgradableComponent : Component {
         }
     }
 
-    companion object : com.server.engine.game.entity.vms.UpgradableComponent {
+    companion object : UpgradableComponent {
         val BASE_COST = 10
         override val level: Double = 0.0
 

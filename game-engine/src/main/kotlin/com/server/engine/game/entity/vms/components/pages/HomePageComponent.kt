@@ -6,19 +6,19 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
-class HomePageComponent(name: String  = "default") : VMComponent {
+class HomePageComponent(path: String = "") : VMComponent {
 
-    var name: String = name
+    var path: String = path
         private set
 
     override fun save(): JsonObject {
         return buildJsonObject {
-            put("name", name)
+            put("path", path)
         }
     }
 
     override fun load(json: JsonObject) {
         if(json.containsKey("name"))
-            name = json.string("name")
+            this.path = json.string("name")
     }
 }

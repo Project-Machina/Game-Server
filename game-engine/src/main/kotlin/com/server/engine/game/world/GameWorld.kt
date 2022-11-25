@@ -2,12 +2,16 @@ package com.server.engine.game.world
 
 import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
+import com.server.engine.game.entity.vms.VirtualMachine.Companion.remove
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.with
+import com.server.engine.game.entity.vms.accounts.Permission
 import com.server.engine.game.entity.vms.accounts.SystemAccountComponent
 import com.server.engine.game.entity.vms.accounts.SystemAccountComponent.Companion.setAccount
 import com.server.engine.game.entity.vms.addSoftware
-import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
+import com.server.engine.game.entity.vms.components.motherboard.MotherboardComponent
 import com.server.engine.game.entity.vms.components.pages.HomePageComponent
+import com.server.engine.game.entity.vms.components.vevents.SystemLogsComponent
+import com.server.engine.game.entity.vms.directInstall
 import com.server.engine.game.entity.vms.software.SoftwareBuilder.Companion.software
 import com.server.engine.game.entity.vms.software.component.VersionedComponent
 import com.server.engine.utilities.get
@@ -41,12 +45,12 @@ class GameWorld {
         loadWorld()
     }
 
-    fun getVirtualMachine(address: String = "") : VirtualMachine {
+    fun getVirtualMachine(address: String = "") : VirtualMachine? {
         if(address.isEmpty())
-            return publicVirtualMachines["1.1.1.1"]!!
+            return publicVirtualMachines["1.1.1.1"]
         if(validateDomain(address))
-            return publicVirtualMachines[domainToAddress[address]!!]!!
-        return publicVirtualMachines[address]!!
+            return publicVirtualMachines[domainToAddress[address]!!]
+        return publicVirtualMachines[address]
     }
 
     fun validateDomain(domain: String) = domainToAddress.containsKey(domain)
@@ -111,29 +115,74 @@ class GameWorld {
         val npcDefault = VirtualMachine.create()
         val defaultIP = "1.1.1.1"
         val domain = "First Whois.com"
-        npcDefault.with(HomePageComponent("default"))
+        npcDefault.with(HomePageComponent("whois/whois-one.html"))
         markPublic(npcDefault, defaultIP)
         registerDomain(domain, defaultIP)
         val accman = npcDefault.component<SystemAccountComponent>()
         accman.setAccount("test", "1")
         val hasher = software("Hasher", "hash") {
             VersionedComponent init {
-                version = 1.0
+                version = 5.0
             }
         }
         val firewall = software("Firewall", "fwl") {
             VersionedComponent init {
-                version = 1.0
+                version = 5.0
             }
         }
         npcDefault.addSoftware(hasher, firewall)
+        npcDefault.component<MotherboardComponent>().set("mb", 4, 1024, 10)
+        npcDefault.directInstall(hasher)
+        npcDefault.directInstall(firewall)
 
-        val bankNpc = VirtualMachine.create()
+        val downloadCenter = VirtualMachine.create()
+        downloadCenter.remove<SystemLogsComponent>()
+        downloadCenter.component<SystemAccountComponent>().apply {
+            setAccount(
+                "download",
+                "download",
+                mutableListOf("ftp")
+            )
+        }
+        downloadCenter.addSoftware(
+            software("Cracker", "crc") {
+                VersionedComponent init {
+                    version = 1.0
+                }
+            },
+            software("Hasher", "hash") {
+                VersionedComponent init {
+                    version = 1.0
+                }
+            },
+            software("Firewall", "fwl") {
+                VersionedComponent init {
+                    version = 1.0
+                }
+            },
+            software("Seeker", "skr") {
+                VersionedComponent init {
+                    version = 1.0
+                }
+            },
+            software("Hidder", "hdr") {
+                VersionedComponent init {
+                    version = 1.0
+                }
+            }
+        )
+        val address = ip.reserveAddress()
+        markPublic(downloadCenter, address)
+        registerDomain("freeshit.com", address)
+
+
+
+        /*val bankNpc = VirtualMachine.create()
         val bankIP = "1.2.3.4"
         val bankDomain = "Suite Bank.com"
         bankNpc.with(HomePageComponent("default-bank"))
         markPublic(bankNpc, bankIP)
-        registerDomain(bankDomain, bankIP)
+        registerDomain(bankDomain, bankIP)*/
     }
 
     fun loadWorld() {

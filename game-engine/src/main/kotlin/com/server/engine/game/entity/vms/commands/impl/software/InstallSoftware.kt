@@ -7,7 +7,6 @@ import com.server.engine.game.entity.vms.alert
 import com.server.engine.game.entity.vms.commands.VmCommand
 import com.server.engine.game.entity.vms.components.hdd.HardDriveComponent
 import com.server.engine.game.entity.vms.events.AlertType
-import com.server.engine.game.entity.vms.events.impl.SystemAlert
 import com.server.engine.game.entity.vms.processes.VirtualProcess
 import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.NO_PROCESS
 import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.singleton
@@ -39,12 +38,12 @@ class InstallSoftware(
 
     override suspend fun execute(): VirtualProcess {
         val taccman = target.component<SystemAccountComponent>()
-        if (isLocal || taccman.canExecuteSoftware(source.address)) {
+        if (isLink || taccman.canExecuteSoftware(source.address)) {
             val sourceHDD = source.component<HardDriveComponent>()
             val targetHDD = target.component<HardDriveComponent>()
 
             val soft = if (softwareVersion == 0.0) {
-                targetHDD.getBestSoftware(softwareName.split(".")[0])
+                targetHDD.getBestSoftware(softwareName.split(".")[1])
             } else {
                 targetHDD.getSoftwareByNameAndVersion(softwareName, softwareVersion).singleOrNull()
             }

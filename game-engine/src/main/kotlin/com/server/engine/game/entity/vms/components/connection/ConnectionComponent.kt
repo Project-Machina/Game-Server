@@ -17,17 +17,17 @@ class ConnectionComponent(val source: VirtualMachine) : VMComponent {
 
     private val world: GameWorld by inject()
 
-    val remoteAddress = MutableStateFlow("First Whois.com")
+    val remoteAddress = MutableStateFlow("localhost")
     var isConnectionByDomain: Boolean = false
         private set
 
-    val remoteVM: VirtualMachine
+    val remoteVM: VirtualMachine?
         get() = world.getVirtualMachine(remoteAddress.value)
 
     fun connect(address: String) : Boolean {
         val isDomain = world.validateDomain(address)
         if(isDomain || world.publicVirtualMachines.containsKey(address)) {
-            remoteVM.let {
+            remoteVM?.let {
                 val accman = it.component<SystemAccountComponent>()
                 if(accman.isActive(source.address)) {
                     accman.logout(source.address)
@@ -44,6 +44,16 @@ class ConnectionComponent(val source: VirtualMachine) : VMComponent {
     fun disconnect() {
         if (remoteAddress.value != "First Whois.com") {
             remoteAddress.value = "First Whois.com"
+        }
+    }
+
+    fun isConnectedTo(address: String) : Boolean {
+        return if(isConnectionByDomain && world.validateDomain(address)) {
+            remoteAddress.value == address
+        } else if(isConnectionByDomain && world.addressToDomain.containsKey(address)) {
+            remoteAddress.value == world.addressToDomain[address]
+        } else {
+            remoteAddress.value == address
         }
     }
 }

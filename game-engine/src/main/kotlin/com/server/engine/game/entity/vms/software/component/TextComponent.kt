@@ -8,10 +8,16 @@ import kotlinx.serialization.json.*
 class TextComponent : SoftwareComponent {
     var text: String = ""
 
+    override val copy: Boolean = true
+
     override val id: String get() = text
 
     override val size: Long
         get() = ((text.length / 4) + 1).toLong()
+
+    override fun copy(): SoftwareComponent {
+        return TextComponent().also { it.text = text }
+    }
 
     override fun save(): JsonObject {
         return buildJsonObject {

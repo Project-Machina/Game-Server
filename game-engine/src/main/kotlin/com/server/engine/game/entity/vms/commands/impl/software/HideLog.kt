@@ -30,7 +30,7 @@ class HideLog(
 
     override suspend fun execute(): VirtualProcess {
         val taccman = target.component<SystemAccountComponent>()
-        if(isLocal || taccman.canEditLogs(source.address)) {
+        if(isLink || taccman.canEditLogs(source.address)) {
             val targetLogs = target.component<SystemLogsComponent>()
             val sourceHDD = source.component<HardDriveComponent>()
             val hiderSoft = if(hidderVersion == 0.0) {

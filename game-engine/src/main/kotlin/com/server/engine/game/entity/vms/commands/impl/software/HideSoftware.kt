@@ -2,7 +2,6 @@ package com.server.engine.game.entity.vms.commands.impl.software
 
 import com.server.engine.game.entity.vms.VirtualMachine
 import com.server.engine.game.entity.vms.VirtualMachine.Companion.component
-import com.server.engine.game.entity.vms.accounts.SystemAccount
 import com.server.engine.game.entity.vms.accounts.SystemAccountComponent
 import com.server.engine.game.entity.vms.alert
 import com.server.engine.game.entity.vms.commands.VmCommand
@@ -14,9 +13,6 @@ import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.NO_P
 import com.server.engine.game.entity.vms.processes.VirtualProcess.Companion.singleton
 import com.server.engine.game.entity.vms.processes.components.OnFinishProcessComponent
 import com.server.engine.game.entity.vms.processes.components.software.HideSoftwareComponent
-import com.server.engine.game.entity.vms.software.VirtualSoftware.Companion.component
-import com.server.engine.game.entity.vms.software.VirtualSoftware.Companion.has
-import com.server.engine.game.entity.vms.software.component.ProcessOwnerComponent
 import com.server.engine.game.entity.vms.software.isRunning
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.default
@@ -38,7 +34,7 @@ class HideSoftware(
 
     override suspend fun execute(): VirtualProcess {
         val taccman = target.component<SystemAccountComponent>()
-        if (isLocal || taccman.canExecuteSoftware(source.address)) {
+        if (isLink || taccman.canExecuteSoftware(source.address)) {
             val sourceHDD = source.component<HardDriveComponent>()
             val targetHDD = target.component<HardDriveComponent>()
 

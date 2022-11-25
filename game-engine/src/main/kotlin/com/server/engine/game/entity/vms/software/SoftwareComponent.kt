@@ -8,4 +8,9 @@ interface SoftwareComponent : Component {
     val id: String
 
     val size: Long get() = 0
+
+    val copy: Boolean
+
+    fun copy() : SoftwareComponent
+
 }

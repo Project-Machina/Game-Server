@@ -14,5 +14,13 @@ fun VirtualSoftware.isHidden(): Boolean {
     return has<VisibleComponent>() && component<VisibleComponent>().hiddenVersion > 0.0
 }
 
+fun VirtualSoftware.canSeek(version: Double) : Boolean {
+    if(isHidden()) {
+        val visibleComp = component<VisibleComponent>()
+        return version >= visibleComp.hiddenVersion
+    }
+    return true
+}
+
 val VirtualSoftware.version: Double
     get() = if (has<VersionedComponent>()) component<VersionedComponent>().version else 0.0

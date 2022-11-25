@@ -18,6 +18,12 @@ class VisibleComponent(var hiddenVersion: Double = 0.0) : SoftwareComponent {
         }
     }
 
+    override val copy: Boolean = true
+
+    override fun copy(): SoftwareComponent {
+        return VisibleComponent(hiddenVersion)
+    }
+
     override fun load(json: JsonObject) {
         hiddenVersion = json.double("hiddenVersion")
     }

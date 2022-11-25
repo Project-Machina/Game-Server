@@ -21,11 +21,15 @@ class Connect(
         try {
             if (parts.size == 2 && (parts[1] == "com" || parts[1] == "org" || parts[1] == "net")) {
                 if(con.connect(address)) {
-                    source.systemOutput.tryEmit(SystemServePageAlert(source, con.remoteVM))
+                    con.remoteVM?.let {
+                        source.systemOutput.tryEmit(SystemServePageAlert(source, it))
+                    }
                 }
             } else if (parts.size == 4 && parts.all { it.toIntOrNull() != null && it.toInt() in 0..255 }) {
                 if(con.connect(address)) {
-                    source.systemOutput.tryEmit(SystemServePageAlert(source, con.remoteVM))
+                    con.remoteVM?.let {
+                        source.systemOutput.tryEmit(SystemServePageAlert(source, it))
+                    }
                 }
             }
         } catch (e: Exception) {

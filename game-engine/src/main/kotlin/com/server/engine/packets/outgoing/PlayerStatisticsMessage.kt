@@ -40,9 +40,9 @@ class PlayerStatisticsMessage(val player: Player) {
 
             val domain = if(world.validateDomain(remoteIP)) remoteIP else world.addressToDomain[remoteIP]
 
-            val remoteAccman = remoteVM.component<SystemAccountComponent>()
+            val remoteAccman = remoteVM?.component<SystemAccountComponent>()
 
-            val acc = remoteAccman.getActiveAccountFor(linkIP)
+            val acc = remoteAccman?.getActiveAccountFor(linkIP)
 
             val remoteValue = if(acc != null) {
                 (domain ?: remoteIP) + " (${acc.username})"

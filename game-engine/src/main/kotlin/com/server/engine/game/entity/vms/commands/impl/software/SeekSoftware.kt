@@ -36,7 +36,7 @@ class SeekSoftware(
 
     override suspend fun execute(): VirtualProcess {
         val taccman = target.component<SystemAccountComponent>()
-        if (isLocal || taccman.canExecuteSoftware(source.address)) {
+        if (isLink || taccman.canExecuteSoftware(source.address)) {
             val sourceHDD = source.component<HardDriveComponent>()
             val targetHDD = target.component<HardDriveComponent>()
 

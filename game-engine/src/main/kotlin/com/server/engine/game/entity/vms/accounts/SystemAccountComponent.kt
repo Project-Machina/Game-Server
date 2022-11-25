@@ -129,8 +129,11 @@ class SystemAccountComponent : VMComponent {
             return SystemAccountComponent()
         }
 
-        fun SystemAccountComponent.setAccount(user: String, password: String, perms: MutableList<Permission> = mutableListOf()) {
+        fun SystemAccountComponent.setAccount(user: String, password: String, perms: MutableList<String> = mutableListOf()) {
             val account = SystemAccount(user, password)
+            for (perm in perms) {
+                account.permissions[perm] = true
+            }
             accounts[user] = account
         }
     }

@@ -7,9 +7,7 @@ import com.server.engine.game.entity.vms.alert
 import com.server.engine.game.entity.vms.commands.VmCommand
 import com.server.engine.game.entity.vms.components.connection.ConnectionComponent
 import com.server.engine.game.entity.vms.events.AlertType
-import com.server.engine.game.entity.vms.events.impl.SystemAlert
 import com.server.engine.game.entity.vms.events.impl.SystemRemoteLoginAlert
-import com.server.engine.game.entity.vms.events.impl.SystemSoftwareAlert
 import com.server.engine.game.entity.vms.processes.VirtualProcess
 import com.server.engine.game.entity.vms.vlog
 import com.server.engine.game.world.GameWorld
@@ -48,6 +46,10 @@ class RemoteLogin(
             return VirtualProcess.NO_PROCESS
         }
         val target = con.remoteVM
+        if(target == null) {
+            source.alert("Not connected to a IP.")
+            return VirtualProcess.NO_PROCESS
+        }
         val taccman = target.component<SystemAccountComponent>()
         if(taccman.login(source.address, username, password)) {
             val acc = taccman.getActiveAccountFor(source.address)!!

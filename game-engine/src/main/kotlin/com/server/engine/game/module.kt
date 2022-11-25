@@ -13,10 +13,7 @@ import com.server.engine.game.entity.vms.processes.components.OnFinishProcessCom
 import com.server.engine.game.entity.vms.processes.components.exploitation.BruteforceComponent
 import com.server.engine.game.entity.vms.processes.components.logs.ClearLogsComponent
 import com.server.engine.game.entity.vms.processes.components.logs.HideLogComponent
-import com.server.engine.game.entity.vms.processes.components.software.HideSoftwareComponent
-import com.server.engine.game.entity.vms.processes.components.software.InstallSoftwareComponent
-import com.server.engine.game.entity.vms.processes.components.software.SeekSoftwareComponent
-import com.server.engine.game.entity.vms.processes.components.software.SoftwareLinkComponent
+import com.server.engine.game.entity.vms.processes.components.software.*
 import com.server.engine.game.entity.vms.software.SoftwareComponent
 import com.server.engine.game.entity.vms.software.component.ProcessOwnerComponent
 import com.server.engine.game.entity.vms.software.component.TextComponent
@@ -57,6 +54,7 @@ val softCompsModule = module {
 }
 
 val processCompsModule = module {
+    single<ComponentFactory<out OnFinishProcessComponent>>(named(DownloadSoftwareComponent::class.simpleName!!)) { DownloadSoftwareComponent }
     single<ComponentFactory<out OnFinishProcessComponent>>(named(InstallSoftwareComponent::class.simpleName!!)) { InstallSoftwareComponent }
     single<ComponentFactory<out OnFinishProcessComponent>>(named(HideSoftwareComponent::class.simpleName!!)) { HideSoftwareComponent }
     single<ComponentFactory<out OnFinishProcessComponent>>(named(SeekSoftwareComponent::class.simpleName!!)) { SeekSoftwareComponent }
